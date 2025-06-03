@@ -1,0 +1,10 @@
+# dotnet
+bin/
+obj/
+/packages/
+
+# idea
+/_ReSharper.Caches/
+riderModule.iml
+.idea
+Metriks.sln.DotSettings.user
