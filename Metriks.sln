@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Metriks", "Metriks\Metriks.csproj", "{7737C2FB-FE3A-4B10-A3B7-AE0B20DA67A8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Metriks.Test", "Metriks.Test\Metriks.Test.csproj", "{EC61007F-22FC-4BAC-83C9-29FE0B72D55B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{7737C2FB-FE3A-4B10-A3B7-AE0B20DA67A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7737C2FB-FE3A-4B10-A3B7-AE0B20DA67A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7737C2FB-FE3A-4B10-A3B7-AE0B20DA67A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC61007F-22FC-4BAC-83C9-29FE0B72D55B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC61007F-22FC-4BAC-83C9-29FE0B72D55B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC61007F-22FC-4BAC-83C9-29FE0B72D55B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC61007F-22FC-4BAC-83C9-29FE0B72D55B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

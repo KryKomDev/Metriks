@@ -1,6 +1,6 @@
 ﻿//
 // Metriks
-//  Copyright (c) MIT License 2025, KryKom & ZlomenyMesic and others... 
+//  Copyright (c) MIT License 2025, KryKom & ZlomenyMesic
 //
 
 using System;
@@ -68,8 +68,8 @@ public class List2D<T> : IEnumerable<T>, IDisposable {
     /// <param name="columns">The default number of columns</param>
     /// <param name="defaultValue">The default value assigned to all elements in the matrix</param>
     public List2D(int rows = 0, int columns = 0, T? defaultValue = default) {
-        Extensions.ThrowIfLessThan(rows, 0, new ArgumentOutOfRangeException(nameof(rows)));
-        Extensions.ThrowIfLessThan(columns, 0, new ArgumentOutOfRangeException(nameof(columns)));
+        ThrowHelper.ThrowIfLessThan(rows, 0, new ArgumentOutOfRangeException(nameof(rows)));
+        ThrowHelper.ThrowIfLessThan(columns, 0, new ArgumentOutOfRangeException(nameof(columns)));
 
         Rows    = rows;
         Columns = columns;
@@ -452,7 +452,7 @@ public class List2D<T> : IEnumerable<T>, IDisposable {
     /// </summary>
     /// <exception cref="ObjectDisposedException">Do not dispose more than once</exception>
     public void Dispose() {
-        Extensions.ThrowIf(_disposed, new ObjectDisposedException(nameof(List2D<T>)));
+        ThrowHelper.ThrowIf(_disposed, new ObjectDisposedException(nameof(List2D<T>)));
 
         for (int i = 0; i < Rows; i++) {
             _matrix[i] = null!;
