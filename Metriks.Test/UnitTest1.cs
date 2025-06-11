@@ -20,4 +20,7 @@ public class UnitTest1 {
         Console.WriteLine(l.Count);
         Console.WriteLine(l.Capacity);
     }
+    public void Test1() {
+        var x = stackalloc int[99999999];
+    }
 }

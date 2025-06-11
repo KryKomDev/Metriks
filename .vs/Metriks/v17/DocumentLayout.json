@@ -1,0 +1,54 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\michna.19f\\Desktop\\Nov\u00E1 slo\u017Eka\\metriks\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{7737C2FB-FE3A-4B10-A3B7-AE0B20DA67A8}|Metriks\\Metriks.csproj|c:\\users\\michna.19f\\desktop\\nov\u00E1 slo\u017Eka\\metriks\\metriks\\extensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7737C2FB-FE3A-4B10-A3B7-AE0B20DA67A8}|Metriks\\Metriks.csproj|solutionrelative:metriks\\extensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EC61007F-22FC-4BAC-83C9-29FE0B72D55B}|Metriks.Test\\Metriks.Test.csproj|c:\\users\\michna.19f\\desktop\\nov\u00E1 slo\u017Eka\\metriks\\metriks.test\\unittest1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EC61007F-22FC-4BAC-83C9-29FE0B72D55B}|Metriks.Test\\Metriks.Test.csproj|solutionrelative:metriks.test\\unittest1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "UnitTest1.cs",
+              "DocumentMoniker": "C:\\Users\\michna.19f\\Desktop\\Nov\u00E1 slo\u017Eka\\metriks\\Metriks.Test\\UnitTest1.cs",
+              "RelativeDocumentMoniker": "Metriks.Test\\UnitTest1.cs",
+              "ToolTip": "C:\\Users\\michna.19f\\Desktop\\Nov\u00E1 slo\u017Eka\\metriks\\Metriks.Test\\UnitTest1.cs",
+              "RelativeToolTip": "Metriks.Test\\UnitTest1.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAcAAAAFAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-11T08:25:33.92Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Extensions.cs",
+              "DocumentMoniker": "C:\\Users\\michna.19f\\Desktop\\Nov\u00E1 slo\u017Eka\\metriks\\Metriks\\Extensions.cs",
+              "RelativeDocumentMoniker": "Metriks\\Extensions.cs",
+              "ToolTip": "C:\\Users\\michna.19f\\Desktop\\Nov\u00E1 slo\u017Eka\\metriks\\Metriks\\Extensions.cs",
+              "RelativeToolTip": "Metriks\\Extensions.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAEAAAAAoAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-11T08:05:57.752Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
