@@ -80,7 +80,7 @@ public class List2D<T> : IEnumerable<T>, IDisposable {
         }
 
         // custom default values in the matrix
-        if (defaultValue is not null && !EqualityComparer<T>.Default.Equals(defaultValue, default))
+        if (defaultValue is not null && !EqualityComparer<T>.Default.Equals(defaultValue, default!))
             Fill(defaultValue);
     }
 
@@ -425,6 +425,7 @@ public class List2D<T> : IEnumerable<T>, IDisposable {
 #endif
     
 #region IENUMERABLE
+
     /// <summary>
     /// Iterates over all elements. To iterate over rows or columns, use <see cref="GetRows"/>
     /// or <see cref="GetCols"/> respectively.
