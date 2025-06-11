@@ -47,7 +47,37 @@ public static class Extensions {
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T Clamp<T>(this T value, T min, T max) where T : IComparable<T> => 
-        value.CompareTo(min) < 0 ? min : value.CompareTo(max) > 0 ? max : value;
+        value.CompareTo(min) < 0 ? min : 
+        value.CompareTo(max) > 0 ? max : value;
+
+    /// <summary>
+    /// Returns a new random double floating-point number in the specified range.
+    /// </summary>
+    /// <param name="min">The range minimum (inclusive)</param>
+    /// <param name="max">The range maximum (exclusive)</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static double NextDouble(this Random random, double min, double max)
+        => random.NextDouble() * (max - min) / 2 + min;
+
+    /// <summary>
+    /// Returns a new random 64-bit unsigned integer.
+    /// </summary>
+    public static ulong NextUInt64(this Random random) {
+        byte[] bytes = new byte[8];
+        random.NextBytes(bytes);
+        return BitConverter.ToUInt64(bytes, 0);
+    }
+
+    /// <summary>
+    /// Fits the value into a smooth sigmoid curve.
+    /// </summary>
+    /// <param name="deviation">The maximum y-axis deviation of the curve</param>
+    /// <param name="stretch"></param>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static double Sigmoid(this double value, double deviation, double stretch)
+        => deviation * Math.Tanh(value / stretch);
+
     
 #endregion
 
