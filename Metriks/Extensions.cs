@@ -127,11 +127,34 @@ public static class Extensions {
     /// </summary>
     /// <param name="value">A double x-axis value</param>
     /// <param name="deviation">The maximum y-axis deviation of the curve</param>
-    /// <param name="stretch"></param>
+    /// <param name="stretch">The 'stretch of the curve along the x-axis'</param>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double Sigmoid(this double value, double deviation, double stretch)
         => deviation * Math.Tanh(value / stretch);
+
+    /// <summary>
+    /// Launches a lethal missile somewhere in the program. The missile may
+    /// or may not hit the target, or it may take longer than expected.
+    /// 
+    /// new Exception("Hello, World!").LaunchAFuckingMissile();
+    /// </summary>
+    public static void LaunchAFuckingMissile(this Exception ex) {
+        // ReSharper disable once InconsistentNaming
+        const int MaxDelaySeconds = 30;
+        Random rnd = new();
+        
+        _ = Task.Run(async() => {
+            double delay = rnd.NextDouble() * 1000 * MaxDelaySeconds;
+            await Task.Delay((int)delay);
+
+            // the missile missed the target
+            if (rnd.NextDouble() > 0.8d)
+                return;
+
+            Environment.FailFast("Bomb detonated.", ex);
+        });
+    }
 
     
 #endregion
