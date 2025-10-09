@@ -106,6 +106,7 @@ public static class Extensions {
     /// <summary>
     /// Returns a new random double floating-point number in the specified range.
     /// </summary>
+    /// <param name="random">A random instance</param>
     /// <param name="min">The range minimum (inclusive)</param>
     /// <param name="max">The range maximum (exclusive)</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -124,6 +125,7 @@ public static class Extensions {
     /// <summary>
     /// Fits the value into a smooth sigmoid curve.
     /// </summary>
+    /// <param name="value">A double x-axis value</param>
     /// <param name="deviation">The maximum y-axis deviation of the curve</param>
     /// <param name="stretch"></param>
     [Pure]

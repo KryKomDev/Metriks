@@ -10,8 +10,23 @@ namespace Metriks;
 
 internal static class ThrowHelper {
     
-    public static void ThrowIfLessThan(int a, int b, Exception? exception = null) {
-        if (a < b) 
+    public static void ThrowIfLt(IComparable a, IComparable b, Exception? exception = null) {
+        if (a.CompareTo(b) == -1) 
+            throw exception ?? new Exception();
+    }
+    
+    public static void ThrowIfLeq(IComparable a, IComparable b, Exception? exception = null) {
+        if (a.CompareTo(b) <= 0) 
+            throw exception ?? new Exception();
+    }
+
+    public static void ThrowIfGt(IComparable a, IComparable b, Exception? exception = null) {
+        if (a.CompareTo(b) == 1) 
+            throw exception ?? new Exception();
+    }
+    
+    public static void ThrowIfGeq(IComparable a, IComparable b, Exception? exception = null) {
+        if (a.CompareTo(b) >= 0) 
             throw exception ?? new Exception();
     }
 

@@ -14,7 +14,7 @@ namespace Metriks;
 /// <summary>
 /// 2D dynamic array structure.
 /// </summary>
-public class List2D<T> : IEnumerable<T>, IDisposable {
+public class List2DOld<T> : IEnumerable<T>, IDisposable {
     
     private T[][] _matrix;
 
@@ -60,16 +60,16 @@ public class List2D<T> : IEnumerable<T>, IDisposable {
         => ref _matrix[index.row][index.column];
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="List2D{T}"/> class with the specified
+    /// Initializes a new instance of the <see cref="List2DOld{T}"/> class with the specified
     /// number of rows and columns. A custom default value is allowed, too.
     /// </summary>
     /// <remarks>The default value is only used once, it is not stored for further use.</remarks>
     /// <param name="rows">The default number of rows</param>
     /// <param name="columns">The default number of columns</param>
     /// <param name="defaultValue">The default value assigned to all elements in the matrix</param>
-    public List2D(int rows = 0, int columns = 0, T? defaultValue = default) {
-        ThrowHelper.ThrowIfLessThan(rows, 0, new ArgumentOutOfRangeException(nameof(rows)));
-        ThrowHelper.ThrowIfLessThan(columns, 0, new ArgumentOutOfRangeException(nameof(columns)));
+    public List2DOld(int rows = 0, int columns = 0, T? defaultValue = default) {
+        ThrowHelper.ThrowIfLt(rows, 0, new ArgumentOutOfRangeException(nameof(rows)));
+        ThrowHelper.ThrowIfLt(columns, 0, new ArgumentOutOfRangeException(nameof(columns)));
 
         Rows    = rows;
         Columns = columns;
@@ -85,13 +85,13 @@ public class List2D<T> : IEnumerable<T>, IDisposable {
     }
 
     /// <summary>
-    /// Creates a new instance of <see cref="List2D{T}"/> with dimensions and elements
+    /// Creates a new instance of <see cref="List2DOld{T}"/> with dimensions and elements
     /// corresponding to the specified two-dimensional array. 
     /// </summary>
     /// <param name="array">The template 2D array from which the instance shall be created</param>
-    /// <returns>The new instance of <see cref="List2D{T}"/></returns>
-    public static List2D<T> FromArray(T[,] array) {
-        var matrix = new List2D<T>(rows:    array.GetLength(0),
+    /// <returns>The new instance of <see cref="List2DOld{T}"/></returns>
+    public static List2DOld<T> FromArray(T[,] array) {
+        var matrix = new List2DOld<T>(rows:    array.GetLength(0),
                                      columns: array.GetLength(1));
 
         for (int i = 0; i < matrix.Rows; i++) {
@@ -103,7 +103,7 @@ public class List2D<T> : IEnumerable<T>, IDisposable {
     }
 
     /// <summary>
-    /// Converts this instance of <see cref="List2D{T}"/> to a two-dimensional array with
+    /// Converts this instance of <see cref="List2DOld{T}"/> to a two-dimensional array with
     /// corresponding dimensions and elements.
     /// </summary>
     /// <returns>The 2D array</returns>
@@ -119,16 +119,16 @@ public class List2D<T> : IEnumerable<T>, IDisposable {
     }
 
     /// <summary>
-    /// Creates a new instance of <see cref="List2D{T}"/> with dimensions and elements
+    /// Creates a new instance of <see cref="List2DOld{T}"/> with dimensions and elements
     /// corresponding to the specified rectangle-shaped region in the current instance.
     /// </summary>
     /// <param name="rowStart">The starting index of the rows to be copied (inclusive)</param>
     /// <param name="rowLength">The number of rows to be copied</param>
     /// <param name="colStart">The starting index of the columns to be copied (inclusive)</param>
     /// <param name="colLength">The number of columns to be copied</param>
-    /// <returns>The new instance of <see cref="List2D{T}"/></returns>
-    public List2D<T> Slice(int rowStart, int rowLength, int colStart, int colLength) {
-        var newMatrix = new List2D<T>(rowLength, colLength);
+    /// <returns>The new instance of <see cref="List2DOld{T}"/></returns>
+    public List2DOld<T> Slice(int rowStart, int rowLength, int colStart, int colLength) {
+        var newMatrix = new List2DOld<T>(rowLength, colLength);
 
         for (int i = 0; i < rowLength; i++) {
             for (int j = 0; j < colLength; j++) {
@@ -404,8 +404,8 @@ public class List2D<T> : IEnumerable<T>, IDisposable {
     /// Creates a deep clone of this instance.
     /// </summary>
     /// <returns>The new clone instance</returns>
-    public List2D<T> Clone() {
-        var clone = new List2D<T>(Rows, Columns);
+    public List2DOld<T> Clone() {
+        var clone = new List2DOld<T>(Rows, Columns);
         
         for (int i = 0; i < Rows; i++)
             Array.Copy(_matrix[i], clone.GetRow(i), Columns);
@@ -453,7 +453,7 @@ public class List2D<T> : IEnumerable<T>, IDisposable {
     /// </summary>
     /// <exception cref="ObjectDisposedException">Do not dispose more than once</exception>
     public void Dispose() {
-        ThrowHelper.ThrowIf(_disposed, new ObjectDisposedException(nameof(List2D<T>)));
+        ThrowHelper.ThrowIf(_disposed, new ObjectDisposedException(nameof(List2DOld<T>)));
 
         for (int i = 0; i < Rows; i++) {
             _matrix[i] = null!;

@@ -10,6 +10,7 @@ namespace Metriks;
 public class ListND<T> : IEnumerable<T>, IDisposable {
 
     private const int INITIAL_CAPACITY = 4;
+    private const double GROWTH_RATIO = Math.E;
     
     private readonly int _dimensions;
     private T[] _elements;
@@ -17,7 +18,7 @@ public class ListND<T> : IEnumerable<T>, IDisposable {
     private int[] _capacities;
     
     /// <summary>
-    /// Returns the number of dimensions of the list.
+    /// Returns the number of the list's dimensions.
     /// </summary>
     public int Dimensions => _dimensions;
 
@@ -129,6 +130,10 @@ public class ListND<T> : IEnumerable<T>, IDisposable {
         int[] newCapacities = new int[_dimensions];
         Array.Copy(_capacities, newCapacities, _dimensions);
 
+        if (_sizes[dimension] > _capacities[dimension]) {
+            _capacities[dimension] = size;
+        }
+        
         long capacity = 1;
         for (int i = 0; i < _dimensions; i++) {
             capacity *= _capacities[i];
@@ -140,6 +145,7 @@ public class ListND<T> : IEnumerable<T>, IDisposable {
             
         }
 
+        _elements = newElements;
         _capacities = newCapacities;
         _sizes[dimension] = _sizes[dimension] > _capacities[dimension] ? _capacities[dimension] : _sizes[dimension];
     }
