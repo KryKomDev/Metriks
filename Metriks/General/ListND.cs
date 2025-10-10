@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Metriks;
 
-public class ListND<T> : IEnumerable<T>, IDisposable {
+file class ListND<T> : IEnumerable<T>, IDisposable {
 
     private const int INITIAL_CAPACITY = 4;
     private const double GROWTH_RATIO = Math.E;
@@ -151,7 +151,7 @@ public class ListND<T> : IEnumerable<T>, IDisposable {
     }
     
     public IEnumerator<T> GetEnumerator() {
-        throw new ImplementItYourselfException();
+        throw new NotImplementedException();
     }
 
     IEnumerator IEnumerable.GetEnumerator() {

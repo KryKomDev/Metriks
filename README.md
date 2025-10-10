@@ -1,5 +1,5 @@
 # Metriks
 
-A multidimensional array library for C#.
+A multidimensional dynamic array library for C#.
 
 We need someone to finish this readme...

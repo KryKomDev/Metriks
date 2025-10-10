@@ -7,14 +7,16 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
+using System.Drawing;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace Metriks;
 
 public static class Extensions {
     
-    private const string INDEX_OUT_OF_BOUNDS = "The supplied index is out of bounds.";
+    private const string IndexOutOfBounds = "The supplied index is out of bounds.";
     
 #region COMPATIBILITY
     
@@ -46,10 +48,10 @@ public static class Extensions {
     public static T[] Range<T>(this T[]? array, int start, int end) {
         ThrowHelper.ThrowIfNull(array);
         
-        ThrowHelper.ThrowIf(start < 0, new ArgumentOutOfRangeException(nameof(start), INDEX_OUT_OF_BOUNDS));
-        ThrowHelper.ThrowIf(start >= array.Length, new ArgumentOutOfRangeException(nameof(start), INDEX_OUT_OF_BOUNDS));
-        ThrowHelper.ThrowIf(end < 0, new ArgumentOutOfRangeException(nameof(end), INDEX_OUT_OF_BOUNDS));
-        ThrowHelper.ThrowIf(end >= array.Length, new ArgumentOutOfRangeException(nameof(end), INDEX_OUT_OF_BOUNDS));
+        ThrowHelper.ThrowIf(start < 0, new ArgumentOutOfRangeException(nameof(start), IndexOutOfBounds));
+        ThrowHelper.ThrowIf(start >= array.Length, new ArgumentOutOfRangeException(nameof(start), IndexOutOfBounds));
+        ThrowHelper.ThrowIf(end < 0, new ArgumentOutOfRangeException(nameof(end), IndexOutOfBounds));
+        ThrowHelper.ThrowIf(end >= array.Length, new ArgumentOutOfRangeException(nameof(end), IndexOutOfBounds));
         
         List<T> list = new();
 
@@ -175,6 +177,36 @@ public static class Extensions {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int Len1<T>(this T[,] array) => array.GetLength(1);
 
+    extension<T>(T[,] arr) {
+        
+        /// <summary>
+        /// Gets the length of the first dimension of a two-dimensional array.
+        /// </summary>
+        public int Length0 {
+            [Pure]
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => arr.GetLength(0);
+        }
+
+        /// <summary>
+        /// Gets the length of the second dimension of a two-dimensional array.
+        /// </summary>
+        public int Length1 {
+            [Pure]
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => arr.GetLength(1);
+        }
+
+        /// <summary>
+        /// Gets the size, represented by width and height, of a two-dimensional array.
+        /// </summary>
+        public Size Size {
+            [Pure]
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => new(Len0(arr), Len1(arr));
+        }
+    }
+    
     /// <summary>
     /// Fills the array using the supplied element.
     /// </summary>
@@ -197,18 +229,18 @@ public static class Extensions {
         int end0 = start0 + count0;
         int end1 = start1 + count1;
         
-        ThrowHelper.ThrowIf(start0 < 0, new ArgumentOutOfRangeException(nameof(start0), INDEX_OUT_OF_BOUNDS));
-        ThrowHelper.ThrowIf(start1 < 0, new ArgumentOutOfRangeException(nameof(start0), INDEX_OUT_OF_BOUNDS));
-        ThrowHelper.ThrowIf(end0 < 0, new ArgumentOutOfRangeException(nameof(start0), INDEX_OUT_OF_BOUNDS));
-        ThrowHelper.ThrowIf(end1 < 0, new ArgumentOutOfRangeException(nameof(start0), INDEX_OUT_OF_BOUNDS));
+        ThrowHelper.ThrowIf(start0 < 0, new ArgumentOutOfRangeException(nameof(start0), IndexOutOfBounds));
+        ThrowHelper.ThrowIf(start1 < 0, new ArgumentOutOfRangeException(nameof(start0), IndexOutOfBounds));
+        ThrowHelper.ThrowIf(end0 < 0, new ArgumentOutOfRangeException(nameof(start0), IndexOutOfBounds));
+        ThrowHelper.ThrowIf(end1 < 0, new ArgumentOutOfRangeException(nameof(start0), IndexOutOfBounds));
         
         int len0 = array.Len0();
         int len1 = array.Len1();
         
-        ThrowHelper.ThrowIf(start0 >= len0, new ArgumentOutOfRangeException(nameof(start0), INDEX_OUT_OF_BOUNDS));
-        ThrowHelper.ThrowIf(start1 >= len1, new ArgumentOutOfRangeException(nameof(start0), INDEX_OUT_OF_BOUNDS));
-        ThrowHelper.ThrowIf(end0 >= len0, new ArgumentOutOfRangeException(nameof(start0), INDEX_OUT_OF_BOUNDS));
-        ThrowHelper.ThrowIf(end1 >= len1, new ArgumentOutOfRangeException(nameof(start0), INDEX_OUT_OF_BOUNDS));
+        ThrowHelper.ThrowIf(start0 >= len0, new ArgumentOutOfRangeException(nameof(start0), IndexOutOfBounds));
+        ThrowHelper.ThrowIf(start1 >= len1, new ArgumentOutOfRangeException(nameof(start0), IndexOutOfBounds));
+        ThrowHelper.ThrowIf(end0 >= len0, new ArgumentOutOfRangeException(nameof(start0), IndexOutOfBounds));
+        ThrowHelper.ThrowIf(end1 >= len1, new ArgumentOutOfRangeException(nameof(start0), IndexOutOfBounds));
         
         for (int i0 = start0; i0 <= end0; i0++) {
             for (int i1 = start1; i1 < end1; i1++) {
@@ -242,18 +274,18 @@ public static class Extensions {
     public static void FillRange<T>(this T[,]? array, T value, int start0, int end0, int start1, int end1) {
         ThrowHelper.ThrowIfNull(array, new ArgumentNullException(nameof(array)));
         
-        ThrowHelper.ThrowIf(start0 < 0, new ArgumentOutOfRangeException(nameof(start0), INDEX_OUT_OF_BOUNDS));
-        ThrowHelper.ThrowIf(start1 < 0, new ArgumentOutOfRangeException(nameof(start0), INDEX_OUT_OF_BOUNDS));
-        ThrowHelper.ThrowIf(end0 < 0, new ArgumentOutOfRangeException(nameof(start0), INDEX_OUT_OF_BOUNDS));
-        ThrowHelper.ThrowIf(end1 < 0, new ArgumentOutOfRangeException(nameof(start0), INDEX_OUT_OF_BOUNDS));
+        ThrowHelper.ThrowIf(start0 < 0, new ArgumentOutOfRangeException(nameof(start0), IndexOutOfBounds));
+        ThrowHelper.ThrowIf(start1 < 0, new ArgumentOutOfRangeException(nameof(start0), IndexOutOfBounds));
+        ThrowHelper.ThrowIf(end0 < 0, new ArgumentOutOfRangeException(nameof(start0), IndexOutOfBounds));
+        ThrowHelper.ThrowIf(end1 < 0, new ArgumentOutOfRangeException(nameof(start0), IndexOutOfBounds));
 
         int len0 = array.Len0();
         int len1 = array.Len1();
         
-        ThrowHelper.ThrowIf(start0 >= len0, new ArgumentOutOfRangeException(nameof(start0), INDEX_OUT_OF_BOUNDS));
-        ThrowHelper.ThrowIf(start1 >= len1, new ArgumentOutOfRangeException(nameof(start0), INDEX_OUT_OF_BOUNDS));
-        ThrowHelper.ThrowIf(end0 >= len0, new ArgumentOutOfRangeException(nameof(start0), INDEX_OUT_OF_BOUNDS));
-        ThrowHelper.ThrowIf(end1 >= len1, new ArgumentOutOfRangeException(nameof(start0), INDEX_OUT_OF_BOUNDS));
+        ThrowHelper.ThrowIf(start0 >= len0, new ArgumentOutOfRangeException(nameof(start0), IndexOutOfBounds));
+        ThrowHelper.ThrowIf(start1 >= len1, new ArgumentOutOfRangeException(nameof(start0), IndexOutOfBounds));
+        ThrowHelper.ThrowIf(end0 >= len0, new ArgumentOutOfRangeException(nameof(start0), IndexOutOfBounds));
+        ThrowHelper.ThrowIf(end1 >= len1, new ArgumentOutOfRangeException(nameof(start0), IndexOutOfBounds));
 
         for (int i0 = start0; i0 <= end0; i0++) {
             for (int i1 = start1; i1 < end1; i1++) {
@@ -281,15 +313,15 @@ public static class Extensions {
         }
     }
 
-    private const string NON_NEG_SIZE_MSG = "The size of the array must be non-negative.";
+    private const string NonNegSizeMsg = "The size of the array must be non-negative.";
     
     /// <summary>
     /// Resizes the array to the specified dimensions.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">one of the supplied dimensions is negative</exception>
     public static void Resize<T>([NotNull] ref T[,]? array, int newSize0, int newSize1) {
-        ThrowHelper.ThrowIf(newSize0 < 0, new ArgumentOutOfRangeException(nameof(newSize0), NON_NEG_SIZE_MSG));
-        ThrowHelper.ThrowIf(newSize1 < 0, new ArgumentOutOfRangeException(nameof(newSize1), NON_NEG_SIZE_MSG));
+        ThrowHelper.ThrowIf(newSize0 < 0, new ArgumentOutOfRangeException(nameof(newSize0), NonNegSizeMsg));
+        ThrowHelper.ThrowIf(newSize1 < 0, new ArgumentOutOfRangeException(nameof(newSize1), NonNegSizeMsg));
         
         var lArray = array;
 
@@ -343,18 +375,18 @@ public static class Extensions {
         int end0 = start0 + count0;
         int end1 = start1 + count1;
         
-        ThrowHelper.ThrowIf(start0 < 0, new ArgumentOutOfRangeException(nameof(start0), INDEX_OUT_OF_BOUNDS));
-        ThrowHelper.ThrowIf(start1 < 0, new ArgumentOutOfRangeException(nameof(start0), INDEX_OUT_OF_BOUNDS));
-        ThrowHelper.ThrowIf(end0 < 0, new ArgumentOutOfRangeException(nameof(start0), INDEX_OUT_OF_BOUNDS));
-        ThrowHelper.ThrowIf(end1 < 0, new ArgumentOutOfRangeException(nameof(start0), INDEX_OUT_OF_BOUNDS));
+        ThrowHelper.ThrowIf(start0 < 0, new ArgumentOutOfRangeException(nameof(start0), IndexOutOfBounds));
+        ThrowHelper.ThrowIf(start1 < 0, new ArgumentOutOfRangeException(nameof(start0), IndexOutOfBounds));
+        ThrowHelper.ThrowIf(end0 < 0, new ArgumentOutOfRangeException(nameof(start0), IndexOutOfBounds));
+        ThrowHelper.ThrowIf(end1 < 0, new ArgumentOutOfRangeException(nameof(start0), IndexOutOfBounds));
         
         int len0 = array.Len0();
         int len1 = array.Len1();
         
-        ThrowHelper.ThrowIf(start0 >= len0, new ArgumentOutOfRangeException(nameof(start0), INDEX_OUT_OF_BOUNDS));
-        ThrowHelper.ThrowIf(start1 >= len1, new ArgumentOutOfRangeException(nameof(start0), INDEX_OUT_OF_BOUNDS));
-        ThrowHelper.ThrowIf(end0 >= len0, new ArgumentOutOfRangeException(nameof(start0), INDEX_OUT_OF_BOUNDS));
-        ThrowHelper.ThrowIf(end1 >= len1, new ArgumentOutOfRangeException(nameof(start0), INDEX_OUT_OF_BOUNDS));
+        ThrowHelper.ThrowIf(start0 >= len0, new ArgumentOutOfRangeException(nameof(start0), IndexOutOfBounds));
+        ThrowHelper.ThrowIf(start1 >= len1, new ArgumentOutOfRangeException(nameof(start0), IndexOutOfBounds));
+        ThrowHelper.ThrowIf(end0 >= len0, new ArgumentOutOfRangeException(nameof(start0), IndexOutOfBounds));
+        ThrowHelper.ThrowIf(end1 >= len1, new ArgumentOutOfRangeException(nameof(start0), IndexOutOfBounds));
         
         for (int i0 = start0; i0 <= end0; i0++) {
             for (int i1 = start1; i1 < end1; i1++) {
@@ -369,18 +401,18 @@ public static class Extensions {
     public static void ClearRange<T>([NotNull] T[,]? array, int start0, int end0, int start1, int end1) {
         ThrowHelper.ThrowIfNull(array, new ArgumentNullException(nameof(array)));
         
-        ThrowHelper.ThrowIf(start0 < 0, new ArgumentOutOfRangeException(nameof(start0), INDEX_OUT_OF_BOUNDS));
-        ThrowHelper.ThrowIf(start1 < 0, new ArgumentOutOfRangeException(nameof(start0), INDEX_OUT_OF_BOUNDS));
-        ThrowHelper.ThrowIf(end0 < 0, new ArgumentOutOfRangeException(nameof(start0), INDEX_OUT_OF_BOUNDS));
-        ThrowHelper.ThrowIf(end1 < 0, new ArgumentOutOfRangeException(nameof(start0), INDEX_OUT_OF_BOUNDS));
+        ThrowHelper.ThrowIf(start0 < 0, new ArgumentOutOfRangeException(nameof(start0), IndexOutOfBounds));
+        ThrowHelper.ThrowIf(start1 < 0, new ArgumentOutOfRangeException(nameof(start0), IndexOutOfBounds));
+        ThrowHelper.ThrowIf(end0 < 0, new ArgumentOutOfRangeException(nameof(start0), IndexOutOfBounds));
+        ThrowHelper.ThrowIf(end1 < 0, new ArgumentOutOfRangeException(nameof(start0), IndexOutOfBounds));
 
         int len0 = array.Len0();
         int len1 = array.Len1();
         
-        ThrowHelper.ThrowIf(start0 >= len0, new ArgumentOutOfRangeException(nameof(start0), INDEX_OUT_OF_BOUNDS));
-        ThrowHelper.ThrowIf(start1 >= len1, new ArgumentOutOfRangeException(nameof(start0), INDEX_OUT_OF_BOUNDS));
-        ThrowHelper.ThrowIf(end0 >= len0, new ArgumentOutOfRangeException(nameof(start0), INDEX_OUT_OF_BOUNDS));
-        ThrowHelper.ThrowIf(end1 >= len1, new ArgumentOutOfRangeException(nameof(start0), INDEX_OUT_OF_BOUNDS));
+        ThrowHelper.ThrowIf(start0 >= len0, new ArgumentOutOfRangeException(nameof(start0), IndexOutOfBounds));
+        ThrowHelper.ThrowIf(start1 >= len1, new ArgumentOutOfRangeException(nameof(start0), IndexOutOfBounds));
+        ThrowHelper.ThrowIf(end0 >= len0, new ArgumentOutOfRangeException(nameof(start0), IndexOutOfBounds));
+        ThrowHelper.ThrowIf(end1 >= len1, new ArgumentOutOfRangeException(nameof(start0), IndexOutOfBounds));
         
         for (int i0 = start0; i0 <= end0; i0++) {
             for (int i1 = start1; i1 < end1; i1++) {
@@ -427,6 +459,38 @@ public static class Extensions {
     /// Returns the length of the third dimension of an array.
     /// </summary>
     public static int Len2<T>(this T[,,] array) => array.GetLength(2);
+
+    extension<T>(T[,,] arr) {
+        
+        /// <summary>
+        /// Gets the length of the first dimension of a three-dimensional array.
+        /// </summary>
+        public int Length0 {
+            [Pure]
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => arr.GetLength(0);
+        }
+
+        /// <summary>
+        /// Gets the length of the second dimension of a three-dimensional array.
+        /// </summary>
+        public int Length1 {
+            [Pure]
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => arr.GetLength(1);
+        }
+
+        /// <summary>
+        /// Gets the length of the third dimension of a three-dimensional array.
+        /// </summary>
+        public int Length2 {
+            [Pure]
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => arr.GetLength(2);
+        }
+    }
     
 #endregion
+
+    public static Size Max(Size a, Size b) => new(Math.Max(a.Width, b.Width), Math.Max(a.Height, b.Height));
 }

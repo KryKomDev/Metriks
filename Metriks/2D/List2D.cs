@@ -4,6 +4,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 
 namespace Metriks;
@@ -49,6 +50,7 @@ public class List2D<T> : IList2D<T> {
     
     public int XSize => _xSize;
     public int YSize => _ySize;
+    public Size Size => new(_xSize, _ySize);
     public int XCapacity => _xCapacity;
     public int YCapacity => _yCapacity;
 
@@ -307,6 +309,103 @@ public class List2D<T> : IList2D<T> {
         
         return true;
     }
+
+
+    /// <summary>
+    /// Retrieves all elements from the specified column in the 2D list.
+    /// </summary>
+    /// <param name="x">The zero-based index of the column to retrieve elements from.</param>
+    /// <returns>An enumerable collection of elements from the specified column.</returns>
+    /// <exception cref="IndexOutOfRangeException">
+    /// Thrown when the specified column index is less than 0 or greater than or equal to the current XSize.
+    /// </exception>
+    public IEnumerable<T> GetAtX(int x) {
+        for (var y = 0; y < _ySize; y++) {
+            yield return _matrix[x][y];
+        }
+    }
+
+    /// <summary>
+    /// Retrieves all elements at the specified row (Y-coordinate) in the 2D list.
+    /// </summary>
+    /// <param name="y">The zero-based index of the row to retrieve elements from.</param>
+    /// <returns>An enumerable collection of elements at the specified row.</returns>
+    /// <exception cref="IndexOutOfRangeException">
+    /// Thrown when the specified index is less than 0 or greater than or equal to the current YSize.
+    /// </exception>
+    public IEnumerable<T> GetAtY(int y) {
+        for (int x = 0; x < _xSize; x++) {
+            yield return _matrix[x][y];
+        }
+    }
+
+    /// <summary>
+    /// Places a 2D matrix into this List2D at the specified offset. If the matrix extends beyond
+    /// the current bounds of the List2D, the List2D is resized accordingly.
+    /// </summary>
+    /// <param name="matrix">The 2D array of elements to place into this List2D.</param>
+    /// <param name="offsetPoint">
+    /// An optional offset defining where the top-left corner of the matrix will be placed.
+    /// If not provided, the matrix will be placed at the origin of the List2D.
+    /// </param>
+    public void Place(T[,] matrix, Point? offsetPoint = null) {
+        var offset = offsetPoint ?? Point.Empty;
+
+        var placedMax = offset + matrix.Size;
+
+        var max = new Point(Math.Max(_xSize, placedMax.X), Math.Max(_ySize, placedMax.Y));
+        var min = new Point(Math.Min(offset.X, 0), Math.Min(offset.Y, 0));
+        
+        var newSize = new Size(max.X - min.X, max.Y - min.Y);
+
+        var isBelow = offset.X < 0 || offset.Y < 0;
+
+        if (isBelow) {
+            var newMatrix = new T[newSize.Width][];
+            
+            // copy the existing matrix
+            for (int x = 0; x < newSize.Width; x++) {
+                newMatrix[x] = new T[newSize.Height];
+            }
+            
+            var oldXOffset = -Math.Min(0, offset.X);
+            var oldYOffset = -Math.Min(0, offset.Y);
+
+            // copy existing matrix
+            for (int x = 0; x < _xSize; x++) {
+                for (int y = 0; y < _ySize; y++) {
+                    newMatrix[x + oldXOffset][y + oldYOffset] = _matrix[x][y];
+                }
+            }
+
+            // copy input into the new matrix
+            for (int x = 0; x < matrix.Len0(); x++) {
+                for (int y = 0; y < matrix.Len1(); y++) {
+                    newMatrix[x + offset.X][y + offset.Y] = matrix[x, y];   
+                }
+            }
+            
+            // set _matrix to the new matrix and update size data
+            _matrix    = newMatrix;
+            _xSize     = newSize.Width;
+            _ySize     = newSize.Height;
+            _xCapacity = _xSize;
+            _yCapacity = _ySize;
+        }
+        else {
+            
+            if (placedMax.X > _xSize || placedMax.Y > _ySize) {
+                Expand(newSize.Width, newSize.Height);
+            }
+            
+            // copy input into _matrix
+            for (int x = 0; x < matrix.Len0(); x++) {
+                for (int y = 0; y < matrix.Len1(); y++) {
+                    _matrix[x + offset.X][y + offset.Y] = matrix[x, y];
+                }
+            }
+        }
+    } 
 
     public IEnumerator<IEnumerable<T>> GetEnumerator() => _matrix.Cast<IEnumerable<T>>().GetEnumerator();
     IEnumerator<IEnumerable> IEnumerable2D.GetEnumerator() => GetEnumerator();
