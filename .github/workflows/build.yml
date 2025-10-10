@@ -3,8 +3,8 @@ name: Build HasFlagExtension
 on:
   push:
     paths:
-      - 'HasFlagExtension/**'
-      - 'HasFlagExtension.Tests/**'
+      - 'Metriks/**'
+      - 'Metriks.Test/**'
   workflow_dispatch:
 
 jobs:
