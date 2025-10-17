@@ -4,8 +4,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace Metriks;
 
@@ -26,6 +28,9 @@ public class List2D<T> : IList2D<T> {
     /// </remarks>
     private T[][] _matrix;
 
+    protected void UnsafeSet(int x, int y, T value) => _matrix[x][y] = value;
+    protected T UnsafeGet(int x, int y) => _matrix[x][y];
+
     private int _xSize;
     private int _ySize;
     private int _xCapacity;
@@ -42,17 +47,47 @@ public class List2D<T> : IList2D<T> {
 
     public List2D(T[,] collection) : this(collection.GetLength(0), collection.GetLength(1)) {
         for (int x = 0; x < collection.GetLength(0); x++) {
+            _matrix[x] = new T[collection.GetLength(1)];
+            
             for (int y = 0; y < collection.GetLength(1); y++) {
                 _matrix[x][y] = collection[x, y];
             }
         }
+        
+        _xSize = collection.GetLength(0);
+        _ySize = collection.GetLength(1);
     }
     
-    public int XSize => _xSize;
-    public int YSize => _ySize;
-    public Size Size => new(_xSize, _ySize);
-    public int XCapacity => _xCapacity;
-    public int YCapacity => _yCapacity;
+    
+    public int XSize {
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => _xSize;
+    }
+
+    public int YSize {
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => _ySize;
+    }
+
+    public Size Size {
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => new(_xSize, _ySize);
+    }
+
+    public int XCapacity {
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => _xCapacity;
+    }
+
+    public int YCapacity {
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => _yCapacity;
+    }
 
     public T this[int x, int y] {
         get {
@@ -98,20 +133,18 @@ public class List2D<T> : IList2D<T> {
     public void InsertXAt(int x) {
         if (x < 0 || x > _xSize) 
             throw new IndexOutOfRangeException("Index 'x' is out of range.");
-        
-        _xSize++;
 
-        if (_xSize >= _xCapacity) {
+        if (_xSize + 1 >= _xCapacity) {
             _xCapacity = (int)(_xCapacity * GrowthFactor);
         }
         
         var newMatrix = new T[_xCapacity][];
         
-        Array.Copy(_matrix, newMatrix, x);
-        Array.Copy(_matrix, x, newMatrix, x + 1, _xSize - x);
-        
-        newMatrix[x] = new T[_yCapacity];
-        
+        Array.Copy(_matrix, newMatrix, x);                    // copies elements up to x
+        newMatrix[x] = new T[_yCapacity];                     // creates a new array at x
+        Array.Copy(_matrix, x, newMatrix, x + 1, _xSize - x); // copies elements from x to the end of the new array
+
+        _xSize++;
         _matrix = newMatrix;
     }
 
@@ -126,18 +159,18 @@ public class List2D<T> : IList2D<T> {
         if (y < 0 || y > _ySize)
             throw new IndexOutOfRangeException("Index 'y' is out of range.");
         
-        _ySize++;
-
-        if (_ySize >= _yCapacity) {
+        if (_ySize + 1 >= _yCapacity) {
             _yCapacity = (int)(_yCapacity * GrowthFactor);
         }
 
         for (int x = 0; x < _xSize; x++) {
             var newArray = new T[_yCapacity];
-            Array.Copy(_matrix[x], newArray, y);
-            Array.Copy(_matrix[x], y, newArray, y + 1, _ySize - y);
+            Array.Copy(_matrix[x], newArray, y);                    // copies elements up to y
+            Array.Copy(_matrix[x], y, newArray, y + 1, _ySize - y); // copies elements from y to the end
             _matrix[x] = newArray;
         }
+        
+        _ySize++;
     }
 
     /// <summary>
@@ -191,6 +224,8 @@ public class List2D<T> : IList2D<T> {
         if (xSize < _xSize) throw new ArgumentOutOfRangeException(nameof(xSize), "Cannot shrink the XSize of a List2D.");
         if (ySize < _ySize) throw new ArgumentOutOfRangeException(nameof(ySize), "Cannot shrink the YSize of a List2D.");
 
+        if (xSize == _xSize && ySize == _ySize) return;
+        
         if (xSize > _xCapacity) {
             _xCapacity = xSize + 1;
             
@@ -319,6 +354,7 @@ public class List2D<T> : IList2D<T> {
     /// <exception cref="IndexOutOfRangeException">
     /// Thrown when the specified column index is less than 0 or greater than or equal to the current XSize.
     /// </exception>
+    [Pure]
     public IEnumerable<T> GetAtX(int x) {
         for (var y = 0; y < _ySize; y++) {
             yield return _matrix[x][y];
@@ -333,6 +369,7 @@ public class List2D<T> : IList2D<T> {
     /// <exception cref="IndexOutOfRangeException">
     /// Thrown when the specified index is less than 0 or greater than or equal to the current YSize.
     /// </exception>
+    [Pure]
     public IEnumerable<T> GetAtY(int y) {
         for (int x = 0; x < _xSize; x++) {
             yield return _matrix[x][y];
@@ -367,7 +404,9 @@ public class List2D<T> : IList2D<T> {
             for (int x = 0; x < newSize.Width; x++) {
                 newMatrix[x] = new T[newSize.Height];
             }
-            
+
+            var newXOffset = Math.Max(0, offset.X);
+            var newYOffset = Math.Max(0, offset.Y);
             var oldXOffset = -Math.Min(0, offset.X);
             var oldYOffset = -Math.Min(0, offset.Y);
 
@@ -381,7 +420,7 @@ public class List2D<T> : IList2D<T> {
             // copy input into the new matrix
             for (int x = 0; x < matrix.Len0(); x++) {
                 for (int y = 0; y < matrix.Len1(); y++) {
-                    newMatrix[x + offset.X][y + offset.Y] = matrix[x, y];   
+                    newMatrix[x + newXOffset][y + newYOffset] = matrix[x, y];   
                 }
             }
             
@@ -405,8 +444,37 @@ public class List2D<T> : IList2D<T> {
                 }
             }
         }
-    } 
+    }
 
-    public IEnumerator<IEnumerable<T>> GetEnumerator() => _matrix.Cast<IEnumerable<T>>().GetEnumerator();
+    public IEnumerator<IEnumerable<T>> GetEnumerator() {
+        for (int x = 0; x < _xSize; x++)
+            yield return GetAtX(x);
+    }
     IEnumerator<IEnumerable> IEnumerable2D.GetEnumerator() => GetEnumerator();
+
+    public T[,] ToArray() {
+        var arr = new T[_xSize, _ySize];
+
+        for (int x = 0; x < _xSize; x++) {
+            for (int y = 0; y < _ySize; y++) {
+                arr[x, y] = _matrix[x][y];
+            }
+        }
+        
+        return arr;
+    }
+    
+    public T[][] ToJagged() {
+        var arr = new T[_xSize][];
+
+        for (int x = 0; x < _xSize; x++) {
+            arr[x] = new T[_ySize];
+            
+            for (int y = 0; y < _ySize; y++) {
+                arr[x][y] = _matrix[x][y];
+            }
+        }
+        
+        return arr;
+    }
 }
