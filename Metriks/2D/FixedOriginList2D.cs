@@ -1,8 +1,7 @@
 ﻿// Metriks
 // Copyright (c) KryKom & ZlomenyMesic 2025
 
-using System;
-using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Drawing;
 using System.Runtime.CompilerServices;
 
@@ -46,13 +45,34 @@ public class FixedOriginList2D<T> : List2D<T> {
     }
     
     #endif
-    
+
+    /// <summary>
+    /// Retrieves the element at the specified x and y coordinates without applying origin offsets.
+    /// </summary>
+    /// <param name="x">The x-coordinate of the element to retrieve.</param>
+    /// <param name="y">The y-coordinate of the element to retrieve.</param>
+    /// <returns>The element of type <typeparamref name="T"/> at the specified coordinates.</returns>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public T UncoordinatedGet(int x, int y) => base[x, y];
+
+    /// <summary>
+    /// Sets the element at the specified x and y coordinates without applying origin offsets.
+    /// </summary>
+    /// <param name="x">The x-coordinate of the element to set.</param>
+    /// <param name="y">The y-coordinate of the element to set.</param>
+    /// <param name="value">The value of type <typeparamref name="T"/> to set at the specified coordinates.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void UncoordinatedSet(int x, int y, T value) => base[x, y] = value;
+
     public int XOriginOffset {
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => _xOriginOffset;
     }
 
     public int YOriginOffset {
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => _yOriginOffset;
     }
@@ -171,5 +191,11 @@ public class FixedOriginList2D<T> : List2D<T> {
         
         if (offset.X < -_xOriginOffset) _xOriginOffset = -offset.X;
         if (offset.Y < -_yOriginOffset) _yOriginOffset = -offset.Y;
+    }
+
+    public new void Clear() {
+        base.Clear();
+        _xOriginOffset = 0;
+        _yOriginOffset = 0;
     }
 }

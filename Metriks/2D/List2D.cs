@@ -446,12 +446,27 @@ public class List2D<T> : IList2D<T> {
         }
     }
 
+    /// <summary>
+    /// Clears all elements from the 2D list, resetting its size and capacity to their initial values.
+    /// </summary>
+    /// <remarks>
+    /// After invoking this method, the 2D list will be empty with its capacity set to the default initial capacity.
+    /// </remarks>
+    public void Clear() {
+        _xSize = 0;
+        _ySize = 0;
+        _xCapacity = InitialCapacity;
+        _yCapacity = InitialCapacity;
+        _matrix = new T[InitialCapacity][];
+    }
+
     public IEnumerator<IEnumerable<T>> GetEnumerator() {
         for (int x = 0; x < _xSize; x++)
             yield return GetAtX(x);
     }
     IEnumerator<IEnumerable> IEnumerable2D.GetEnumerator() => GetEnumerator();
 
+    [Pure]
     public T[,] ToArray() {
         var arr = new T[_xSize, _ySize];
 
@@ -464,6 +479,7 @@ public class List2D<T> : IList2D<T> {
         return arr;
     }
     
+    [Pure]
     public T[][] ToJagged() {
         var arr = new T[_xSize][];
 
