@@ -299,7 +299,7 @@ public class FixedOriginList2DTests {
         var matrix = new int[,] { { 1, 2 } };
 
         // Act
-        list2D.Place(matrix, new Point(2, 1));
+        list2D.Place(matrix, new Point2D(2, 1));
 
         // Assert
         Assert.Equal(1, list2D[2, 1]);
@@ -313,7 +313,7 @@ public class FixedOriginList2DTests {
         var matrix = new int[,] { { 1, 2 }, { 3, 4 } };
 
         // Act
-        list2D.Place(matrix, new Point(-1, -2));
+        list2D.Place(matrix, new Point2D(-1, -2));
 
         // Assert
         Assert.Equal(1, list2D.XOriginOffset);
@@ -331,7 +331,7 @@ public class FixedOriginList2DTests {
         var matrix = new int[,] { { 1, 2 } };
 
         // Act
-        list2D.Place(matrix, new Point(-1, 1));
+        list2D.Place(matrix, new Point2D(-1, 1));
 
         // Assert
         Assert.Equal(1, list2D.XOriginOffset);

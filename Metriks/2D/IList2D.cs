@@ -1,5 +1,3 @@
-using System;
-
 namespace Metriks;
 
 public interface IList2D<out T> : IEnumerable2D<T> {
@@ -78,4 +76,6 @@ public interface IList2D<out T> : IEnumerable2D<T> {
     /// Thrown if the specified index is less than 0 or greater than or equal to the current YSize.
     /// </exception>
     public void RemoveYAt(int y);
+    
+    public bool IsReadonly { get; }
 }

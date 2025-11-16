@@ -1,9 +1,4 @@
-
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 
 namespace Metriks;
 
@@ -70,7 +65,7 @@ file class ListND<T> : IEnumerable<T>, IDisposable {
         _elements = new T[(int)Math.Pow(INITIAL_CAPACITY, dimensions)];
         _sizes = new int[dimensions];
         _capacities = new int[dimensions];
-        Extensions.Fill(_capacities, INITIAL_CAPACITY);
+        ArrayManipulation.Fill(_capacities, INITIAL_CAPACITY);
     }
 
     /// <summary>
@@ -83,7 +78,7 @@ file class ListND<T> : IEnumerable<T>, IDisposable {
         _elements = new T[(int)Math.Pow(capacity, dimensions)];
         _sizes = new int[dimensions];
         _capacities = new int[dimensions];
-        Extensions.Fill(_capacities, capacity);
+        ArrayManipulation.Fill(_capacities, capacity);
     }
 
     /// <summary>

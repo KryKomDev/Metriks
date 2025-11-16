@@ -1,43 +1,41 @@
 // Metriks
 // Copyright (c) KryKom & ZlomenyMesic 2025
 
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.Drawing;
-using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace Metriks;
 
 public class List2D<T> : IList2D<T> {
 
-    private const int InitialCapacity = 4;
-    private const float GrowthFactor = 2f;
+    private const int INITIAL_CAPACITY = 4;
+    private const float GROWTH_FACTOR = 2f;
 
     /// <summary>
     /// Represents the underlying two-dimensional array used to store the elements of the List2D instance.
     /// </summary>
     /// <remarks> 
-    /// This variable is a jagged array (array of arrays), where each subarray represents a row in the
+    /// This variable is a jagged array (array of arrays), where each subarray represents a column in the
     /// two-dimensional structure. The size of the jagged array is determined by the x-capacity and
     /// y-capacity of the List2D instance. It is used internally
     /// to store and manage data in the two-dimensional list.
     /// The first index is the x-index, the second index is the y-index.
     /// </remarks>
-    private T[][] _matrix;
+    private T[][] _items;
 
-    protected void UnsafeSet(int x, int y, T value) => _matrix[x][y] = value;
-    protected T UnsafeGet(int x, int y) => _matrix[x][y];
+    protected void UnsafeSet(int x, int y, T value) => _items[x][y] = value;
+    protected T UnsafeGet(int x, int y) => _items[x][y];
 
     private int _xSize;
     private int _ySize;
     private int _xCapacity;
     private int _yCapacity;
 
-    public List2D(int xCapacity = InitialCapacity, int yCapacity = InitialCapacity) {
-        _matrix   = new T[yCapacity][];
+    public bool IsReadonly => false;
+
+    public List2D(int xCapacity = INITIAL_CAPACITY, int yCapacity = INITIAL_CAPACITY) {
+        _items   = new T[xCapacity][];
         
         _xSize     = 0;
         _ySize     = 0;
@@ -45,17 +43,17 @@ public class List2D<T> : IList2D<T> {
         _yCapacity = yCapacity;
     }
 
-    public List2D(T[,] collection) : this(collection.GetLength(0), collection.GetLength(1)) {
-        for (int x = 0; x < collection.GetLength(0); x++) {
-            _matrix[x] = new T[collection.GetLength(1)];
+    public List2D(T[,] collection) : this(collection.Len0, collection.Len1) {
+        for (int x = 0; x < collection.Len0; x++) {
+            _items[x] = new T[collection.Len1];
             
-            for (int y = 0; y < collection.GetLength(1); y++) {
-                _matrix[x][y] = collection[x, y];
+            for (int y = 0; y < collection.Len1; y++) {
+                _items[x][y] = collection[x, y];
             }
         }
         
-        _xSize = collection.GetLength(0);
-        _ySize = collection.GetLength(1);
+        _xSize = collection.Len0;
+        _ySize = collection.Len1;
     }
     
     
@@ -71,7 +69,7 @@ public class List2D<T> : IList2D<T> {
         get => _ySize;
     }
 
-    public Size Size {
+    public Size2D Size {
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => new(_xSize, _ySize);
@@ -93,12 +91,12 @@ public class List2D<T> : IList2D<T> {
         get {
             if (x < 0 || x >= _xSize) throw new IndexOutOfRangeException("Index 'x' is out of range.");
             if (y < 0 || y >= _ySize) throw new IndexOutOfRangeException("Index 'y' is out of range.");
-            return _matrix[x][y];
+            return _items[x][y];
         }
         set {
             if (x < 0 || x >= _xSize) throw new IndexOutOfRangeException("Index 'x' is out of range.");
             if (y < 0 || y >= _ySize) throw new IndexOutOfRangeException("Index 'y' is out of range.");
-            _matrix[x][y] = value;
+            _items[x][y] = value;
         }
     }
     
@@ -110,14 +108,14 @@ public class List2D<T> : IList2D<T> {
             int yo = y.GetOffset(_ySize);
             if (xo < 0 || xo >= _xSize) throw new IndexOutOfRangeException("Index 'x' is out of range.");
             if (yo < 0 || yo >= _ySize) throw new IndexOutOfRangeException("Index 'y' is out of range.");
-            return _matrix[xo][yo];
+            return _items[xo][yo];
         }
         set {
             int xo = x.GetOffset(_xSize);
             int yo = y.GetOffset(_ySize);
             if (xo < 0 || xo >= _xSize) throw new IndexOutOfRangeException("Index 'x' is out of range.");
             if (yo < 0 || yo >= _ySize) throw new IndexOutOfRangeException("Index 'y' is out of range.");
-            _matrix[xo][yo] = value;
+            _items[xo][yo] = value;
         }
     }
     
@@ -135,17 +133,17 @@ public class List2D<T> : IList2D<T> {
             throw new IndexOutOfRangeException("Index 'x' is out of range.");
 
         if (_xSize + 1 >= _xCapacity) {
-            _xCapacity = (int)(_xCapacity * GrowthFactor);
+            _xCapacity = (int)(_xCapacity * GROWTH_FACTOR);
         }
         
         var newMatrix = new T[_xCapacity][];
         
-        Array.Copy(_matrix, newMatrix, x);                    // copies elements up to x
-        newMatrix[x] = new T[_yCapacity];                     // creates a new array at x
-        Array.Copy(_matrix, x, newMatrix, x + 1, _xSize - x); // copies elements from x to the end of the new array
+        Array.Copy(_items, newMatrix, x);                    // copies elements up to x
+        newMatrix[x] = new T[_yCapacity];                    // creates a new array at x
+        Array.Copy(_items, x, newMatrix, x + 1, _xSize - x); // copies elements from x to the end of the new array
 
         _xSize++;
-        _matrix = newMatrix;
+        _items = newMatrix;
     }
 
     /// <summary>
@@ -160,14 +158,14 @@ public class List2D<T> : IList2D<T> {
             throw new IndexOutOfRangeException("Index 'y' is out of range.");
         
         if (_ySize + 1 >= _yCapacity) {
-            _yCapacity = (int)(_yCapacity * GrowthFactor);
+            _yCapacity = (int)(_yCapacity * GROWTH_FACTOR);
         }
 
         for (int x = 0; x < _xSize; x++) {
             var newArray = new T[_yCapacity];
-            Array.Copy(_matrix[x], newArray, y);                    // copies elements up to y
-            Array.Copy(_matrix[x], y, newArray, y + 1, _ySize - y); // copies elements from y to the end
-            _matrix[x] = newArray;
+            Array.Copy(_items[x], newArray, y);                    // copies elements up to y
+            Array.Copy(_items[x], y, newArray, y + 1, _ySize - y); // copies elements from y to the end
+            _items[x] = newArray;
         }
         
         _ySize++;
@@ -185,16 +183,16 @@ public class List2D<T> : IList2D<T> {
         _xSize++;
         
         if (_xSize >= _xCapacity) {
-            _xCapacity = (int)(_xCapacity * GrowthFactor);
+            _xCapacity = (int)(_xCapacity * GROWTH_FACTOR);
             
             var newMatrix = new T[_xCapacity][];
         
-            Array.Copy(_matrix, newMatrix, _xSize - 1);
+            Array.Copy(_items, newMatrix, _xSize - 1);
         
-            _matrix = newMatrix;
+            _items = newMatrix;
         }
          
-        _matrix[_xSize - 1] = new T[_yCapacity]; 
+        _items[_xSize - 1] = new T[_yCapacity]; 
     }
 
     /// <summary>
@@ -208,14 +206,14 @@ public class List2D<T> : IList2D<T> {
         _ySize++;
 
         if (_ySize >= _yCapacity) {
-            _yCapacity = (int)(_yCapacity * GrowthFactor);
+            _yCapacity = (int)(_yCapacity * GROWTH_FACTOR);
 
             for (int x = 0; x < _xSize; x++) {
                 var newArray = new T[_yCapacity];
                 
-                Array.Copy(_matrix[x], newArray, _ySize - 1);
+                Array.Copy(_items[x], newArray, _ySize - 1);
                 
-                _matrix[x] = newArray;
+                _items[x] = newArray;
             }
         }
     }
@@ -230,8 +228,8 @@ public class List2D<T> : IList2D<T> {
             _xCapacity = xSize + 1;
             
             var newMatrix = new T[_xCapacity][];
-            Array.Copy(_matrix, newMatrix, _xSize);
-            _matrix = newMatrix;
+            Array.Copy(_items, newMatrix, _xSize);
+            _items = newMatrix;
         }
 
         if (ySize > _yCapacity) {
@@ -239,13 +237,13 @@ public class List2D<T> : IList2D<T> {
 
             for (int x = 0; x < _xSize; x++) {
                 var newArray = new T[_yCapacity];
-                Array.Copy(_matrix[x], newArray, _ySize);
-                _matrix[x] = newArray;
+                Array.Copy(_items[x], newArray, _ySize);
+                _items[x] = newArray;
             }
         }
 
         for (int x = _xSize; x < xSize; x++) {
-            _matrix[x] = new T[_yCapacity];
+            _items[x] = new T[_yCapacity];
         }
 
         _xSize = xSize;
@@ -260,10 +258,10 @@ public class List2D<T> : IList2D<T> {
         
         var newMatrix = new T[_xSize][];
         
-        Array.Copy(_matrix, newMatrix, x);
-        Array.Copy(_matrix, x + 1, newMatrix, x, _xSize - x);
+        Array.Copy(_items, newMatrix, x);
+        Array.Copy(_items, x + 1, newMatrix, x, _xSize - x);
         
-        _matrix = newMatrix;
+        _items = newMatrix;
     }
     
     public void RemoveYAt(int y) {
@@ -274,9 +272,9 @@ public class List2D<T> : IList2D<T> {
 
         for (int x = 0; x < _xSize; x++) {
             var newArray = new T[_yCapacity];
-            Array.Copy(_matrix[x], newArray, y);
-            Array.Copy(_matrix[x], y + 1, newArray, y, _ySize - y);
-            _matrix[x] = newArray;
+            Array.Copy(_items[x], newArray, y);
+            Array.Copy(_items[x], y + 1, newArray, y, _ySize - y);
+            _items[x] = newArray;
         }
     }
 
@@ -291,7 +289,7 @@ public class List2D<T> : IList2D<T> {
         
         _xSize--;
         
-        _matrix[_xSize] = null!;
+        _items[_xSize] = null!;
     }
 
     /// <summary>
@@ -306,7 +304,7 @@ public class List2D<T> : IList2D<T> {
         _ySize--;
 
         for (int x = 0; x < _xSize; x++) {
-            _matrix[x][_ySize] = default!;
+            _items[x][_ySize] = default!;
         }
     }
 
@@ -320,7 +318,7 @@ public class List2D<T> : IList2D<T> {
     /// </returns>
     public bool AllAtX(int x, Predicate<T> predicate) {
         for (int y = 0; y < _ySize; y++) {
-            if (!predicate(_matrix[x][y])) return false;
+            if (!predicate(_items[x][y])) return false;
         }
         
         return true;
@@ -339,7 +337,7 @@ public class List2D<T> : IList2D<T> {
     /// </exception>
     public bool AllAtY(int y, Predicate<T> predicate) {
         for (int x = 0; x < _xSize; x++) {
-            if (!predicate(_matrix[x][y])) return false;
+            if (!predicate(_items[x][y])) return false;
         }
         
         return true;
@@ -357,7 +355,7 @@ public class List2D<T> : IList2D<T> {
     [Pure]
     public IEnumerable<T> GetAtX(int x) {
         for (var y = 0; y < _ySize; y++) {
-            yield return _matrix[x][y];
+            yield return _items[x][y];
         }
     }
 
@@ -372,7 +370,7 @@ public class List2D<T> : IList2D<T> {
     [Pure]
     public IEnumerable<T> GetAtY(int y) {
         for (int x = 0; x < _xSize; x++) {
-            yield return _matrix[x][y];
+            yield return _items[x][y];
         }
     }
 
@@ -385,8 +383,8 @@ public class List2D<T> : IList2D<T> {
     /// An optional offset defining where the top-left corner of the matrix will be placed.
     /// If not provided, the matrix will be placed at the origin of the List2D.
     /// </param>
-    public void Place(T[,] matrix, Point? offsetPoint = null) {
-        var offset = offsetPoint ?? Point.Empty;
+    public void Place(T[,] matrix, Point2D? offsetPoint = null) {
+        var offset = offsetPoint ?? Point2D.Empty;
 
         var placedMax = offset + matrix.Size;
 
@@ -413,19 +411,19 @@ public class List2D<T> : IList2D<T> {
             // copy existing matrix
             for (int x = 0; x < _xSize; x++) {
                 for (int y = 0; y < _ySize; y++) {
-                    newMatrix[x + oldXOffset][y + oldYOffset] = _matrix[x][y];
+                    newMatrix[x + oldXOffset][y + oldYOffset] = _items[x][y];
                 }
             }
 
             // copy input into the new matrix
-            for (int x = 0; x < matrix.Len0(); x++) {
-                for (int y = 0; y < matrix.Len1(); y++) {
+            for (int x = 0; x < matrix.Len0; x++) {
+                for (int y = 0; y < matrix.Len1; y++) {
                     newMatrix[x + newXOffset][y + newYOffset] = matrix[x, y];   
                 }
             }
             
             // set _matrix to the new matrix and update size data
-            _matrix    = newMatrix;
+            _items    = newMatrix;
             _xSize     = newSize.Width;
             _ySize     = newSize.Height;
             _xCapacity = _xSize;
@@ -438,10 +436,65 @@ public class List2D<T> : IList2D<T> {
             }
             
             // copy input into _matrix
-            for (int x = 0; x < matrix.Len0(); x++) {
-                for (int y = 0; y < matrix.Len1(); y++) {
-                    _matrix[x + offset.X][y + offset.Y] = matrix[x, y];
+            for (int x = 0; x < matrix.Len0; x++) {
+                for (int y = 0; y < matrix.Len1; y++) {
+                    _items[x + offset.X][y + offset.Y] = matrix[x, y];
                 }
+            }
+        }
+    }
+
+    public void Place(List2D<T> matrix, Point2D? offsetPoint = null) {
+        var offset = offsetPoint ?? Point2D.Empty;
+
+        var placedMax = offset + matrix.Size;
+
+        var max = new Point(Math.Max(_xSize, placedMax.X), Math.Max(_ySize, placedMax.Y));
+        var min = new Point(Math.Min(offset.X, 0), Math.Min(offset.Y, 0));
+        
+        var newSize = new Size(max.X - min.X, max.Y - min.Y);
+
+        var isBelow = offset.X < 0 || offset.Y < 0;
+
+        if (isBelow) {
+            var newMatrix = new T[newSize.Width][];
+            
+            // copy the existing matrix
+            for (int x = 0; x < newSize.Width; x++) {
+                newMatrix[x] = new T[newSize.Height];
+            }
+
+            var newXOffset = Math.Max(0, offset.X);
+            var newYOffset = Math.Max(0, offset.Y);
+            var oldXOffset = -Math.Min(0, offset.X);
+            var oldYOffset = -Math.Min(0, offset.Y);
+
+            // copy existing matrix
+            for (int x = 0; x < _xSize; x++) {
+                Array.Copy(_items[x], 0, newMatrix[x + oldXOffset], oldYOffset, _ySize);
+            }
+
+            // copy input into the new matrix
+            for (int x = 0; x < matrix._ySize; x++) {
+                Array.Copy(matrix._items[x], 0, newMatrix[x + newXOffset], newYOffset, matrix._ySize);
+            }
+            
+            // set _matrix to the new matrix and update size data
+            _items    = newMatrix;
+            _xSize     = newSize.Width;
+            _ySize     = newSize.Height;
+            _xCapacity = _xSize;
+            _yCapacity = _ySize;
+        }
+        else {
+            
+            if (placedMax.X > _xSize || placedMax.Y > _ySize) {
+                Expand(newSize.Width, newSize.Height);
+            }
+            
+            // copy input into _matrix
+            for (int x = 0; x < matrix._xSize; x++) {
+                Array.Copy(matrix._items[x], 0, _items[x + offset.X], offset.Y, matrix._ySize);
             }
         }
     }
@@ -453,17 +506,18 @@ public class List2D<T> : IList2D<T> {
     /// After invoking this method, the 2D list will be empty with its capacity set to the default initial capacity.
     /// </remarks>
     public void Clear() {
-        _xSize = 0;
-        _ySize = 0;
-        _xCapacity = InitialCapacity;
-        _yCapacity = InitialCapacity;
-        _matrix = new T[InitialCapacity][];
+        _xSize     = 0;
+        _ySize     = 0;
+        _xCapacity = INITIAL_CAPACITY;
+        _yCapacity = INITIAL_CAPACITY;
+        _items    = new T[INITIAL_CAPACITY][];
     }
 
     public IEnumerator<IEnumerable<T>> GetEnumerator() {
         for (int x = 0; x < _xSize; x++)
             yield return GetAtX(x);
     }
+    
     IEnumerator<IEnumerable> IEnumerable2D.GetEnumerator() => GetEnumerator();
 
     [Pure]
@@ -472,7 +526,7 @@ public class List2D<T> : IList2D<T> {
 
         for (int x = 0; x < _xSize; x++) {
             for (int y = 0; y < _ySize; y++) {
-                arr[x, y] = _matrix[x][y];
+                arr[x, y] = _items[x][y];
             }
         }
         
@@ -487,7 +541,7 @@ public class List2D<T> : IList2D<T> {
             arr[x] = new T[_ySize];
             
             for (int y = 0; y < _ySize; y++) {
-                arr[x][y] = _matrix[x][y];
+                arr[x][y] = _items[x][y];
             }
         }
         

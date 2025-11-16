@@ -14,7 +14,7 @@ public class List2DTests {
         Assert.Equal(0, list2D.YSize);
         Assert.Equal(4, list2D.XCapacity);
         Assert.Equal(4, list2D.YCapacity);
-        Assert.Equal(new Size(0, 0), list2D.Size);
+        Assert.Equal(new Size2D(0, 0), list2D.Size);
     }
 
     [Fact]
@@ -30,7 +30,7 @@ public class List2DTests {
     }
 
     [Fact]
-    public void Constructor_From2DArray_ShouldInitializeCorrectly() {
+    public void Constructor_From2DArray_YLarger_ShouldInitializeCorrectly() {
         // Arrange
         var array = new[,] { { 1, 2, 3 }, { 4, 5, 6 } };
 
@@ -46,6 +46,25 @@ public class List2DTests {
         Assert.Equal(4, list2D[1, 0]);
         Assert.Equal(5, list2D[1, 1]);
         Assert.Equal(6, list2D[1, 2]);
+    }
+    
+    [Fact]
+    public void Constructor_From2DArray_XLarger_ShouldInitializeCorrectly() {
+        // Arrange
+        var array = new[,] { { 1, 2 }, { 3, 4 }, { 5, 6 } };
+
+        // Act
+        var list2D = new List2D<int>(array);
+
+        // Assert
+        Assert.Equal(3, list2D.XSize);
+        Assert.Equal(2, list2D.YSize);
+        Assert.Equal(1, list2D[0, 0]);
+        Assert.Equal(2, list2D[0, 1]);
+        Assert.Equal(3, list2D[1, 0]);
+        Assert.Equal(4, list2D[1, 1]);
+        Assert.Equal(5, list2D[2, 0]);
+        Assert.Equal(6, list2D[2, 1]);
     }
 
     [Fact]
@@ -497,7 +516,7 @@ public class List2DTests {
         var matrix = new[,] { { 1, 2 } };
 
         // Act
-        list2D.Place(matrix, new Point(2, 1));
+        list2D.Place(matrix, new Point2D(2, 1));
 
         // Assert
         Assert.Equal(1, list2D[2, 1]);
@@ -542,6 +561,6 @@ public class List2DTests {
         var size = list2D.Size;
 
         // Assert
-        Assert.Equal(new Size(2, 3), size);
+        Assert.Equal(new Size2D(2, 3), size);
     }
 }

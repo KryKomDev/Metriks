@@ -3,7 +3,6 @@
 //  Copyright (c) MIT License 2025, KryKom & ZlomenyMesic
 //
 
-using System;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Metriks;

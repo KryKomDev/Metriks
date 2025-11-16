@@ -1,8 +1,6 @@
 ﻿// Metriks
 // Copyright (c) KryKom & ZlomenyMesic 2025
 
-using System.Diagnostics.Contracts;
-using System.Drawing;
 using System.Runtime.CompilerServices;
 
 namespace Metriks;
@@ -184,10 +182,10 @@ public class FixedOriginList2D<T> : List2D<T> {
     /// An optional offset defining where the top-left corner of the matrix will be placed.
     /// If not provided, the matrix will be placed at the origin of the FixedOriginList2D.
     /// </param>
-    public new void Place(T[,] matrix, Point? offsetPoint) {
-        var offset = offsetPoint ?? Point.Empty;
+    public new void Place(T[,] matrix, Point2D? offsetPoint) {
+        var offset = offsetPoint ?? Point2D.Empty;
 
-        base.Place(matrix, new Point(offset.X + _xOriginOffset, offset.Y + _yOriginOffset));
+        base.Place(matrix, new Point2D(offset.X + _xOriginOffset, offset.Y + _yOriginOffset));
         
         if (offset.X < -_xOriginOffset) _xOriginOffset = -offset.X;
         if (offset.Y < -_yOriginOffset) _yOriginOffset = -offset.Y;
@@ -197,5 +195,10 @@ public class FixedOriginList2D<T> : List2D<T> {
         base.Clear();
         _xOriginOffset = 0;
         _yOriginOffset = 0;
+    }
+
+    public void MoveOrigin(int xOffset, int yOffset) {
+        _xOriginOffset += xOffset;
+        _yOriginOffset += yOffset;
     }
 }

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Metriks;
+﻿namespace Metriks;
 
 public static class FixedOriginList2DExtensions {
     

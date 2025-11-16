@@ -1,10 +1,9 @@
-﻿using System.Drawing;
-
-namespace Metriks.Sample;
+﻿namespace Metriks.Sample;
 
 public static class Example {
     
     public static void Main() {
+
         var l = new FixedOriginList2D<int>();
         
         l.Expand(5, 5);
@@ -12,8 +11,8 @@ public static class Example {
         l.WriteTable();
         Console.WriteLine();
         
-        l.Place(new[,]{{1,1}, {1, 1}}, new Point(-3, -3));
-
+        l.Place(new[,]{{1,1}, {1, 1}}, new Point2D(-3, -3));
+        
         l.WriteTable();
         Console.WriteLine();
         
