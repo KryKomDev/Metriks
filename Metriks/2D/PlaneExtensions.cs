@@ -1,8 +1,11 @@
-﻿namespace Metriks;
+﻿// Metriks
+// Copyright (c) KryKom & ZlomenyMesic 2025
 
-public static class FixedOriginList2DExtensions {
+namespace Metriks;
+
+public static class PlaneExtensions {
     
-    public static void WriteTable<T>(this FixedOriginList2D<T> list) {
+    public static void WriteTable<T>(this Plane<T> list) {
         
         int maxXLen = Math.Max(list.XStart.ToString().Length, list.XEnd.ToString().Length);
         int maxYLen = Math.Max(list.YStart.ToString().Length, list.YEnd.ToString().Length);

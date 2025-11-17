@@ -1,11 +1,12 @@
-﻿using System.Runtime.CompilerServices;
+﻿// Metriks
+// Copyright (c) KryKom & ZlomenyMesic 2025
+
+using System.Runtime.CompilerServices;
 
 namespace Metriks;
 
 [UsedImplicitly]
 public static class ArrayDimensions {
-
-    #region 2D
     
     extension<T>(T[,] arr) {
         
@@ -59,9 +60,6 @@ public static class ArrayDimensions {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Size2D GetSize() => new(GetLen0(arr), GetLen1(arr));
     }
-
-    #endregion
-    
     
     extension<T>(T[,,] arr) {
         

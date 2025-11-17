@@ -165,7 +165,7 @@ public class List2DTests {
         list2D[1, 0] = 3;
 
         // Act
-        list2D.InsertXAt(1);
+        list2D.InsertAtX(1);
         list2D[1, 0] = 2;
 
         // Assert
@@ -185,7 +185,7 @@ public class List2DTests {
         list2D.AddX();
 
         // Act & Assert
-        Assert.Throws<IndexOutOfRangeException>(() => list2D.InsertXAt(index));
+        Assert.Throws<IndexOutOfRangeException>(() => list2D.InsertAtX(index));
     }
 
     [Fact]
@@ -199,7 +199,7 @@ public class List2DTests {
         list2D[0, 1] = 3;
 
         // Act
-        list2D.InsertYAt(1);
+        list2D.InsertAtY(1);
         list2D[0, 1] = 2;
 
         // Assert
@@ -220,7 +220,7 @@ public class List2DTests {
         list2D.AddY();
 
         // Act & Assert
-        Assert.Throws<IndexOutOfRangeException>(() => list2D.InsertYAt(index));
+        Assert.Throws<IndexOutOfRangeException>(() => list2D.InsertAtY(index));
     }
 
     [Fact]
@@ -234,7 +234,7 @@ public class List2DTests {
         list2D[1, 0] = 2;
 
         // Act
-        list2D.RemoveX();
+        list2D.ShrinkX();
 
         // Assert
         Assert.Equal(1, list2D.XSize);
@@ -247,7 +247,7 @@ public class List2DTests {
         var list2D = new List2D<int>();
 
         // Act & Assert
-        Assert.Throws<InvalidOperationException>(() => list2D.RemoveX());
+        Assert.Throws<InvalidOperationException>(() => list2D.ShrinkX());
     }
 
     [Fact]
@@ -261,7 +261,7 @@ public class List2DTests {
         list2D[0, 1] = 2;
 
         // Act
-        list2D.RemoveY();
+        list2D.ShrinkY();
 
         // Assert
         Assert.Equal(1, list2D.YSize);
@@ -274,7 +274,7 @@ public class List2DTests {
         var list2D = new List2D<int>();
 
         // Act & Assert
-        Assert.Throws<InvalidOperationException>(() => list2D.RemoveY());
+        Assert.Throws<InvalidOperationException>(() => list2D.ShrinkY());
     }
 
     [Fact]
@@ -290,7 +290,7 @@ public class List2DTests {
         list2D[2, 0] = 3;
 
         // Act
-        list2D.RemoveXAt(1);
+        list2D.RemoveAtX(1);
 
         // Assert
         Assert.Equal(2, list2D.XSize);
@@ -308,7 +308,7 @@ public class List2DTests {
         list2D.AddX();
 
         // Act & Assert
-        Assert.Throws<IndexOutOfRangeException>(() => list2D.RemoveXAt(index));
+        Assert.Throws<IndexOutOfRangeException>(() => list2D.RemoveAtX(index));
     }
 
     [Fact]
@@ -324,7 +324,7 @@ public class List2DTests {
         list2D[0, 2] = 3;
 
         // Act
-        list2D.RemoveYAt(1);
+        list2D.RemoveAtY(1);
 
         // Assert
         Assert.Equal(2, list2D.YSize);
@@ -343,7 +343,7 @@ public class List2DTests {
         list2D.AddY();
 
         // Act & Assert
-        Assert.Throws<IndexOutOfRangeException>(() => list2D.RemoveYAt(index));
+        Assert.Throws<IndexOutOfRangeException>(() => list2D.RemoveAtY(index));
     }
 
     [Fact]

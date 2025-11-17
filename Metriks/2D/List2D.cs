@@ -35,8 +35,7 @@ public class List2D<T> : IList2D<T> {
     public bool IsReadonly => false;
 
     public List2D(int xCapacity = INITIAL_CAPACITY, int yCapacity = INITIAL_CAPACITY) {
-        _items   = new T[xCapacity][];
-        
+        _items     = new T[xCapacity][];
         _xSize     = 0;
         _ySize     = 0;
         _xCapacity = xCapacity;
@@ -128,7 +127,7 @@ public class List2D<T> : IList2D<T> {
     /// <exception cref="IndexOutOfRangeException">
     /// Thrown when the specified index is less than 0 or greater than the current XSize.
     /// </exception>
-    public void InsertXAt(int x) {
+    public void InsertAtX(int x) {
         if (x < 0 || x > _xSize) 
             throw new IndexOutOfRangeException("Index 'x' is out of range.");
 
@@ -143,7 +142,7 @@ public class List2D<T> : IList2D<T> {
         Array.Copy(_items, x, newMatrix, x + 1, _xSize - x); // copies elements from x to the end of the new array
 
         _xSize++;
-        _items = newMatrix;
+        _items = newMatrix;                                  // set the new matrix
     }
 
     /// <summary>
@@ -153,7 +152,7 @@ public class List2D<T> : IList2D<T> {
     /// <exception cref="IndexOutOfRangeException">
     /// Thrown when the specified index is less than 0 or greater than the current YSize.
     /// </exception>
-    public void InsertYAt(int y) {
+    public void InsertAtY(int y) {
         if (y < 0 || y > _ySize)
             throw new IndexOutOfRangeException("Index 'y' is out of range.");
         
@@ -165,7 +164,7 @@ public class List2D<T> : IList2D<T> {
             var newArray = new T[_yCapacity];
             Array.Copy(_items[x], newArray, y);                    // copies elements up to y
             Array.Copy(_items[x], y, newArray, y + 1, _ySize - y); // copies elements from y to the end
-            _items[x] = newArray;
+            _items[x] = newArray;                                  // sets the new array at y
         }
         
         _ySize++;
@@ -180,19 +179,18 @@ public class List2D<T> : IList2D<T> {
     /// elements are copied to the new matrix.
     /// </remarks>
     public void AddX() {
-        _xSize++;
-        
         if (_xSize >= _xCapacity) {
             _xCapacity = (int)(_xCapacity * GROWTH_FACTOR);
             
             var newMatrix = new T[_xCapacity][];
         
-            Array.Copy(_items, newMatrix, _xSize - 1);
+            Array.Copy(_items, newMatrix, _xSize);
         
             _items = newMatrix;
         }
          
-        _items[_xSize - 1] = new T[_yCapacity]; 
+        _items[_xSize] = new T[_yCapacity]; 
+        _xSize++;
     }
 
     /// <summary>
@@ -203,21 +201,32 @@ public class List2D<T> : IList2D<T> {
     /// using a predefined growth factor, and the existing data is reallocated to fit the new capacity.
     /// </remarks>
     public void AddY() {
-        _ySize++;
-
         if (_ySize >= _yCapacity) {
             _yCapacity = (int)(_yCapacity * GROWTH_FACTOR);
 
             for (int x = 0; x < _xSize; x++) {
                 var newArray = new T[_yCapacity];
                 
-                Array.Copy(_items[x], newArray, _ySize - 1);
+                Array.Copy(_items[x], newArray, _ySize);
                 
                 _items[x] = newArray;
             }
         }
+        
+        _ySize++;
     }
 
+    /// <summary>
+    /// Expands the size of the 2D list to the specified dimensions.
+    /// </summary>
+    /// <param name="xSize">The new number of columns (X-dimension) for the 2D list. Must be
+    /// greater than or equal to the current XSize.</param>
+    /// <param name="ySize">The new number of rows (Y-dimension) for the 2D list. Must be
+    /// greater than or equal to the current YSize.</param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// Thrown when the specified xSize is less than the current XSize or
+    /// the specified ySize is less than the current YSize.
+    /// </exception>
     public void Expand(int xSize, int ySize) {
         if (xSize < _xSize) throw new ArgumentOutOfRangeException(nameof(xSize), "Cannot shrink the XSize of a List2D.");
         if (ySize < _ySize) throw new ArgumentOutOfRangeException(nameof(ySize), "Cannot shrink the YSize of a List2D.");
@@ -250,9 +259,12 @@ public class List2D<T> : IList2D<T> {
         _ySize = ySize;
     }
 
-    public void RemoveXAt(int x) {
+    public void RemoveAtX(int x) {
         if (x < 0 || x >= _xSize) 
             throw new IndexOutOfRangeException("Index 'x' is out of range.");
+        
+        if (_xSize == 0) 
+            throw new InvalidOperationException("Cannot remove from a List2D with x-size = 0.");
         
         _xSize--;
         
@@ -264,10 +276,13 @@ public class List2D<T> : IList2D<T> {
         _items = newMatrix;
     }
     
-    public void RemoveYAt(int y) {
+    public void RemoveAtY(int y) {
         if (y < 0 || y >= _ySize)
             throw new IndexOutOfRangeException("Index 'y' is out of range.");
 
+        if (_ySize == 0) 
+            throw new InvalidOperationException("Cannot remove from a List2D with y-size = 0.");
+        
         _ySize--;
 
         for (int x = 0; x < _xSize; x++) {
@@ -284,8 +299,9 @@ public class List2D<T> : IList2D<T> {
     /// <exception cref="InvalidOperationException">
     /// Thrown when attempting to remove a column from an empty 2D list.
     /// </exception>
-    public void RemoveX() {
-        if (_xSize == 0) throw new InvalidOperationException("Cannot remove X from an empty List2D.");
+    public void ShrinkX() {
+        if (_xSize == 0) 
+            throw new InvalidOperationException("Cannot remove from a List2D with x-size = 0.");
         
         _xSize--;
         
@@ -298,8 +314,9 @@ public class List2D<T> : IList2D<T> {
     /// <exception cref="InvalidOperationException">
     /// Thrown when attempting to remove a row from an empty 2D list.
     /// </exception>
-    public void RemoveY() {
-        if (_ySize == 0) throw new InvalidOperationException("Cannot remove Y from an empty List2D.");
+    public void ShrinkY() {
+        if (_ySize == 0)
+            throw new InvalidOperationException("Cannot remove from a List2D with y-size = 0.");
 
         _ySize--;
 
@@ -359,6 +376,7 @@ public class List2D<T> : IList2D<T> {
         }
     }
 
+    
     /// <summary>
     /// Retrieves all elements at the specified row (Y-coordinate) in the 2D list.
     /// </summary>
@@ -374,6 +392,7 @@ public class List2D<T> : IList2D<T> {
         }
     }
 
+    
     /// <summary>
     /// Places a 2D matrix into this List2D at the specified offset. If the matrix extends beyond
     /// the current bounds of the List2D, the List2D is resized accordingly.
@@ -403,8 +422,8 @@ public class List2D<T> : IList2D<T> {
                 newMatrix[x] = new T[newSize.Height];
             }
 
-            var newXOffset = Math.Max(0, offset.X);
-            var newYOffset = Math.Max(0, offset.Y);
+            var newXOffset =  Math.Max(0, offset.X);
+            var newYOffset =  Math.Max(0, offset.Y);
             var oldXOffset = -Math.Min(0, offset.X);
             var oldYOffset = -Math.Min(0, offset.Y);
 
@@ -423,7 +442,7 @@ public class List2D<T> : IList2D<T> {
             }
             
             // set _matrix to the new matrix and update size data
-            _items    = newMatrix;
+            _items     = newMatrix;
             _xSize     = newSize.Width;
             _ySize     = newSize.Height;
             _xCapacity = _xSize;
@@ -444,6 +463,15 @@ public class List2D<T> : IList2D<T> {
         }
     }
 
+
+    /// <summary>
+    /// Places the contents of the specified 2D list into the current List2D instance, optionally offset by a specified point.
+    /// </summary>
+    /// <param name="matrix">The List2D instance containing the elements to be placed.</param>
+    /// <param name="offsetPoint">
+    /// An optional point specifying the offset at which the matrix should be placed.
+    /// If null, the matrix will be placed starting at the origin (0, 0).
+    /// </param>
     public void Place(List2D<T> matrix, Point2D? offsetPoint = null) {
         var offset = offsetPoint ?? Point2D.Empty;
 
@@ -464,8 +492,8 @@ public class List2D<T> : IList2D<T> {
                 newMatrix[x] = new T[newSize.Height];
             }
 
-            var newXOffset = Math.Max(0, offset.X);
-            var newYOffset = Math.Max(0, offset.Y);
+            var newXOffset =  Math.Max(0, offset.X);
+            var newYOffset =  Math.Max(0, offset.Y);
             var oldXOffset = -Math.Min(0, offset.X);
             var oldYOffset = -Math.Min(0, offset.Y);
 
@@ -480,7 +508,7 @@ public class List2D<T> : IList2D<T> {
             }
             
             // set _matrix to the new matrix and update size data
-            _items    = newMatrix;
+            _items     = newMatrix;
             _xSize     = newSize.Width;
             _ySize     = newSize.Height;
             _xCapacity = _xSize;
@@ -510,7 +538,7 @@ public class List2D<T> : IList2D<T> {
         _ySize     = 0;
         _xCapacity = INITIAL_CAPACITY;
         _yCapacity = INITIAL_CAPACITY;
-        _items    = new T[INITIAL_CAPACITY][];
+        _items     = new T[INITIAL_CAPACITY][];
     }
 
     public IEnumerator<IEnumerable<T>> GetEnumerator() {
@@ -520,6 +548,11 @@ public class List2D<T> : IList2D<T> {
     
     IEnumerator<IEnumerable> IEnumerable2D.GetEnumerator() => GetEnumerator();
 
+
+    /// <summary>
+    /// Converts the 2D list into a two-dimensional array. (Creates a copy)
+    /// </summary>
+    /// <returns>A two-dimensional array containing the elements of the 2D list.</returns>
     [Pure]
     public T[,] ToArray() {
         var arr = new T[_xSize, _ySize];
@@ -532,7 +565,12 @@ public class List2D<T> : IList2D<T> {
         
         return arr;
     }
-    
+
+    /// <summary>
+    /// Converts the 2D list into a jagged array. (Creates a copy)
+    /// </summary>
+    /// <returns>A jagged array representation of the 2D list,
+    /// where each inner array corresponds to a row of the 2D list.</returns>
     [Pure]
     public T[][] ToJagged() {
         var arr = new T[_xSize][];

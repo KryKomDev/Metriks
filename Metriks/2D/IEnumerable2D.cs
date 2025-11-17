@@ -1,3 +1,6 @@
+// Metriks
+// Copyright (c) KryKom & ZlomenyMesic 2025
+
 using System.Collections;
 
 namespace Metriks;

@@ -2,12 +2,12 @@
 
 namespace Metriks.Test;
 
-public class FixedOriginList2DTests {
+public class PlaneTests {
     
     [Fact]
     public void Constructor_Default_ShouldInitializeWithZeroOffsets() {
         // Arrange & Act
-        var list2D = new FixedOriginList2D<int>();
+        var list2D = new Plane<int>();
 
         // Assert
         Assert.Equal(0, list2D.XOriginOffset);
@@ -22,7 +22,7 @@ public class FixedOriginList2DTests {
     public void Indexer_WithoutOffset_ShouldBehaveLikeBaseClass() {
         
         // Arrange
-        var list2D = new FixedOriginList2D<int>();
+        var list2D = new Plane<int>();
         list2D.AddX();
         list2D.AddY();
 
@@ -34,7 +34,7 @@ public class FixedOriginList2DTests {
     [Fact]
     public void XStart_XEnd_YStart_YEnd_ShouldReflectOffsets() {
         // Arrange
-        var list2D = new FixedOriginList2D<int>();
+        var list2D = new Plane<int>();
         list2D.AddX();
         list2D.AddX();
         list2D.AddX();
@@ -42,8 +42,8 @@ public class FixedOriginList2DTests {
         list2D.AddY();
 
         // Act - Insert at negative coordinates to create offsets
-        list2D.InsertXAt(0);
-        list2D.InsertYAt(0);
+        list2D.InsertAtY(0);
+        list2D.InsertAtX(0);
 
         // Assert
         Assert.Equal(-1, list2D.XStart);
@@ -55,7 +55,7 @@ public class FixedOriginList2DTests {
     [Fact]
     public void InsertXAt_AtNegativeIndex_ShouldAdjustOriginOffset() {
         // Arrange
-        var list2D = new FixedOriginList2D<int>();
+        var list2D = new Plane<int>();
         list2D.AddX();
         list2D.AddX();
         list2D.AddY();
@@ -63,7 +63,7 @@ public class FixedOriginList2DTests {
         list2D[1, 0] = 2;
 
         // Act
-        list2D.InsertXAt(0);
+        list2D.InsertAtX(0);
         list2D[-1, 0] = 0;
 
         // Assert
@@ -78,7 +78,7 @@ public class FixedOriginList2DTests {
     [Fact]
     public void InsertYAt_AtNegativeIndex_ShouldAdjustOriginOffset() {
         // Arrange
-        var list2D = new FixedOriginList2D<int>();
+        var list2D = new Plane<int>();
         list2D.AddX();
         list2D.AddY();
         list2D.AddY();
@@ -86,7 +86,7 @@ public class FixedOriginList2DTests {
         list2D[0, 1] = 2;
 
         // Act
-        list2D.InsertYAt(0);
+        list2D.InsertAtY(0);
         list2D[0, -1] = 0;
 
         // Assert
@@ -101,13 +101,13 @@ public class FixedOriginList2DTests {
     [Fact]
     public void InsertXAt_AtPositiveIndex_ShouldNotAdjustOriginOffset() {
         // Arrange
-        var list2D = new FixedOriginList2D<int>();
+        var list2D = new Plane<int>();
         list2D.AddX();
         list2D.AddX();
         list2D.AddY();
 
         // Act
-        list2D.InsertXAt(1);
+        list2D.InsertAtX(1);
 
         // Assert
         Assert.Equal(0, list2D.XOriginOffset);
@@ -117,13 +117,13 @@ public class FixedOriginList2DTests {
     [Fact]
     public void InsertYAt_AtPositiveIndex_ShouldNotAdjustOriginOffset() {
         // Arrange
-        var list2D = new FixedOriginList2D<int>();
+        var list2D = new Plane<int>();
         list2D.AddX();
         list2D.AddY();
         list2D.AddY();
 
         // Act
-        list2D.InsertYAt(1);
+        list2D.InsertAtY(1);
 
         // Assert
         Assert.Equal(0, list2D.YOriginOffset);
@@ -133,15 +133,15 @@ public class FixedOriginList2DTests {
     [Fact]
     public void RemoveXAt_BeforeOrigin_ShouldDecreaseOriginOffset() {
         // Arrange
-        var list2D = new FixedOriginList2D<int>();
+        var list2D = new Plane<int>();
         list2D.AddX();
         list2D.AddX();
         list2D.AddX();
         list2D.AddY();
-        list2D.InsertXAt(0); // Creates offset of 1
+        list2D.InsertAtY(0); // Creates offset of 1
             
         // Act
-        list2D.RemoveXAt(-1);
+        list2D.RemoveAtY(-1);
 
         // Assert
         Assert.Equal(0, list2D.XOriginOffset);
@@ -151,15 +151,15 @@ public class FixedOriginList2DTests {
     [Fact]
     public void RemoveYAt_BeforeOrigin_ShouldDecreaseOriginOffset() {
         // Arrange
-        var list2D = new FixedOriginList2D<int>();
+        var list2D = new Plane<int>();
         list2D.AddX();
         list2D.AddY();
         list2D.AddY();
         list2D.AddY();
-        list2D.InsertYAt(0); // Creates offset of 1
+        list2D.InsertAtX(0); // Creates offset of 1
             
         // Act
-        list2D.RemoveYAt(-1);
+        list2D.RemoveAtX(-1);
 
         // Assert
         Assert.Equal(0, list2D.YOriginOffset);
@@ -169,15 +169,15 @@ public class FixedOriginList2DTests {
     [Fact]
     public void RemoveXAt_AtOrAfterOrigin_ShouldNotChangeOriginOffset() {
         // Arrange
-        var list2D = new FixedOriginList2D<int>();
+        var list2D = new Plane<int>();
         list2D.AddX();
         list2D.AddX();
         list2D.AddX();
         list2D.AddY();
-        list2D.InsertXAt(0); // Creates offset of 1
+        list2D.InsertAtY(0); // Creates offset of 1
             
         // Act
-        list2D.RemoveXAt(0);
+        list2D.RemoveAtY(0);
 
         // Assert
         Assert.Equal(0, list2D.XOriginOffset);
@@ -187,15 +187,15 @@ public class FixedOriginList2DTests {
     [Fact]
     public void RemoveYAt_AtOrAfterOrigin_ShouldNotChangeOriginOffset() {
         // Arrange
-        var list2D = new FixedOriginList2D<int>();
+        var list2D = new Plane<int>();
         list2D.AddX();
         list2D.AddY();
         list2D.AddY();
         list2D.AddY();
-        list2D.InsertYAt(0); // Creates offset of 1
+        list2D.InsertAtX(0); // Creates offset of 1
             
         // Act
-        list2D.RemoveYAt(0);
+        list2D.RemoveAtX(0);
 
         // Assert
         Assert.Equal(0, list2D.YOriginOffset);
@@ -205,12 +205,12 @@ public class FixedOriginList2DTests {
     [Fact]
     public void GetAtX_ShouldAdjustForOffset() {
         // Arrange
-        var list2D = new FixedOriginList2D<int>();
+        var list2D = new Plane<int>();
         list2D.AddX();
         list2D.AddX();
         list2D.AddY();
         list2D.AddY();
-        list2D.InsertXAt(0); // Creates offset of 1
+        list2D.InsertAtX(0); // Creates offset of 1
         list2D[-1, 0] = 1;
         list2D[-1, 1] = 2;
 
@@ -224,12 +224,12 @@ public class FixedOriginList2DTests {
     [Fact]
     public void GetAtY_ShouldAdjustForOffset() {
         // Arrange
-        var list2D = new FixedOriginList2D<int>();
+        var list2D = new Plane<int>();
         list2D.AddX();
         list2D.AddX();
         list2D.AddY();
         list2D.AddY();
-        list2D.InsertYAt(0); // Creates offset of 1
+        list2D.InsertAtY(0); // Creates offset of 1
         list2D[0, -1] = 1;
         list2D[1, -1] = 2;
 
@@ -243,11 +243,11 @@ public class FixedOriginList2DTests {
     [Fact]
     public void AllAtX_ShouldAdjustForOffset() {
         // Arrange
-        var list2D = new FixedOriginList2D<int>();
+        var list2D = new Plane<int>();
         list2D.AddX();
         list2D.AddY();
         list2D.AddY();
-        list2D.InsertXAt(0); // Creates offset of 1
+        list2D.InsertAtX(0); // Creates offset of 1
         list2D[-1, 0] = 2;
         list2D[-1, 1] = 4;
 
@@ -261,11 +261,11 @@ public class FixedOriginList2DTests {
     [Fact]
     public void AllAtY_ShouldAdjustForOffset() {
         // Arrange
-        var list2D = new FixedOriginList2D<int>();
+        var list2D = new Plane<int>();
         list2D.AddX();
         list2D.AddX();
         list2D.AddY();
-        list2D.InsertYAt(0); // Creates offset of 1
+        list2D.InsertAtY(0); // Creates offset of 1
         list2D[0, -1] = 2;
         list2D[1, -1] = 4;
 
@@ -279,8 +279,8 @@ public class FixedOriginList2DTests {
     [Fact]
     public void Place_WithoutOffset_ShouldPlaceAtOrigin() {
         // Arrange
-        var list2D = new FixedOriginList2D<int>();
-        var matrix = new int[,] { { 1, 2 }, { 3, 4 } };
+        var list2D = new Plane<int>();
+        var matrix = new[,] { { 1, 2 }, { 3, 4 } };
 
         // Act
         list2D.Place(matrix, null);
@@ -295,7 +295,7 @@ public class FixedOriginList2DTests {
     [Fact]
     public void Place_WithPositiveOffset_ShouldPlaceAtOffset() {
         // Arrange
-        var list2D = new FixedOriginList2D<int>();
+        var list2D = new Plane<int>();
         var matrix = new int[,] { { 1, 2 } };
 
         // Act
@@ -309,7 +309,7 @@ public class FixedOriginList2DTests {
     [Fact]
     public void Place_WithNegativeOffset_ShouldAdjustOriginOffsets() {
         // Arrange
-        var list2D = new FixedOriginList2D<int>();
+        var list2D = new Plane<int>();
         var matrix = new int[,] { { 1, 2 }, { 3, 4 } };
 
         // Act
@@ -327,7 +327,7 @@ public class FixedOriginList2DTests {
     [Fact]
     public void Place_WithPartialNegativeOffset_ShouldAdjustRelevantOffsets() {
         // Arrange
-        var list2D = new FixedOriginList2D<int>();
+        var list2D = new Plane<int>();
         var matrix = new int[,] { { 1, 2 } };
 
         // Act
@@ -343,15 +343,15 @@ public class FixedOriginList2DTests {
     [Fact]
     public void MultipleNegativeInsertions_ShouldAccumulateOffsets() {
         // Arrange
-        var list2D = new FixedOriginList2D<int>();
+        var list2D = new Plane<int>();
         list2D.AddX();
         list2D.AddY();
 
         // Act
-        list2D.InsertXAt(0);
-        list2D.InsertXAt(-1);
-        list2D.InsertYAt(0);
-        list2D.InsertYAt(-1);
+        list2D.InsertAtY(0);
+        list2D.InsertAtY(-1);
+        list2D.InsertAtX(0);
+        list2D.InsertAtX(-1);
 
         // Assert
         Assert.Equal(2, list2D.XOriginOffset);
@@ -365,13 +365,13 @@ public class FixedOriginList2DTests {
     [Fact]
     public void NegativeIndexing_ShouldWorkCorrectly() {
         // Arrange
-        var list2D = new FixedOriginList2D<int>();
+        var list2D = new Plane<int>();
         list2D.AddX();
         list2D.AddX();
         list2D.AddY();
         list2D.AddY();
-        list2D.InsertXAt(0);
-        list2D.InsertYAt(0);
+        list2D.InsertAtY(0);
+        list2D.InsertAtX(0);
 
         // Act & Assert
         list2D[-1, -1] = 1;
@@ -394,11 +394,11 @@ public class FixedOriginList2DTests {
     [InlineData(0, 3)]
     public void Indexer_OutOfBounds_ShouldThrowIndexOutOfRangeException(int x, int y) {
         // Arrange
-        var list2D = new FixedOriginList2D<int>();
+        var list2D = new Plane<int>();
         list2D.AddX();
         list2D.AddY();
-        list2D.InsertXAt(0);
-        list2D.InsertYAt(0);
+        list2D.InsertAtY(0);
+        list2D.InsertAtX(0);
 
         // Act & Assert
         Assert.Throws<IndexOutOfRangeException>(() => list2D[x, y]);
@@ -408,19 +408,19 @@ public class FixedOriginList2DTests {
     [Fact]
     public void OriginOffsets_AfterComplexOperations_ShouldBeCorrect() {
         // Arrange
-        var list2D = new FixedOriginList2D<int>();
+        var list2D = new Plane<int>();
         list2D.AddX();
         list2D.AddX();
         list2D.AddY();
         list2D.AddY();
 
         // Act - Complex sequence of operations
-        list2D.InsertXAt(0); // XOriginOffset becomes 1
-        list2D.InsertYAt(0); // YOriginOffset becomes 1
-        list2D.InsertXAt(-1); // XOriginOffset becomes 2
-        list2D.InsertYAt(-1); // YOriginOffset becomes 2
-        list2D.RemoveXAt(-1); // XOriginOffset becomes 1
-        list2D.RemoveYAt(0);  // YOriginOffset stays 1
+        list2D.InsertAtY(0); // XOriginOffset becomes 1
+        list2D.InsertAtX(0); // YOriginOffset becomes 1
+        list2D.InsertAtY(-1); // XOriginOffset becomes 2
+        list2D.InsertAtX(-1); // YOriginOffset becomes 2
+        list2D.RemoveAtY(-1); // XOriginOffset becomes 1
+        list2D.RemoveAtX(0);  // YOriginOffset stays 1
 
         // Assert
         Assert.Equal(1, list2D.XOriginOffset);

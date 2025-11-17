@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace Metriks;
 
-public class FixedOriginList2D<T> : List2D<T> {
+public class Plane<T> : List2D<T> {
     
     private int _xOriginOffset = 0;
     private int _yOriginOffset = 0;
@@ -16,16 +16,34 @@ public class FixedOriginList2D<T> : List2D<T> {
     public int YEnd => YSize - 1 - _yOriginOffset;
     
     public new T this[int x, int y] {
+        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => base[x + _xOriginOffset, y + _yOriginOffset];
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         set => base[x + _xOriginOffset, y + _yOriginOffset] = value;
     }
-    
+
+    public T this[int x, int y, bool disableCoordinates] {
+        
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => disableCoordinates ? base[x, y] : this[x, y];
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        set {
+            if (disableCoordinates)
+                base[x, y] = value;
+            else
+                this[x, y] = value;
+        }
+    }
+
     #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     
     public new T this[Index x, Index y] {
+        
+        [Pure]
         get {
             int xo = x.GetOffset(XSize) + (x.IsFromEnd ? 0 : _xOriginOffset);
             int yo = y.GetOffset(YSize) + (y.IsFromEnd ? 0 : _yOriginOffset);
@@ -33,6 +51,7 @@ public class FixedOriginList2D<T> : List2D<T> {
             if (yo < 0 || yo >= YSize) throw new IndexOutOfRangeException("Index 'y' is out of range.");
             return UnsafeGet(xo, yo);
         }
+        
         set {
             int xo = x.GetOffset(XSize) + (x.IsFromEnd ? 0 : _xOriginOffset);
             int yo = y.GetOffset(YSize) + (y.IsFromEnd ? 0 : _yOriginOffset);
@@ -74,6 +93,17 @@ public class FixedOriginList2D<T> : List2D<T> {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => _yOriginOffset;
     }
+    
+    public Point2D OriginOffset {
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => new(_xOriginOffset, _yOriginOffset);
+    }
+
+    public Plane(int xCapacity, int yCapacity) : base(xCapacity, yCapacity) { }
+    public Plane(int capacity) : base(capacity) { }
+    public Plane(T[,] arr) : base(arr) { }
+    public Plane() { }
 
     /// <summary>
     /// Inserts a new column at the specified index in the 2D list while accounting for the origin offset.
@@ -82,8 +112,8 @@ public class FixedOriginList2D<T> : List2D<T> {
     /// <exception cref="IndexOutOfRangeException">
     /// Thrown when the specified coordinate is out of bounds.
     /// </exception>
-    public new void InsertXAt(int x) {
-        base.InsertXAt(x + _xOriginOffset);
+    public new void InsertAtX(int x) {
+        base.InsertAtX(x + _xOriginOffset);
         if (x <= _xOriginOffset) _xOriginOffset++;
     }
 
@@ -94,8 +124,8 @@ public class FixedOriginList2D<T> : List2D<T> {
     /// <exception cref="IndexOutOfRangeException">
     /// Thrown when the specified coordinate is out of bounds.
     /// </exception>
-    public new void InsertYAt(int y) {
-        base.InsertYAt(y + _yOriginOffset);
+    public new void InsertAtY(int y) {
+        base.InsertAtY(y + _yOriginOffset);
         if (y <= _yOriginOffset) _yOriginOffset++;
     }
 
@@ -106,8 +136,8 @@ public class FixedOriginList2D<T> : List2D<T> {
     /// <exception cref="IndexOutOfRangeException">
     /// Thrown when the specified coordinate is out of bounds.
     /// </exception>
-    public new void RemoveXAt(int x) {
-        base.RemoveXAt(x + _xOriginOffset);
+    public new void RemoveAtX(int x) {
+        base.RemoveAtX(x + _xOriginOffset);
         if (x < _xOriginOffset) _xOriginOffset--;
     }
 
@@ -118,8 +148,8 @@ public class FixedOriginList2D<T> : List2D<T> {
     /// <exception cref="IndexOutOfRangeException">
     /// Thrown when the specified coordinate is out of bounds.
     /// </exception>
-    public new void RemoveYAt(int y) {
-        base.RemoveYAt(y + _yOriginOffset);
+    public new void RemoveAtY(int y) {
+        base.RemoveAtY(y + _yOriginOffset);
         if (y < _yOriginOffset) _yOriginOffset--;
     }
 

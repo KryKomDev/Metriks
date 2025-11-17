@@ -1,3 +1,6 @@
+// Metriks
+// Copyright (c) KryKom & ZlomenyMesic 2025
+
 namespace Metriks;
 
 public interface IList2D<out T> : IEnumerable2D<T> {
@@ -37,7 +40,7 @@ public interface IList2D<out T> : IEnumerable2D<T> {
     /// <exception cref="IndexOutOfRangeException">
     /// Thrown if the provided index is less than 0 or greater than the current XSize.
     /// </exception>
-    public void InsertXAt(int x);
+    public void InsertAtX(int x);
 
     /// <summary>
     /// Inserts a new row at the specified index in the 2D list.
@@ -47,7 +50,7 @@ public interface IList2D<out T> : IEnumerable2D<T> {
     /// <exception cref="IndexOutOfRangeException">
     /// Thrown if the specified index is less than 0 or greater than the current YSize.
     /// </exception>
-    public void InsertYAt(int y);
+    public void InsertAtY(int y);
 
     /// <summary>
     /// Expands the 2D list to the specified sizes in the X and Y dimensions.
@@ -66,7 +69,7 @@ public interface IList2D<out T> : IEnumerable2D<T> {
     /// <exception cref="IndexOutOfRangeException">
     /// Thrown if the specified index is less than 0 or greater than or equal to the current XSize.
     /// </exception>
-    public void RemoveXAt(int x);
+    public void RemoveAtX(int x);
 
     /// <summary>
     /// Removes the row at the specified index in the 2D list.
@@ -75,7 +78,7 @@ public interface IList2D<out T> : IEnumerable2D<T> {
     /// <exception cref="IndexOutOfRangeException">
     /// Thrown if the specified index is less than 0 or greater than or equal to the current YSize.
     /// </exception>
-    public void RemoveYAt(int y);
+    public void RemoveAtY(int y);
     
     public bool IsReadonly { get; }
 }
