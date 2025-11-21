@@ -1,26 +1,31 @@
-﻿namespace Metriks.Sample;
+﻿using System.ComponentModel;
+using System.Numerics;
+
+namespace Metriks.Sample;
 
 public static class Example {
     
     public static void Main() {
         
-        // var l = new List2D<int>(new[,] { { 1, 2 }, { 3, 4 } });
-        //
-        // // create
-        // l.AddX();
-        // l.AddY();
-        // l.InsertAtY(1);
-        // l.InsertAtX(1);
-        // l.Write();
-        //
-        // // destroy
-        // l.RemoveAtY(1);
-        // l.RemoveAtX(1);
-        // l.ShrinkY();
-        // l.ShrinkX();
-        // l.Write();
+        return;
         
-        var p = new Plane<int>(new [,] { { 1, 2 }, { 3, 4 } });
+        var l = new List2D<int>(new[,] { { 1, 2 }, { 3, 4 } });
+        
+        // create
+        l.AddX();
+        l.AddY();
+        l.InsertAtY(1);
+        l.InsertAtX(1);
+        l.Write();
+        
+        // destroy
+        l.RemoveAtY(1);
+        l.RemoveAtX(1);
+        l.ShrinkY();
+        l.ShrinkX();
+        l.Write();
+        
+        var p = new Plane<int>(new[,] { { 1, 2 }, { 3, 4 } });
         
         // create
         p.InsertAtX(1);
@@ -50,5 +55,6 @@ public static class Example {
         p.Write();
         
         Console.WriteLine(p.OriginOffset);
+
     }
 }

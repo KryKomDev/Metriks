@@ -1,4 +1,4 @@
-﻿# List Behviour
+﻿# Insert / Remove Behviour
 
 This document describes how multi-dimensional lists should behave
 when inserting or removing.

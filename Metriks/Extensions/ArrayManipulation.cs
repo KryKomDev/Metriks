@@ -77,6 +77,15 @@ public static class ArrayManipulation {
     
 #endregion
 
+
+    extension(Array) {
+        public static void RevCpy(Array src, Array dst, int len) {
+            for (int i = len - 1; i >= 0; i--) {
+                dst.SetValue(src.GetValue(i), i);
+            }
+        }
+    }
+    
 #region ARRAY_2D
     
     extension<T>(T[,]? array) {

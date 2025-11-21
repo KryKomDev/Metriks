@@ -327,8 +327,8 @@ public class PlaneTests {
     [Fact]
     public void Place_WithPartialNegativeOffset_ShouldAdjustRelevantOffsets() {
         // Arrange
-        var list2D = new Plane<int>();
-        var matrix = new int[,] { { 1, 2 } };
+        var list2D = new Plane<int>(new[,]{ { 0, 0 }, { 0, 0 } });
+        var matrix = new[,] { { 1, 2 } };
 
         // Act
         list2D.Place(matrix, new Point2D(-1, 1));

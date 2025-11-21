@@ -176,34 +176,6 @@ public class Plane<T> : List2D<T> {
     public new IEnumerable<T> GetAtY(int y) => base.GetAtY(y + _yOriginOffset);
 
     /// <summary>
-    /// Determines whether all elements in the specified column, adjusted for the origin offset, satisfy the given
-    /// predicate.
-    /// </summary>
-    /// <param name="x">The x-coordinate (adjusted for the origin offset) of the column to check.</param>
-    /// <param name="predicate">The predicate to evaluate for each element in the column.</param>
-    /// <returns>
-    /// True if all elements in the specified column satisfy the predicate; otherwise, false.
-    /// </returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public new bool AllAtX(int x, Predicate<T> predicate) => base.AllAtX(x + _xOriginOffset, predicate);
-
-    /// <summary>
-    /// Determines whether all elements in the specified row of the 2D list, with consideration to the origin offset,
-    /// satisfy a given condition.
-    /// </summary>
-    /// <param name="y">The y-coordinate of the row to evaluate.</param>
-    /// <param name="predicate">The condition to evaluate against each element in the row.</param>
-    /// <returns>
-    /// True if all elements in the specified row satisfy the condition; otherwise, false.
-    /// </returns>
-    /// <exception cref="IndexOutOfRangeException">
-    /// Thrown when the specified row index is less than 0 or greater than or equal to the current YSize,
-    /// considering the origin offset.
-    /// </exception>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public new bool AllAtY(int y, Predicate<T> predicate) => base.AllAtY(y + _yOriginOffset, predicate);
-
-    /// <summary>
     /// Places a 2D matrix into the FixedOriginList2D at the specified offset while accounting for the origin offsets.
     /// Adjusts the origin offsets if the provided offset is less than the current offsets.
     /// </summary>
@@ -212,7 +184,7 @@ public class Plane<T> : List2D<T> {
     /// An optional offset defining where the top-left corner of the matrix will be placed.
     /// If not provided, the matrix will be placed at the origin of the FixedOriginList2D.
     /// </param>
-    public new void Place(T[,] matrix, Point2D? offsetPoint) {
+    public new void Place(T[,] matrix, Point2D? offsetPoint = null) {
         var offset = offsetPoint ?? Point2D.Empty;
 
         base.Place(matrix, new Point2D(offset.X + _xOriginOffset, offset.Y + _yOriginOffset));

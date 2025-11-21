@@ -1,6 +1,4 @@
-﻿using System.Drawing;
-
-namespace Metriks.Test;
+﻿namespace Metriks.Test;
 
 public class List2DTests {
     

@@ -2,12 +2,11 @@
 // Copyright (c) KryKom & ZlomenyMesic 2025
 
 using System.Collections;
-using System.Drawing;
 using System.Runtime.CompilerServices;
 
 namespace Metriks;
 
-public class List2D<T> : IList2D<T> {
+public class List2D<T> : IList2D<T>, ICollection2D, IReadonlyList2D<T> {
 
     private const int INITIAL_CAPACITY = 4;
     private const float GROWTH_FACTOR = 2f;
@@ -23,6 +22,16 @@ public class List2D<T> : IList2D<T> {
     /// The first index is the x-index, the second index is the y-index.
     /// </remarks>
     private T[][] _items;
+    
+    /// <summary>
+    /// Returns the underlying two-dimensional array used to store the elements of the List2D instance.
+    /// PROVIDED FOR INTERNAL USE ONLY. DO NOT USE. <b>!!!DO NOT MODIFY THE ARRAY IN ANY WAY!!!</b>
+    /// </summary>
+    internal T[][] Items {
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => _items;
+    }
 
     protected void UnsafeSet(int x, int y, T value) => _items[x][y] = value;
     protected T UnsafeGet(int x, int y) => _items[x][y];
@@ -31,8 +40,6 @@ public class List2D<T> : IList2D<T> {
     private int _ySize;
     private int _xCapacity;
     private int _yCapacity;
-
-    public bool IsReadonly => false;
 
     public List2D(int xCapacity = INITIAL_CAPACITY, int yCapacity = INITIAL_CAPACITY) {
         _items     = new T[xCapacity][];
@@ -85,6 +92,26 @@ public class List2D<T> : IList2D<T> {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => _yCapacity;
     }
+
+    public int Count {
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => _xSize * _ySize;
+    }
+
+    public int XCount {
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => _xSize;
+    }
+
+    public int YCount {
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => _ySize;
+    }
+    
+    public bool IsReadOnly => false;
 
     public T this[int x, int y] {
         get {
@@ -223,11 +250,12 @@ public class List2D<T> : IList2D<T> {
     /// greater than or equal to the current XSize.</param>
     /// <param name="ySize">The new number of rows (Y-dimension) for the 2D list. Must be
     /// greater than or equal to the current YSize.</param>
+    /// <param name="defaultValue">A default value for newly created regions.</param>
     /// <exception cref="ArgumentOutOfRangeException">
     /// Thrown when the specified xSize is less than the current XSize or
     /// the specified ySize is less than the current YSize.
     /// </exception>
-    public void Expand(int xSize, int ySize) {
+    public void Expand(int xSize, int ySize, T? defaultValue = default!) {
         if (xSize < _xSize) throw new ArgumentOutOfRangeException(nameof(xSize), "Cannot shrink the XSize of a List2D.");
         if (ySize < _ySize) throw new ArgumentOutOfRangeException(nameof(ySize), "Cannot shrink the YSize of a List2D.");
 
@@ -247,6 +275,10 @@ public class List2D<T> : IList2D<T> {
             for (int x = 0; x < _xSize; x++) {
                 var newArray = new T[_yCapacity];
                 Array.Copy(_items[x], newArray, _ySize);
+               
+                if (defaultValue is not null)
+                    Array.Fill(_items[x], defaultValue, _ySize, ySize - _ySize);
+                
                 _items[x] = newArray;
             }
         }
@@ -257,6 +289,71 @@ public class List2D<T> : IList2D<T> {
 
         _xSize = xSize;
         _ySize = ySize;
+    }
+
+    /// <summary>
+    /// Resizes the list to the given size.
+    /// </summary>
+    /// <param name="xSize">The new size in the x dimension.</param>
+    /// <param name="ySize">The new size in the y dimension.</param>
+    /// <param name="defaultValue">The default value that is used</param>
+    /// <exception cref="ArgumentOutOfRangeException">An input size is smaller than 0;</exception>
+    public void Resize(int xSize, int ySize, T? defaultValue = default) {
+        if (xSize < 0) throw new ArgumentOutOfRangeException(nameof(xSize), "Cannot resize a List2D with a negative XSize.");
+        if (ySize < 0) throw new ArgumentOutOfRangeException(nameof(ySize), "Cannot resize a List2D with a negative YSize.");
+
+        var newItems = new T[xSize][];
+        
+        for (int x = _xSize; x < xSize; x++) {
+            newItems[x] = new T[ySize];
+
+            if (defaultValue is not null) continue;
+            
+            for (int y = _ySize; y < ySize; y++) {
+                newItems[x][y] = defaultValue!;
+            }
+        }
+        
+        for (int x = 0; x < Math.Min(_xSize, xSize); x++) {
+            newItems[x] = new T[ySize];
+            
+            for (int y = 0; y < Math.Min(_ySize, ySize); y++) {
+                newItems[x][y] = _items[x][y];
+            }
+        }
+        
+        _items = newItems;
+        _xSize = xSize;
+        _ySize = ySize;
+        _xCapacity = xSize;
+        _yCapacity = ySize;
+    }
+
+    /// <summary>
+    /// Reduces the dimensions of the 2D list to the specified sizes.
+    /// </summary>
+    /// <param name="xSize">The new size along the X-axis. Must be less than or equal to the current XSize.</param>
+    /// <param name="ySize">The new size along the Y-axis. Must be less than or equal to the current YSize.</param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// Thrown when the specified xSize or ySize is greater than the current size in their respective dimensions.
+    /// </exception>
+    public void Shrink(int xSize, int ySize) {
+        if (xSize > _xSize) throw new ArgumentOutOfRangeException(nameof(xSize), "New size must not be larger than the current size.");
+        if (ySize > _ySize) throw new ArgumentOutOfRangeException(nameof(ySize), "New size must not be larger than the current size.");
+
+        var newItems = new T[xSize][];
+
+        for (int x = 0; x < xSize; x++) {
+            newItems[x] = new T[ySize];
+            
+            Array.Copy(_items[x], newItems[x], ySize);
+        }
+        
+        _items = newItems;
+        _xSize = xSize;
+        _ySize = ySize;
+        _xCapacity = xSize;
+        _yCapacity = ySize;
     }
 
     public void RemoveAtX(int x) {
@@ -325,41 +422,34 @@ public class List2D<T> : IList2D<T> {
         }
     }
 
-    /// <summary>
-    /// Determines whether all elements in the specified column satisfy the given predicate.
-    /// </summary>
-    /// <param name="x">The zero-based index of the column to check.</param>
-    /// <param name="predicate">The predicate to evaluate for each element in the column.</param>
-    /// <returns>
-    /// True if all elements in the column satisfy the predicate; otherwise, false.
-    /// </returns>
-    public bool AllAtX(int x, Predicate<T> predicate) {
-        for (int y = 0; y < _ySize; y++) {
-            if (!predicate(_items[x][y])) return false;
-        }
-        
-        return true;
-    }
-
-    /// <summary>
-    /// Determines whether all elements in the specified row of the 2D list satisfy a given condition.
-    /// </summary>
-    /// <param name="y">The zero-based index of the row to evaluate.</param>
-    /// <param name="predicate">The condition to evaluate against each element in the row.</param>
-    /// <returns>
-    /// True if all elements in the specified row satisfy the condition; otherwise, false.
-    /// </returns>
-    /// <exception cref="IndexOutOfRangeException">
-    /// Thrown when the specified row index is less than 0 or greater than or equal to the current YSize.
-    /// </exception>
-    public bool AllAtY(int y, Predicate<T> predicate) {
+    public bool Contains(T value) {
         for (int x = 0; x < _xSize; x++) {
-            if (!predicate(_items[x][y])) return false;
+            for (int y = 0; y < _ySize; y++) {
+                if (EqualityComparer<T>.Default.Equals(_items[x][y], value)) 
+                    return true; 
+            }
+        }
+
+        return false;
+    }
+    
+    public bool ContainsAtX(int x, T value) {
+        for (int y = 0; y < _ySize; y++) {
+            if (EqualityComparer<T>.Default.Equals(_items[x][y], value)) 
+                return true;
         }
         
-        return true;
+        return false;
     }
-
+    
+    public bool ContainsAtY(int y, T value) {
+        for (int x = 0; x < _xSize; x++) {
+            if (EqualityComparer<T>.Default.Equals(_items[x][y], value)) 
+                return true;
+        }
+        
+        return false;
+    }
 
     /// <summary>
     /// Retrieves all elements from the specified column in the 2D list.
@@ -407,19 +497,19 @@ public class List2D<T> : IList2D<T> {
 
         var placedMax = offset + matrix.Size;
 
-        var max = new Point(Math.Max(_xSize, placedMax.X), Math.Max(_ySize, placedMax.Y));
-        var min = new Point(Math.Min(offset.X, 0), Math.Min(offset.Y, 0));
+        var max = new Point2D(Math.Max(_xSize, placedMax.X), Math.Max(_ySize, placedMax.Y));
+        var min = new Point2D(Math.Min(offset.X, 0), Math.Min(offset.Y, 0));
         
-        var newSize = new Size(max.X - min.X, max.Y - min.Y);
+        var newSize = new Size2D(max.X - min.X, max.Y - min.Y);
 
         var isBelow = offset.X < 0 || offset.Y < 0;
 
         if (isBelow) {
-            var newMatrix = new T[newSize.Width][];
+            var newMatrix = new T[newSize.X][];
             
-            // copy the existing matrix
-            for (int x = 0; x < newSize.Width; x++) {
-                newMatrix[x] = new T[newSize.Height];
+            // create the new matrix
+            for (int x = 0; x < newSize.X; x++) {
+                newMatrix[x] = new T[newSize.Y];
             }
 
             var newXOffset =  Math.Max(0, offset.X);
@@ -443,15 +533,15 @@ public class List2D<T> : IList2D<T> {
             
             // set _matrix to the new matrix and update size data
             _items     = newMatrix;
-            _xSize     = newSize.Width;
-            _ySize     = newSize.Height;
+            _xSize     = newSize.X;
+            _ySize     = newSize.X;
             _xCapacity = _xSize;
             _yCapacity = _ySize;
         }
         else {
             
             if (placedMax.X > _xSize || placedMax.Y > _ySize) {
-                Expand(newSize.Width, newSize.Height);
+                Expand(newSize.X, newSize.Y);
             }
             
             // copy input into _matrix
@@ -477,19 +567,19 @@ public class List2D<T> : IList2D<T> {
 
         var placedMax = offset + matrix.Size;
 
-        var max = new Point(Math.Max(_xSize, placedMax.X), Math.Max(_ySize, placedMax.Y));
-        var min = new Point(Math.Min(offset.X, 0), Math.Min(offset.Y, 0));
+        var max = new Point2D(Math.Max(_xSize, placedMax.X), Math.Max(_ySize, placedMax.Y));
+        var min = new Point2D(Math.Min(offset.X, 0), Math.Min(offset.Y, 0));
         
-        var newSize = new Size(max.X - min.X, max.Y - min.Y);
+        var newSize = new Size2D(max.X - min.X, max.Y - min.Y);
 
         var isBelow = offset.X < 0 || offset.Y < 0;
 
         if (isBelow) {
-            var newMatrix = new T[newSize.Width][];
+            var newMatrix = new T[newSize.X][];
             
             // copy the existing matrix
-            for (int x = 0; x < newSize.Width; x++) {
-                newMatrix[x] = new T[newSize.Height];
+            for (int x = 0; x < newSize.X; x++) {
+                newMatrix[x] = new T[newSize.Y];
             }
 
             var newXOffset =  Math.Max(0, offset.X);
@@ -509,20 +599,44 @@ public class List2D<T> : IList2D<T> {
             
             // set _matrix to the new matrix and update size data
             _items     = newMatrix;
-            _xSize     = newSize.Width;
-            _ySize     = newSize.Height;
+            _xSize     = newSize.X;
+            _ySize     = newSize.Y;
             _xCapacity = _xSize;
             _yCapacity = _ySize;
         }
         else {
             
             if (placedMax.X > _xSize || placedMax.Y > _ySize) {
-                Expand(newSize.Width, newSize.Height);
+                Expand(newSize.X, newSize.Y);
             }
             
             // copy input into _matrix
             for (int x = 0; x < matrix._xSize; x++) {
                 Array.Copy(matrix._items[x], 0, _items[x + offset.X], offset.Y, matrix._ySize);
+            }
+        }
+    }
+    
+    public void CopyTo(Array array, Point2D index) {
+        if (array.Rank != 2) throw new ArgumentException("Array must be two-dimensional (Rank = 2).", nameof(array));
+        
+        if (array.GetLength(0) < _xSize + index.X) throw new ArgumentException("Destination array is not large enough in x dimension.");
+        if (array.GetLength(1) < _ySize + index.Y) throw new ArgumentException("Destination array is not large enough in y dimension.");
+        
+        for (int x = 0; x < _xSize; x++) {
+            for (int y = 0; y < _ySize; y++) {
+                array.SetValue(_items[x][y], x + index.X, y + index.Y);
+            }
+        }
+    }
+
+    public void CopyTo(T[,] array, Point2D index) {
+        if (array.Len0 < _xSize + index.X) throw new ArgumentException("Destination array is not large enough in x dimension.");
+        if (array.Len1 < _ySize + index.Y) throw new ArgumentException("Destination array is not large enough in y dimension.");
+
+        for (int x = 0; x < _xSize; x++) {
+            for (int y = 0; y < _ySize; y++) {
+                array[x + index.X, y + index.Y] = _items[x][y];
             }
         }
     }
