@@ -522,6 +522,69 @@ public class List2DTests {
     }
 
     [Fact]
+    public void Place_NoResize_NoOffset() {
+        
+        var list2D = new List2D<int>(2, 2);
+        list2D.AddX();
+        list2D.AddX();
+        list2D.AddY();
+        list2D.AddY();
+        
+        var matrix = new[,] { { 1, 2, 3 }, { 4, 5, 6 }, { 7, 8, 9 } };
+        
+        list2D.Place(matrix, resize: false);
+        
+        Assert.Equal(2, list2D.XSize);
+        Assert.Equal(2, list2D.YSize);
+        Assert.Equal(1, list2D[0, 0]);
+        Assert.Equal(2, list2D[0, 1]);
+        Assert.Equal(4, list2D[1, 0]);
+        Assert.Equal(5, list2D[1, 1]);
+    }
+    
+    [Fact]
+    public void Place_NoResize_PositiveOffset() {
+        
+        var list2D = new List2D<int>(2, 2);
+        list2D.AddX();
+        list2D.AddX();
+        list2D.AddY();
+        list2D.AddY();
+        
+        var matrix = new[,] { { 1, 2, 3 }, { 4, 5, 6 }, { 7, 8, 9 } };
+        
+        list2D.Place(matrix, offsetPoint: new Point2D(1, 1), resize: false);
+        
+        Assert.Equal(2, list2D.XSize);
+        Assert.Equal(2, list2D.YSize);
+        Assert.Equal(0, list2D[0, 0]);
+        Assert.Equal(0, list2D[0, 1]);
+        Assert.Equal(0, list2D[1, 0]);
+        Assert.Equal(1, list2D[1, 1]);
+    }
+    
+    [Fact]
+    public void Place_NoResize_NegativeOffset() {
+        
+        var list2D = new List2D<int>(2, 2);
+        list2D.AddX();
+        list2D.AddX();
+        list2D.AddY();
+        list2D.AddY();
+        
+        var matrix = new[,] { { 1, 2, 3 }, { 4, 5, 6 }, { 7, 8, 9 } };
+        
+        list2D.Place(matrix, offsetPoint: new Point2D(-1, -1), resize: false);
+        
+        Assert.Equal(2, list2D.XSize);
+        Assert.Equal(2, list2D.YSize);
+        Assert.Equal(5, list2D[0, 0]);
+        Assert.Equal(6, list2D[0, 1]);
+        Assert.Equal(8, list2D[1, 0]);
+        Assert.Equal(9, list2D[1, 1]);
+    }
+
+    [Fact]
     public void GetEnumerator_ShouldEnumerateColumns() {
         
         // Arrange
