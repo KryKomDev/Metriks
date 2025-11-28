@@ -482,7 +482,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadonlyList2D<T> {
         }
     }
 
-    
+
     /// <summary>
     /// Places a 2D matrix into this List2D at the specified offset. If the matrix extends beyond
     /// the current bounds of the List2D, the List2D is resized accordingly.
@@ -492,7 +492,9 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadonlyList2D<T> {
     /// An optional offset defining where the top-left corner of the matrix will be placed.
     /// If not provided, the matrix will be placed at the origin of the List2D.
     /// </param>
-    public void Place(T[,] matrix, Point2D? offsetPoint = null) {
+    /// <param name="resize">If true, enables automatic resizing of this list depending on
+    /// the size and offset of the placed array.</param>
+    public void Place(T[,] matrix, Point2D? offsetPoint = null, bool resize = true) {
         var offset = offsetPoint ?? Point2D.Empty;
 
         var placedMax = offset + matrix.Size;
@@ -504,7 +506,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadonlyList2D<T> {
 
         var isBelow = offset.X < 0 || offset.Y < 0;
 
-        if (isBelow) {
+        if (isBelow && resize) {
             var newMatrix = new T[newSize.X][];
             
             // create the new matrix
@@ -540,14 +542,14 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadonlyList2D<T> {
         }
         else {
             
-            if (placedMax.X > _xSize || placedMax.Y > _ySize) {
+            if ((placedMax.X > _xSize || placedMax.Y > _ySize) && resize) {
                 Expand(newSize.X, newSize.Y);
             }
             
             // copy input into _matrix
-            for (int x = 0; x < matrix.Len0; x++) {
-                for (int y = 0; y < matrix.Len1; y++) {
-                    _items[x + offset.X][y + offset.Y] = matrix[x, y];
+            for (int x = Math.Clamp(offset.X, 0, _xSize); x < Math.Min(_xSize, offset.X + matrix.Len0); x++) {
+                for (int y = Math.Clamp(offset.Y, 0, _ySize); y < Math.Min(_ySize, offset.Y + matrix.Len1); y++) {
+                    _items[x][y] = matrix[x - offset.X, y - offset.Y];
                 }
             }
         }
@@ -562,7 +564,9 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadonlyList2D<T> {
     /// An optional point specifying the offset at which the matrix should be placed.
     /// If null, the matrix will be placed starting at the origin (0, 0).
     /// </param>
-    public void Place(List2D<T> matrix, Point2D? offsetPoint = null) {
+    /// <param name="resize">If true, enables automatic resizing of this list depending on
+    /// the size and offset of the placed array.</param>
+    public void Place(List2D<T> matrix, Point2D? offsetPoint = null, bool resize = true) {
         var offset = offsetPoint ?? Point2D.Empty;
 
         var placedMax = offset + matrix.Size;
@@ -574,7 +578,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadonlyList2D<T> {
 
         var isBelow = offset.X < 0 || offset.Y < 0;
 
-        if (isBelow) {
+        if (isBelow && resize) {
             var newMatrix = new T[newSize.X][];
             
             // copy the existing matrix
@@ -606,14 +610,25 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadonlyList2D<T> {
         }
         else {
             
-            if (placedMax.X > _xSize || placedMax.Y > _ySize) {
+            if ((placedMax.X > _xSize || placedMax.Y > _ySize) && resize) {
                 Expand(newSize.X, newSize.Y);
             }
             
             // copy input into _matrix
-            for (int x = 0; x < matrix._xSize; x++) {
-                Array.Copy(matrix._items[x], 0, _items[x + offset.X], offset.Y, matrix._ySize);
+            if ((placedMax.X > _xSize || placedMax.Y > _ySize) && resize) {
+                Expand(newSize.X, newSize.Y);
             }
+            
+            // copy input into _matrix
+            for (int x = Math.Clamp(offset.X, 0, _xSize); x < Math.Min(_xSize, offset.X + matrix._xSize); x++) {
+                for (int y = Math.Clamp(offset.Y, 0, _ySize); y < Math.Min(_ySize, offset.Y + matrix._ySize); y++) {
+                    _items[x][y] = matrix[x - offset.X, y - offset.Y];
+                }
+            }
+            
+            // for (int x = 0; x < matrix._xSize; x++) {
+            //     Array.Copy(matrix._items[x], 0, _items[x + offset.X], offset.Y, matrix._ySize);
+            // }
         }
     }
 
@@ -628,7 +643,9 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadonlyList2D<T> {
     /// An optional offset defining where the top-left corner of the matrix will be placed.
     /// If not provided, the matrix will be placed at the origin of the List2D.
     /// </param>
-    public void Place(T[,] matrix, Func<T, T, bool> predicate, Point2D? offsetPoint = null) {
+    /// <param name="resize">If true, enables automatic resizing of this list depending on
+    /// the size and offset of the placed array.</param>
+    public void Place(T[,] matrix, Func<T, T, bool> predicate, Point2D? offsetPoint = null, bool resize = true) {
         var offset = offsetPoint ?? Point2D.Empty;
 
         var placedMax = offset + matrix.Size;
@@ -640,7 +657,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadonlyList2D<T> {
 
         var isBelow = offset.X < 0 || offset.Y < 0;
 
-        if (isBelow) {
+        if (isBelow && resize) {
             var newMatrix = new T[newSize.X][];
             
             // create the new matrix
@@ -677,15 +694,15 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadonlyList2D<T> {
         }
         else {
             
-            if (placedMax.X > _xSize || placedMax.Y > _ySize) {
+            if ((placedMax.X > _xSize || placedMax.Y > _ySize) && resize) {
                 Expand(newSize.X, newSize.Y);
             }
             
             // copy input into _matrix
-            for (int x = 0; x < matrix.Len0; x++) {
-                for (int y = 0; y < matrix.Len1; y++) {
-                    if (predicate(_items[x + offset.X][y + offset.Y], matrix[x, y])) 
-                       _items[x + offset.X][y + offset.Y] = matrix[x, y];
+            for (int x = Math.Clamp(offset.X, 0, _xSize); x < Math.Min(_xSize, offset.X + matrix.Len0); x++) {
+                for (int y = Math.Clamp(offset.Y, 0, _ySize); y < Math.Min(_ySize, offset.Y + matrix.Len1); y++) {
+                    if (predicate(_items[x][y], matrix[x - offset.X, y - offset.Y]))  
+                        _items[x][y] = matrix[x - offset.X, y - offset.Y];
                 }
             }
         }
@@ -702,7 +719,9 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadonlyList2D<T> {
     ///     An optional point specifying the offset at which the matrix should be placed.
     ///     If null, the matrix will be placed starting at the origin (0, 0).
     /// </param>
-    public void Place(List2D<T> matrix, Func<T, T, bool> predicate, Point2D? offsetPoint = null) {
+    /// <param name="resize">If true, enables automatic resizing of this list depending on
+    /// the size and offset of the placed array.</param>
+    public void Place(List2D<T> matrix, Func<T, T, bool> predicate, Point2D? offsetPoint = null, bool resize = true) {
         var offset = offsetPoint ?? Point2D.Empty;
 
         var placedMax = offset + matrix.Size;
@@ -749,17 +768,23 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadonlyList2D<T> {
         }
         else {
             
-            if (placedMax.X > _xSize || placedMax.Y > _ySize) {
+            if ((placedMax.X > _xSize || placedMax.Y > _ySize) && resize) {
                 Expand(newSize.X, newSize.Y);
             }
             
             // copy input into _matrix
-            for (int x = 0; x < matrix._xSize; x++) {
-                for (int y = 0; y < matrix._ySize; y++) {
-                    if (predicate(_items[x + offset.X][y + offset.Y], matrix._items[x][y])) 
-                        _items[x + offset.X][y + offset.Y] = matrix._items[x][y];
+            for (int x = Math.Clamp(offset.X, 0, _xSize); x < Math.Min(_xSize, offset.X + matrix._xSize); x++) {
+                for (int y = Math.Clamp(offset.Y, 0, _ySize); y < Math.Min(_ySize, offset.Y + matrix._ySize); y++) {
+                    if (predicate(_items[x][y], matrix[x - offset.X, y - offset.Y]))  
+                        _items[x][y] = matrix[x - offset.X, y - offset.Y];
                 }
             }
+        }
+    }
+
+    public void Fill(T item) {
+        for (int x = 0; x < _xSize; x++) {
+            Array.Fill(_items[x], item, 0, _ySize);
         }
     }
     
