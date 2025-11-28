@@ -616,6 +616,152 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadonlyList2D<T> {
             }
         }
     }
+
+    /// <summary>
+    /// Places a 2D matrix into this List2D at the specified offset. If the matrix extends beyond
+    /// the current bounds of the List2D, the List2D is resized accordingly.
+    /// </summary>
+    /// <param name="matrix">The 2D array of elements to place into this List2D.</param>
+    /// <param name="predicate">A function determining whether the item should be placed into this array.
+    /// The first argument is an item from this array that is being overwritten by the second one.</param>
+    /// <param name="offsetPoint">
+    /// An optional offset defining where the top-left corner of the matrix will be placed.
+    /// If not provided, the matrix will be placed at the origin of the List2D.
+    /// </param>
+    public void Place(T[,] matrix, Func<T, T, bool> predicate, Point2D? offsetPoint = null) {
+        var offset = offsetPoint ?? Point2D.Empty;
+
+        var placedMax = offset + matrix.Size;
+
+        var max = new Point2D(Math.Max(_xSize, placedMax.X), Math.Max(_ySize, placedMax.Y));
+        var min = new Point2D(Math.Min(offset.X, 0), Math.Min(offset.Y, 0));
+        
+        var newSize = new Size2D(max.X - min.X, max.Y - min.Y);
+
+        var isBelow = offset.X < 0 || offset.Y < 0;
+
+        if (isBelow) {
+            var newMatrix = new T[newSize.X][];
+            
+            // create the new matrix
+            for (int x = 0; x < newSize.X; x++) {
+                newMatrix[x] = new T[newSize.Y];
+            }
+
+            var newXOffset =  Math.Max(0, offset.X);
+            var newYOffset =  Math.Max(0, offset.Y);
+            var oldXOffset = -Math.Min(0, offset.X);
+            var oldYOffset = -Math.Min(0, offset.Y);
+
+            // copy existing matrix
+            for (int x = 0; x < _xSize; x++) {
+                for (int y = 0; y < _ySize; y++) {
+                    newMatrix[x + oldXOffset][y + oldYOffset] = _items[x][y];
+                }
+            }
+
+            // copy input into the new matrix
+            for (int x = 0; x < matrix.Len0; x++) {
+                for (int y = 0; y < matrix.Len1; y++) {
+                    if (predicate(_items[x + oldXOffset][y + oldYOffset], matrix[x, y])) 
+                        newMatrix[x + newXOffset][y + newYOffset] = matrix[x, y];   
+                }
+            }
+            
+            // set _matrix to the new matrix and update size data
+            _items     = newMatrix;
+            _xSize     = newSize.X;
+            _ySize     = newSize.X;
+            _xCapacity = _xSize;
+            _yCapacity = _ySize;
+        }
+        else {
+            
+            if (placedMax.X > _xSize || placedMax.Y > _ySize) {
+                Expand(newSize.X, newSize.Y);
+            }
+            
+            // copy input into _matrix
+            for (int x = 0; x < matrix.Len0; x++) {
+                for (int y = 0; y < matrix.Len1; y++) {
+                    if (predicate(_items[x + offset.X][y + offset.Y], matrix[x, y])) 
+                       _items[x + offset.X][y + offset.Y] = matrix[x, y];
+                }
+            }
+        }
+    }
+
+
+    /// <summary>
+    /// Places the contents of the specified 2D list into the current List2D instance, optionally offset by a specified point.
+    /// </summary>
+    /// <param name="matrix">The List2D instance containing the elements to be placed.</param>
+    /// <param name="predicate">A function determining whether the item should be placed into this array.
+    /// The first argument is an item from this array that is being overwritten by the second one.</param>
+    /// <param name="offsetPoint">
+    ///     An optional point specifying the offset at which the matrix should be placed.
+    ///     If null, the matrix will be placed starting at the origin (0, 0).
+    /// </param>
+    public void Place(List2D<T> matrix, Func<T, T, bool> predicate, Point2D? offsetPoint = null) {
+        var offset = offsetPoint ?? Point2D.Empty;
+
+        var placedMax = offset + matrix.Size;
+
+        var max = new Point2D(Math.Max(_xSize, placedMax.X), Math.Max(_ySize, placedMax.Y));
+        var min = new Point2D(Math.Min(offset.X, 0), Math.Min(offset.Y, 0));
+        
+        var newSize = new Size2D(max.X - min.X, max.Y - min.Y);
+
+        var isBelow = offset.X < 0 || offset.Y < 0;
+
+        if (isBelow) {
+            var newMatrix = new T[newSize.X][];
+            
+            // copy the existing matrix
+            for (int x = 0; x < newSize.X; x++) {
+                newMatrix[x] = new T[newSize.Y];
+            }
+
+            var newXOffset =  Math.Max(0, offset.X);
+            var newYOffset =  Math.Max(0, offset.Y);
+            var oldXOffset = -Math.Min(0, offset.X);
+            var oldYOffset = -Math.Min(0, offset.Y);
+
+            // copy existing matrix
+            for (int x = 0; x < _xSize; x++) {
+                Array.Copy(_items[x], 0, newMatrix[x + oldXOffset], oldYOffset, _ySize);
+            }
+
+            // copy input into the new matrix
+            for (int x = 0; x < matrix._xSize; x++) {
+                for (int y = 0; y < matrix._ySize; y++) {
+                    if (predicate(_items[x + oldXOffset][y + oldYOffset], matrix._items[x][y])) 
+                        newMatrix[x + newXOffset][y + newYOffset] = matrix._items[x][y];   
+                }
+            }
+            
+            // set _matrix to the new matrix and update size data
+            _items     = newMatrix;
+            _xSize     = newSize.X;
+            _ySize     = newSize.Y;
+            _xCapacity = _xSize;
+            _yCapacity = _ySize;
+        }
+        else {
+            
+            if (placedMax.X > _xSize || placedMax.Y > _ySize) {
+                Expand(newSize.X, newSize.Y);
+            }
+            
+            // copy input into _matrix
+            for (int x = 0; x < matrix._xSize; x++) {
+                for (int y = 0; y < matrix._ySize; y++) {
+                    if (predicate(_items[x + offset.X][y + offset.Y], matrix._items[x][y])) 
+                        _items[x + offset.X][y + offset.Y] = matrix._items[x][y];
+                }
+            }
+        }
+    }
     
     public void CopyTo(Array array, Point2D index) {
         if (array.Rank != 2) throw new ArgumentException("Array must be two-dimensional (Rank = 2).", nameof(array));
