@@ -787,6 +787,14 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadonlyList2D<T> {
             Array.Fill(_items[x], item, 0, _ySize);
         }
     }
+
+    public void Fill(Func<T> factory) {
+        for (int x = 0; x < _xSize; x++) {
+            for (int y = 0; y < _ySize; y++) {
+                _items[x][y] = factory();
+            }
+        }
+    }
     
     public void CopyTo(Array array, Point2D index) {
         if (array.Rank != 2) throw new ArgumentException("Array must be two-dimensional (Rank = 2).", nameof(array));
