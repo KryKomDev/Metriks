@@ -371,6 +371,64 @@ public class List2DTests {
         Assert.Throws<ArgumentOutOfRangeException>(() => list2D.Expand(0, 2));
         Assert.Throws<ArgumentOutOfRangeException>(() => list2D.Expand(2, 0));
     }
+    
+    [Fact]
+    public void Expand_Factory_ValidSizes_ShouldExpandCorrectly() {
+        // Arrange
+        var list2D = new List2D<int>();
+        list2D.AddX();
+        list2D.AddY();
+
+        // Act
+        list2D.Expand(3, 3, () => 1);
+
+        // Assert
+        Assert.Equal(3, list2D.XSize); // Expand adds 1 to the parameter
+        Assert.Equal(3, list2D.YSize); // Expand adds 1 to the parameter
+        Assert.Equal(new[,]{ { 0, 1, 1 }, { 1, 1, 1 }, { 1, 1, 1 } }, list2D.ToArray());
+    }
+
+    [Fact]
+    public void Expand_Factory_SmallerThanCurrent_ShouldThrowArgumentOutOfRangeException() {
+        // Arrange
+        var list2D = new List2D<int>();
+        list2D.AddX();
+        list2D.AddX();
+        list2D.AddY();
+
+        // Act & Assert
+        Assert.Throws<ArgumentOutOfRangeException>(() => list2D.Expand(0, 2, () => 1));
+        Assert.Throws<ArgumentOutOfRangeException>(() => list2D.Expand(2, 0, () => 1));
+    }
+    
+    [Fact]
+    public void Expand_Default_ValidSizes_ShouldExpandCorrectly() {
+        // Arrange
+        var list2D = new List2D<int>();
+        list2D.AddX();
+        list2D.AddY();
+
+        // Act
+        list2D.Expand(3, 3, 1);
+
+        // Assert
+        Assert.Equal(3, list2D.XSize); // Expand adds 1 to the parameter
+        Assert.Equal(3, list2D.YSize); // Expand adds 1 to the parameter
+        Assert.Equal(new[,]{ { 0, 1, 1 }, { 1, 1, 1 }, { 1, 1, 1 } }, list2D.ToArray());
+    }
+
+    [Fact]
+    public void Expand_Default_SmallerThanCurrent_ShouldThrowArgumentOutOfRangeException() {
+        // Arrange
+        var list2D = new List2D<int>();
+        list2D.AddX();
+        list2D.AddX();
+        list2D.AddY();
+
+        // Act & Assert
+        Assert.Throws<ArgumentOutOfRangeException>(() => list2D.Expand(0, 2, 1));
+        Assert.Throws<ArgumentOutOfRangeException>(() => list2D.Expand(2, 0, 1));
+    }
 
     [Fact]
     public void AllAtX_AllElementsMatch_ShouldReturnTrue() {

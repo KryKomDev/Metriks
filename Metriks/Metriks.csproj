@@ -1,16 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <LangVersion>preview</LangVersion>
+        <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
         <TargetFrameworks>net10.0;net5.0;net8.0;netstandard2.1</TargetFrameworks>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <LangVersion>14</LangVersion>
         <ImplicitUsings>true</ImplicitUsings>
 
         <Authors>KryKom</Authors>
         <Company>KryKom</Company>
-        <Version>1.1.6.0</Version>
+        <Version>1.1.7.0</Version>
         <PackageProjectUrl>https://github.com/KryKomDev/Metriks</PackageProjectUrl>
         <PackageLicense>https://github.com/KryKomDev/Metriks/blob/main/LICENSE</PackageLicense>
         <RepositoryUrl>https://github.com/KryKomDev/Metriks</RepositoryUrl>

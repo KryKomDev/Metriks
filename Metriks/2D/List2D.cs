@@ -285,6 +285,73 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadonlyList2D<T> {
 
         for (int x = _xSize; x < xSize; x++) {
             _items[x] = new T[_yCapacity];
+            if (defaultValue is not null)
+                Array.Fill(_items[x], defaultValue, 0, ySize);
+        }
+
+        if (defaultValue is not null) {
+            for (int x = 0; x < _xSize; x++) {
+                for (int y = _ySize; y < ySize; y++) {
+                    _items[x][y] = defaultValue;
+                }
+            }
+        }
+        
+
+        _xSize = xSize;
+        _ySize = ySize;
+    }
+    
+    /// <summary>
+    /// Expands the size of the 2D list to the specified dimensions.
+    /// </summary>
+    /// <param name="xSize">The new number of columns (X-dimension) for the 2D list. Must be
+    /// greater than or equal to the current XSize.</param>
+    /// <param name="ySize">The new number of rows (Y-dimension) for the 2D list. Must be
+    /// greater than or equal to the current YSize.</param>
+    /// <param name="defaultValueFactory">A default value factory for newly created regions.</param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// Thrown when the specified xSize is less than the current XSize or
+    /// the specified ySize is less than the current YSize.
+    /// </exception>
+    public void Expand(int xSize, int ySize, Func<T> defaultValueFactory) {
+        if (xSize < _xSize) throw new ArgumentOutOfRangeException(nameof(xSize), "Cannot shrink the XSize of a List2D.");
+        if (ySize < _ySize) throw new ArgumentOutOfRangeException(nameof(ySize), "Cannot shrink the YSize of a List2D.");
+
+        if (xSize == _xSize && ySize == _ySize) return;
+        
+        if (xSize > _xCapacity) {
+            _xCapacity = xSize + 1;
+            
+            var newMatrix = new T[_xCapacity][];
+            Array.Copy(_items, newMatrix, _xSize);
+            _items = newMatrix;
+        }
+
+        if (ySize > _yCapacity) {
+            _yCapacity = ySize + 1;
+
+            for (int x = 0; x < _xSize; x++) {
+                var newArray = new T[_yCapacity];
+                Array.Copy(_items[x], newArray, _ySize);
+                
+                _items[x] = newArray;
+            }
+        }
+
+        for (int x = _xSize; x < xSize; x++) {
+            _items[x] = new T[_yCapacity];
+            
+            // populate
+            for (int y = 0; y < ySize; y++) {
+                _items[x][y] = defaultValueFactory();
+            }
+        }
+
+        for (int x = 0; x < _xSize; x++) {
+            for (int y = _ySize; y < ySize; y++) {
+                _items[x][y] = defaultValueFactory();
+            }
         }
 
         _xSize = xSize;

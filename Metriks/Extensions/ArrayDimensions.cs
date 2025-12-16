@@ -8,7 +8,7 @@ namespace Metriks;
 [UsedImplicitly]
 public static class ArrayDimensions {
     
-    extension<T>(T[,] arr) {
+    extension<T>(T?[,] arr) {
         
         public int Len0 {
             [Pure]
@@ -61,7 +61,7 @@ public static class ArrayDimensions {
         public Size2D GetSize() => new(GetLen0(arr), GetLen1(arr));
     }
     
-    extension<T>(T[,,] arr) {
+    extension<T>(T?[,,] arr) {
         
         public int Len0 {
             [Pure]
@@ -134,7 +134,7 @@ public static class ArrayDimensions {
         public Size3D GetSize() => new(GetLen0(arr), GetLen1(arr), GetLen2(arr));
     }
     
-    extension<T>(T[,,,] arr) {
+    extension<T>(T?[,,,] arr) {
         
         public int Len0 {
             [Pure]

@@ -184,7 +184,7 @@ public class Plane<T> : List2D<T> {
     /// An optional offset defining where the top-left corner of the matrix will be placed.
     /// If not provided, the matrix will be placed at the origin of the FixedOriginList2D.
     /// </param>
-    public new void Place(T[,] matrix, Point2D? offsetPoint = null) {
+    public void Place(T[,] matrix, Point2D? offsetPoint = null) {
         var offset = offsetPoint ?? Point2D.Empty;
 
         base.Place(matrix, new Point2D(offset.X + _xOriginOffset, offset.Y + _yOriginOffset));
