@@ -383,7 +383,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadonlyList2D<T> {
 
         if (defaultValue is not null) {
             for (int x = _xSize; x < xSize; x++) {
-                for (int y = 0; y < _ySize; y++) {
+                for (int y = 0; y < Math.Min(_ySize, ySize); y++) {
                     newItems[x][y] = defaultValue;
                 }
             }
@@ -422,7 +422,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadonlyList2D<T> {
         }
 
         for (int x = _xSize; x < xSize; x++) {
-            for (int y = 0; y < _ySize; y++) {
+            for (int y = 0; y < Math.Min(_ySize, ySize); y++) {
                 newItems[x][y] = defaultValueFactory();
             }
         }
