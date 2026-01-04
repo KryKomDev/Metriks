@@ -395,6 +395,42 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadonlyList2D<T> {
         _xCapacity = xSize;
         _yCapacity = ySize;
     }
+    
+    /// <summary>
+    /// Resizes the list to the given size.
+    /// </summary>
+    /// <param name="xSize">The new size in the x dimension.</param>
+    /// <param name="ySize">The new size in the y dimension.</param>
+    /// <param name="defaultValueFactory">The default value factory function that is used to create new instances</param>
+    /// <exception cref="ArgumentOutOfRangeException">An input size is smaller than 0;</exception>
+    public void Resize(int xSize, int ySize, Func<T> defaultValueFactory) {
+        if (xSize < 0) throw new ArgumentOutOfRangeException(nameof(xSize), "Cannot resize a List2D with a negative XSize.");
+        if (ySize < 0) throw new ArgumentOutOfRangeException(nameof(ySize), "Cannot resize a List2D with a negative YSize.");
+
+        var newItems = new T[xSize][];
+        
+        for (int x = _xSize; x < xSize; x++) {
+            newItems[x] = new T[ySize];
+            
+            for (int y = _ySize; y < ySize; y++) {
+                newItems[x][y] = defaultValueFactory();
+            }
+        }
+        
+        for (int x = 0; x < Math.Min(_xSize, xSize); x++) {
+            newItems[x] = new T[ySize];
+            
+            for (int y = 0; y < Math.Min(_ySize, ySize); y++) {
+                newItems[x][y] = _items[x][y];
+            }
+        }
+        
+        _items = newItems;
+        _xSize = xSize;
+        _ySize = ySize;
+        _xCapacity = xSize;
+        _yCapacity = ySize;
+    }
 
     /// <summary>
     /// Reduces the dimensions of the 2D list to the specified sizes.
