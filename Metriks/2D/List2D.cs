@@ -371,7 +371,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadonlyList2D<T> {
 
         var newItems = new T[xSize][];
         
-        for (int x = _xSize; x < xSize; x++) {
+        for (int x = 0; x < xSize; x++) {
             newItems[x] = new T[ySize];
 
             if (defaultValue is not null) continue;
@@ -380,13 +380,17 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadonlyList2D<T> {
                 newItems[x][y] = defaultValue!;
             }
         }
+
+        if (defaultValue is not null) {
+            for (int x = _xSize; x < xSize; x++) {
+                for (int y = 0; y < _ySize; y++) {
+                    newItems[x][y] = defaultValue;
+                }
+            }
+        }
         
         for (int x = 0; x < Math.Min(_xSize, xSize); x++) {
-            newItems[x] = new T[ySize];
-            
-            for (int y = 0; y < Math.Min(_ySize, ySize); y++) {
-                newItems[x][y] = _items[x][y];
-            }
+            Array.Copy(_items[x], newItems[x], Math.Min(_ySize, ySize));
         }
         
         _items = newItems;
@@ -409,20 +413,22 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadonlyList2D<T> {
 
         var newItems = new T[xSize][];
         
-        for (int x = _xSize; x < xSize; x++) {
+        for (int x = 0; x < xSize; x++) {
             newItems[x] = new T[ySize];
             
             for (int y = _ySize; y < ySize; y++) {
                 newItems[x][y] = defaultValueFactory();
             }
         }
+
+        for (int x = _xSize; x < xSize; x++) {
+            for (int y = 0; y < _ySize; y++) {
+                newItems[x][y] = defaultValueFactory();
+            }
+        }
         
         for (int x = 0; x < Math.Min(_xSize, xSize); x++) {
-            newItems[x] = new T[ySize];
-            
-            for (int y = 0; y < Math.Min(_ySize, ySize); y++) {
-                newItems[x][y] = _items[x][y];
-            }
+            Array.Copy(_items[x], newItems[x], Math.Min(_ySize, ySize));
         }
         
         _items = newItems;
