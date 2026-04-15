@@ -38,6 +38,9 @@ jobs:
 
       - name: Build Test project
         run: dotnet build ${{ env.TestProjectPath }} --configuration Release --no-restore
+
+      - name: Run Test project
+        run: dotnet test ${{ env.TestProjectPath }} --configuration Release --no-restore
         
       - name: Create Release
         uses: softprops/action-gh-release@v2

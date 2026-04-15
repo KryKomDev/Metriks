@@ -48,7 +48,7 @@ jobs:
         run: dotnet build ${{ env.TestProjectPath }} --configuration ${{ matrix.configuration }} --no-restore
       
       - name: Execute unit tests
-        run: dotnet test ${{ env.TestProjectPath }} --no-build
+        run: dotnet test ${{ env.TestProjectPath }} --configuration ${{ matrix.configuration }} --no-build
       
       - name: Restore the application
         run: dotnet restore ${{ env.TestProjectPath }}

@@ -27,12 +27,18 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore ${{ env.ProjectPath }}
 
-      - name: Build
+      - name: Build project
         run: dotnet build ${{ env.ProjectPath }} --configuration Release --no-restore
 
-      - name: Test
-        run: dotnet test ${{ env.TestProjectPath }}
+      - name: Restore Test dependencies
+        run: dotnet restore ${{ env.TestProjectPath }}
 
+      - name: Build Test project
+        run: dotnet build ${{ env.TestProjectPath }} --configuration Release --no-restore
+
+      - name: Run Test project
+        run: dotnet test ${{ env.TestProjectPath }} --configuration Release --no-restore
+      
       - name: Pack
         run: dotnet pack ${{ env.ProjectPath }} --configuration Release --no-build --output ${{ env.NugetOutputDir }}
 
