@@ -111,7 +111,7 @@ public static class Linq2D {
         }
     }
 
-    extension<T>(Plane<T> plane) {
+    extension<T>(Space2D<T> space2D) {
         
         /// <summary>
         /// Determines whether all elements in the specified column, adjusted for the origin offset, satisfy the given
@@ -123,8 +123,8 @@ public static class Linq2D {
         /// True if all elements in the specified column satisfy the predicate; otherwise, false.
         /// </returns>
         public bool AllAtX(int x, Predicate<T> predicate) {
-            for (int y = 0; y < plane.YSize; y++) {
-                if (!predicate(plane.Items[x + plane.XOriginOffset][y])) return false;
+            for (int y = 0; y < space2D.YSize; y++) {
+                if (!predicate(space2D.Items[x + space2D.XOriginOffset][y])) return false;
             }
         
             return true;
@@ -144,8 +144,8 @@ public static class Linq2D {
         /// considering the origin offset.
         /// </exception>
         public bool AllAtY(int y, Predicate<T> predicate) {
-            for (int x = 0; x < plane.XSize; x++) {
-                if (!predicate(plane.Items[x][y + plane.YOriginOffset])) return false;
+            for (int x = 0; x < space2D.XSize; x++) {
+                if (!predicate(space2D.Items[x][y + space2D.YOriginOffset])) return false;
             }
         
             return true;

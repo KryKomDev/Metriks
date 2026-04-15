@@ -1,13 +1,11 @@
-﻿using System.Drawing;
+﻿namespace Metriks.Tests;
 
-namespace Metriks.Test;
-
-public class PlaneTests {
+public class Space2DTests {
     
     [Fact]
     public void Constructor_Default_ShouldInitializeWithZeroOffsets() {
         // Arrange & Act
-        var list2D = new Plane<int>();
+        var list2D = new Space2D<int>();
 
         // Assert
         Assert.Equal(0, list2D.XOriginOffset);
@@ -22,7 +20,7 @@ public class PlaneTests {
     public void Indexer_WithoutOffset_ShouldBehaveLikeBaseClass() {
         
         // Arrange
-        var list2D = new Plane<int>();
+        var list2D = new Space2D<int>();
         list2D.AddX();
         list2D.AddY();
 
@@ -34,7 +32,7 @@ public class PlaneTests {
     [Fact]
     public void XStart_XEnd_YStart_YEnd_ShouldReflectOffsets() {
         // Arrange
-        var list2D = new Plane<int>();
+        var list2D = new Space2D<int>();
         list2D.AddX();
         list2D.AddX();
         list2D.AddX();
@@ -55,7 +53,7 @@ public class PlaneTests {
     [Fact]
     public void InsertXAt_AtNegativeIndex_ShouldAdjustOriginOffset() {
         // Arrange
-        var list2D = new Plane<int>();
+        var list2D = new Space2D<int>();
         list2D.AddX();
         list2D.AddX();
         list2D.AddY();
@@ -78,7 +76,7 @@ public class PlaneTests {
     [Fact]
     public void InsertYAt_AtNegativeIndex_ShouldAdjustOriginOffset() {
         // Arrange
-        var list2D = new Plane<int>();
+        var list2D = new Space2D<int>();
         list2D.AddX();
         list2D.AddY();
         list2D.AddY();
@@ -101,7 +99,7 @@ public class PlaneTests {
     [Fact]
     public void InsertXAt_AtPositiveIndex_ShouldNotAdjustOriginOffset() {
         // Arrange
-        var list2D = new Plane<int>();
+        var list2D = new Space2D<int>();
         list2D.AddX();
         list2D.AddX();
         list2D.AddY();
@@ -117,7 +115,7 @@ public class PlaneTests {
     [Fact]
     public void InsertYAt_AtPositiveIndex_ShouldNotAdjustOriginOffset() {
         // Arrange
-        var list2D = new Plane<int>();
+        var list2D = new Space2D<int>();
         list2D.AddX();
         list2D.AddY();
         list2D.AddY();
@@ -133,7 +131,7 @@ public class PlaneTests {
     [Fact]
     public void RemoveXAt_BeforeOrigin_ShouldDecreaseOriginOffset() {
         // Arrange
-        var list2D = new Plane<int>();
+        var list2D = new Space2D<int>();
         list2D.AddX();
         list2D.AddX();
         list2D.AddX();
@@ -151,7 +149,7 @@ public class PlaneTests {
     [Fact]
     public void RemoveYAt_BeforeOrigin_ShouldDecreaseOriginOffset() {
         // Arrange
-        var list2D = new Plane<int>();
+        var list2D = new Space2D<int>();
         list2D.AddX();
         list2D.AddY();
         list2D.AddY();
@@ -169,7 +167,7 @@ public class PlaneTests {
     [Fact]
     public void RemoveXAt_AtOrAfterOrigin_ShouldNotChangeOriginOffset() {
         // Arrange
-        var list2D = new Plane<int>();
+        var list2D = new Space2D<int>();
         list2D.AddX();
         list2D.AddX();
         list2D.AddX();
@@ -187,7 +185,7 @@ public class PlaneTests {
     [Fact]
     public void RemoveYAt_AtOrAfterOrigin_ShouldNotChangeOriginOffset() {
         // Arrange
-        var list2D = new Plane<int>();
+        var list2D = new Space2D<int>();
         list2D.AddX();
         list2D.AddY();
         list2D.AddY();
@@ -205,7 +203,7 @@ public class PlaneTests {
     [Fact]
     public void GetAtX_ShouldAdjustForOffset() {
         // Arrange
-        var list2D = new Plane<int>();
+        var list2D = new Space2D<int>();
         list2D.AddX();
         list2D.AddX();
         list2D.AddY();
@@ -224,7 +222,7 @@ public class PlaneTests {
     [Fact]
     public void GetAtY_ShouldAdjustForOffset() {
         // Arrange
-        var list2D = new Plane<int>();
+        var list2D = new Space2D<int>();
         list2D.AddX();
         list2D.AddX();
         list2D.AddY();
@@ -243,7 +241,7 @@ public class PlaneTests {
     [Fact]
     public void AllAtX_ShouldAdjustForOffset() {
         // Arrange
-        var list2D = new Plane<int>();
+        var list2D = new Space2D<int>();
         list2D.AddX();
         list2D.AddY();
         list2D.AddY();
@@ -261,7 +259,7 @@ public class PlaneTests {
     [Fact]
     public void AllAtY_ShouldAdjustForOffset() {
         // Arrange
-        var list2D = new Plane<int>();
+        var list2D = new Space2D<int>();
         list2D.AddX();
         list2D.AddX();
         list2D.AddY();
@@ -279,7 +277,7 @@ public class PlaneTests {
     [Fact]
     public void Place_WithoutOffset_ShouldPlaceAtOrigin() {
         // Arrange
-        var list2D = new Plane<int>();
+        var list2D = new Space2D<int>();
         var matrix = new[,] { { 1, 2 }, { 3, 4 } };
 
         // Act
@@ -295,7 +293,7 @@ public class PlaneTests {
     [Fact]
     public void Place_WithPositiveOffset_ShouldPlaceAtOffset() {
         // Arrange
-        var list2D = new Plane<int>();
+        var list2D = new Space2D<int>();
         var matrix = new int[,] { { 1, 2 } };
 
         // Act
@@ -309,7 +307,7 @@ public class PlaneTests {
     [Fact]
     public void Place_WithNegativeOffset_ShouldAdjustOriginOffsets() {
         // Arrange
-        var list2D = new Plane<int>();
+        var list2D = new Space2D<int>();
         var matrix = new int[,] { { 1, 2 }, { 3, 4 } };
 
         // Act
@@ -327,7 +325,7 @@ public class PlaneTests {
     [Fact]
     public void Place_WithPartialNegativeOffset_ShouldAdjustRelevantOffsets() {
         // Arrange
-        var list2D = new Plane<int>(new[,]{ { 0, 0 }, { 0, 0 } });
+        var list2D = new Space2D<int>(new[,]{ { 0, 0 }, { 0, 0 } });
         var matrix = new[,] { { 1, 2 } };
 
         // Act
@@ -343,7 +341,7 @@ public class PlaneTests {
     [Fact]
     public void MultipleNegativeInsertions_ShouldAccumulateOffsets() {
         // Arrange
-        var list2D = new Plane<int>();
+        var list2D = new Space2D<int>();
         list2D.AddX();
         list2D.AddY();
 
@@ -365,7 +363,7 @@ public class PlaneTests {
     [Fact]
     public void NegativeIndexing_ShouldWorkCorrectly() {
         // Arrange
-        var list2D = new Plane<int>();
+        var list2D = new Space2D<int>();
         list2D.AddX();
         list2D.AddX();
         list2D.AddY();
@@ -394,7 +392,7 @@ public class PlaneTests {
     [InlineData(0, 3)]
     public void Indexer_OutOfBounds_ShouldThrowIndexOutOfRangeException(int x, int y) {
         // Arrange
-        var list2D = new Plane<int>();
+        var list2D = new Space2D<int>();
         list2D.AddX();
         list2D.AddY();
         list2D.InsertAtY(0);
@@ -408,7 +406,7 @@ public class PlaneTests {
     [Fact]
     public void OriginOffsets_AfterComplexOperations_ShouldBeCorrect() {
         // Arrange
-        var list2D = new Plane<int>();
+        var list2D = new Space2D<int>();
         list2D.AddX();
         list2D.AddX();
         list2D.AddY();

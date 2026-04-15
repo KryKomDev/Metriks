@@ -6,6 +6,12 @@ namespace Metriks.Sample;
 public static class Example {
     
     public static void Main() {
+
+        var a = new List2D<int>();
+        a.Resize(151, 40, () => 1);
+        a.Write();
+        a.Resize(152, 39, () => 2);
+        a.Write();
         
         return;
         
@@ -25,7 +31,7 @@ public static class Example {
         l.ShrinkX();
         l.Write();
         
-        var p = new Plane<int>(new[,] { { 1, 2 }, { 3, 4 } });
+        var p = new Space2D<int>(new[,] { { 1, 2 }, { 3, 4 } });
         
         // create
         p.InsertAtX(1);

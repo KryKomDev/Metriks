@@ -1,4 +1,4 @@
-﻿namespace Metriks.Test;
+﻿namespace Metriks.Tests;
 
 public class List2DTests {
     
@@ -666,20 +666,239 @@ public class List2DTests {
     }
 
     [Fact]
-    public void Size_Property_ShouldReturnCorrectSize() {
-        
+    public void Resize_DefaultValue_ShouldResizeCorrectly() {
         // Arrange
-        var list2D = new List2D<int>();
-        list2D.AddX();
-        list2D.AddX();
-        list2D.AddY();
-        list2D.AddY();
-        list2D.AddY();
+        var list2D = new List2D<int>(collection: new[,] { { 1, 2 }, { 3, 4 } });
 
         // Act
-        var size = list2D.Size;
+        list2D.Resize(3, 3, 42);
 
         // Assert
-        Assert.Equal(new Size2D(2, 3), size);
+        Assert.Equal(3, list2D.XSize);
+        Assert.Equal(3, list2D.YSize);
+        Assert.Equal(1, list2D[0, 0]);
+        Assert.Equal(2, list2D[0, 1]);
+        Assert.Equal(42, list2D[0, 2]);
+        Assert.Equal(3, list2D[1, 0]);
+        Assert.Equal(4, list2D[1, 1]);
+        Assert.Equal(42, list2D[1, 2]);
+        Assert.Equal(42, list2D[2, 0]);
+        Assert.Equal(42, list2D[2, 1]);
+        Assert.Equal(42, list2D[2, 2]);
+    }
+
+    [Fact]
+    public void Resize_Factory_ShouldResizeCorrectly() {
+        // Arrange
+        var list2D = new List2D<int>(collection: new[,] { { 1, 2 }, { 3, 4 } });
+        int counter = 10;
+
+        // Act
+        list2D.Resize(3, 3, () => counter++);
+
+        // Assert
+        Assert.Equal(3, list2D.XSize);
+        Assert.Equal(3, list2D.YSize);
+        Assert.Equal(1, list2D[0, 0]);
+        Assert.Equal(2, list2D[0, 1]);
+        Assert.Equal(12, list2D[0, 2]); // counter: 10, 11, 12... (order of fill matters)
+        Assert.Equal(3, list2D[1, 0]);
+        Assert.Equal(4, list2D[1, 1]);
+        Assert.Equal(15, list2D[1, 2]);
+        Assert.Equal(16, list2D[2, 0]);
+    }
+
+    [Fact]
+    public void Shrink_ValidSizes_ShouldShrinkCorrectly() {
+        // Arrange
+        var list2D = new List2D<int>(collection: new[,] { { 1, 2, 3 }, { 4, 5, 6 }, { 7, 8, 9 } });
+
+        // Act
+        list2D.Shrink(2, 2);
+
+        // Assert
+        Assert.Equal(2, list2D.XSize);
+        Assert.Equal(2, list2D.YSize);
+        Assert.Equal(1, list2D[0, 0]);
+        Assert.Equal(2, list2D[0, 1]);
+        Assert.Equal(4, list2D[1, 0]);
+        Assert.Equal(5, list2D[1, 1]);
+    }
+
+    [Fact]
+    public void Contains_ShouldReturnCorrectValue() {
+        // Arrange
+        var list2D = new List2D<int>(collection: new[,] { { 1, 2 }, { 3, 4 } });
+
+        // Act & Assert
+        Assert.True(list2D.Contains(3));
+        Assert.False(list2D.Contains(5));
+    }
+
+    [Fact]
+    public void ContainsAtX_ShouldReturnCorrectValue() {
+        // Arrange
+        var list2D = new List2D<int>(collection: new[,] { { 1, 2 }, { 3, 4 } });
+
+        // Act & Assert
+        Assert.True(list2D.ContainsAtX(1, 3));
+        Assert.False(list2D.ContainsAtX(1, 1));
+    }
+
+    [Fact]
+    public void ContainsAtY_ShouldReturnCorrectValue() {
+        // Arrange
+        var list2D = new List2D<int>(collection: new[,] { { 1, 2 }, { 3, 4 } });
+
+        // Act & Assert
+        Assert.True(list2D.ContainsAtY(1, 2));
+        Assert.False(list2D.ContainsAtY(1, 1));
+    }
+
+    [Fact]
+    public void Fill_Value_ShouldFillEntireList() {
+        // Arrange
+        var list2D = new List2D<int>();
+        list2D.Expand(2, 2);
+
+        // Act
+        list2D.Fill(42);
+
+        // Assert
+        Assert.All(list2D.ToJagged(), col => Assert.All(col, val => Assert.Equal(42, val)));
+    }
+
+    [Fact]
+    public void Fill_Value_Region_ShouldFillRegion() {
+        // Arrange
+        var list2D = new List2D<int>();
+        list2D.Expand(3, 3);
+
+        // Act
+        list2D.Fill(42, 1, 2, 1, 2);
+
+        // Assert
+        Assert.Equal(0, list2D[0, 0]);
+        Assert.Equal(42, list2D[1, 1]);
+        Assert.Equal(42, list2D[1, 2]);
+        Assert.Equal(42, list2D[2, 1]);
+        Assert.Equal(42, list2D[2, 2]);
+    }
+
+    [Fact]
+    public void Clear_ShouldResetList() {
+        // Arrange
+        var list2D = new List2D<int>(collection: new[,] { { 1, 2 }, { 3, 4 } });
+
+        // Act
+        list2D.Clear();
+
+        // Assert
+        Assert.Equal(0, list2D.XSize);
+        Assert.Equal(0, list2D.YSize);
+        Assert.Equal(4, list2D.XCapacity);
+        Assert.Equal(4, list2D.YCapacity);
+    }
+
+    [Fact]
+    public void CopyTo_Array_ShouldCopyCorrectly() {
+        // Arrange
+        var list2D = new List2D<int>(collection: new[,] { { 1, 2 }, { 3, 4 } });
+        var target = new int[3, 3];
+
+        // Act
+        list2D.CopyTo(target, new Point2D(1, 1));
+
+        // Assert
+        Assert.Equal(1, target[1, 1]);
+        Assert.Equal(2, target[1, 2]);
+        Assert.Equal(3, target[2, 1]);
+        Assert.Equal(4, target[2, 2]);
+    }
+    
+    [Fact]
+    public void Properties_ShouldReturnCorrectValues() {
+        var list = new List2D<int>(new int[2, 3]);
+        Assert.Equal(6, list.Count);
+        Assert.Equal(2, list.XCount);
+        Assert.Equal(3, list.YCount);
+        Assert.False(list.IsReadOnly);
+    }
+
+    [Fact]
+    public void Indexer_Range_ShouldWork() {
+        var list = new List2D<int>(new[,] { { 1, 2, 3 }, { 4, 5, 6 }, { 7, 8, 9 } });
+        
+        var xRange = list[1..3, 1]; // elements at x=1,2 and y=1 => [5, 8]
+        Assert.Equal(new[] { 5, 8 }, xRange);
+
+        var yRange = list[1, 1..3]; // elements at x=1 and y=1,2 => [5, 6]
+        Assert.Equal(new[] { 5, 6 }, yRange);
+    }
+
+    [Fact]
+    public void Indexer_Index_ShouldWork() {
+        var list = new List2D<int>(new[,] { { 1, 2 }, { 3, 4 } });
+        Assert.Equal(4, list[^1, ^1]);
+        list[^1, ^1] = 10;
+        Assert.Equal(10, list[1, 1]);
+    }
+
+    [Fact]
+    public void Fill_WithFunc_ShouldWork() {
+        var list = new List2D<int>(new int[2, 2]);
+        int val = 0;
+        list.Fill(() => val++);
+        Assert.Equal(0, list[0, 0]);
+        Assert.Equal(1, list[0, 1]);
+        Assert.Equal(2, list[1, 0]);
+        Assert.Equal(3, list[1, 1]);
+    }
+
+    [Fact]
+    public void FillRegion_WithFunc_ShouldWork() {
+        var list = new List2D<int>(new int[4, 4]);
+        int val = 0;
+        list.Fill(() => val++, 1, 2, 1, 2); // x: 1,2; y: 1,2
+        Assert.Equal(0, list[1, 1]);
+        Assert.Equal(1, list[1, 2]);
+        Assert.Equal(2, list[2, 1]);
+        Assert.Equal(3, list[2, 2]);
+        Assert.Equal(0, list[0, 0]);
+    }
+
+    [Fact]
+    public void Place_List2D_ShouldWork() {
+        var list = new List2D<int>(new int[4, 4]);
+        var sub = new List2D<int>(new[,] { { 1, 2 }, { 3, 4 } });
+        list.Place(sub, new Point2D(1, 1));
+        
+        Assert.Equal(1, list[1, 1]);
+        Assert.Equal(2, list[1, 2]);
+        Assert.Equal(3, list[2, 1]);
+        Assert.Equal(4, list[2, 2]);
+    }
+
+    [Fact]
+    public void Place_WithPredicate_ShouldWork() {
+        var list = new List2D<int>(new int[2, 2]);
+        list.Fill(10);
+        var arr = new[,] { { 1, 20 }, { 30, 4 } };
+        // Place only if source > target
+        list.Place(arr, (tgt, src) => src > tgt, Point2D.Zero);
+        
+        Assert.Equal(10, list[0, 0]); // 1 < 10 (no place)
+        Assert.Equal(20, list[0, 1]); // 20 > 10 (place)
+        Assert.Equal(30, list[1, 0]); // 30 > 10 (place)
+        Assert.Equal(10, list[1, 1]); // 4 < 10 (no place)
+    }
+
+    [Fact]
+    public void CopyTo_Array_ShouldWork() {
+        var list = new List2D<int>(new[,] { { 1, 2 }, { 3, 4 } });
+        var target = new int[2, 2];
+        list.CopyTo(target, Point2D.Zero);
+        Assert.Equal(1, target[0, 0]);
+        Assert.Equal(4, target[1, 1]);
     }
 }

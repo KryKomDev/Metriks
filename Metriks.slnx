@@ -1,5 +1,5 @@
 ﻿<Solution>
-  <Project Path="Metriks.Sample\Metriks.Sample.csproj" Type="Classic C#" />
-  <Project Path="Metriks.Test\Metriks.Test.csproj" Type="Classic C#" />
-  <Project Path="Metriks\Metriks.csproj" Type="Classic C#" />
+  <Project Path="Metriks.Sample\Metriks.Sample.csproj" Type="C#" />
+  <Project Path="Metriks.Tests/Metriks.Tests.csproj" Type="C#" />
+  <Project Path="Metriks\Metriks.csproj" Type="C#" />
 </Solution>

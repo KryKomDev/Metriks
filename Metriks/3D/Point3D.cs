@@ -1,6 +1,6 @@
 ﻿namespace Metriks;
 
-public readonly struct Point3D : IEquatable<Point3D> {
+public readonly record struct Point3D {
     public int X { get; }
     public int Y { get; }
     public int Z { get; }
@@ -11,22 +11,20 @@ public readonly struct Point3D : IEquatable<Point3D> {
         Z = z;
     }
     
-    public static Point3D Empty => new(0, 0, 0);
-    
-    public override string ToString() => $"({X}, {Y})";
+    public override string ToString() => $"[{X}, {Y}, {Z}]";
+    public Size3D ToSize() => new(X, Y, Z);
     
     public static Point3D operator +(Point3D l, Point3D r) => new(l.X + r.X, l.Y + r.Y, l.Z + r.Z);
     public static Point3D operator -(Point3D l, Point3D r) => new(l.X - r.X, l.Y - r.Y, l.Z - r.Z);
     public static Point3D operator *(Point3D l, Point3D r) => new(l.X * r.X, l.Y * r.Y, l.Z * r.Z);
     public static Point3D operator /(Point3D l, Point3D r) => new(l.X / r.X, l.Y / r.Y, l.Z / r.Z);
 
-    public bool Equals(Point3D other) => X == other.X && Y == other.Y && Z == other.Z;
-
-    public override bool Equals(object? obj) => obj is Point2D other && Equals(other);
-
-    public override int GetHashCode() {
-        unchecked {
-            return (X * 397) ^ (Y * 16807) ^ Z;
-        }
+    public void Deconstruct(out int x, out int y, out int z) {
+        x = X;
+        y = Y;
+        z = Z;
     }
+
+    public static Point3D Zero { get; } = new(0, 0, 0);
+    public static Point3D One  { get; } = new(1, 1, 1);
 }

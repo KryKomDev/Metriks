@@ -5,7 +5,7 @@ namespace Metriks;
 
 public static class PlaneExtensions {
     
-    public static void WriteTable<T>(this Plane<T> list) {
+    public static void WriteTable<T>(this Space2D<T> list) {
         
         int maxXLen = Math.Max(list.XStart.ToString().Length, list.XEnd.ToString().Length);
         int maxYLen = Math.Max(list.YStart.ToString().Length, list.YEnd.ToString().Length);

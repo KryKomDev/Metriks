@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 
 namespace Metriks;
 
-public class List2D<T> : IList2D<T>, ICollection2D, IReadonlyList2D<T> {
+public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
 
     private const int INITIAL_CAPACITY = 4;
     private const float GROWTH_FACTOR = 2f;
@@ -126,6 +126,25 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadonlyList2D<T> {
         }
     }
     
+    #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+    public T[] this[Range x, int y] {
+        get {
+            var (offset, length) = x.GetOffsetAndLength(_xSize);
+            var result = new T[length];
+            for (int i = 0; i < length; i++) result[i] = _items[offset + i][y];
+            return result;
+        }
+    }
+    public T[] this[int x, Range y] {
+        get {
+            var (offset, length) = y.GetOffsetAndLength(_ySize);
+            var result = new T[length];
+            for (int i = 0; i < length; i++) result[i] = _items[x][offset + i];
+            return result;
+        }
+    }
+    #endif
+
     #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     
     public T this[Index x, Index y] {
@@ -277,7 +296,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadonlyList2D<T> {
                 Array.Copy(_items[x], newArray, _ySize);
                
                 if (defaultValue is not null)
-                    Array.Fill(_items[x], defaultValue, _ySize, ySize - _ySize);
+                    Array.Fill(newArray, defaultValue, _ySize, ySize - _ySize);
                 
                 _items[x] = newArray;
             }
@@ -374,21 +393,11 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadonlyList2D<T> {
         for (int x = 0; x < xSize; x++) {
             newItems[x] = new T[ySize];
 
-            if (defaultValue is not null) continue;
-            
-            for (int y = _ySize; y < ySize; y++) {
-                newItems[x][y] = defaultValue!;
+            if (defaultValue is not null) {
+                Array.Fill(newItems[x], defaultValue);
             }
         }
 
-        if (defaultValue is not null) {
-            for (int x = _xSize; x < xSize; x++) {
-                for (int y = 0; y < Math.Min(_ySize, ySize); y++) {
-                    newItems[x][y] = defaultValue;
-                }
-            }
-        }
-        
         for (int x = 0; x < Math.Min(_xSize, xSize); x++) {
             Array.Copy(_items[x], newItems[x], Math.Min(_ySize, ySize));
         }
@@ -412,32 +421,25 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadonlyList2D<T> {
         if (ySize < 0) throw new ArgumentOutOfRangeException(nameof(ySize), "Cannot resize a List2D with a negative YSize.");
 
         var newItems = new T[xSize][];
-        
+
         for (int x = 0; x < xSize; x++) {
             newItems[x] = new T[ySize];
-            
-            for (int y = _ySize; y < ySize; y++) {
+
+            for (int y = 0; y < ySize; y++) {
                 newItems[x][y] = defaultValueFactory();
             }
         }
 
-        for (int x = _xSize; x < xSize; x++) {
-            for (int y = 0; y < Math.Min(_ySize, ySize); y++) {
-                newItems[x][y] = defaultValueFactory();
-            }
-        }
-        
         for (int x = 0; x < Math.Min(_xSize, xSize); x++) {
             Array.Copy(_items[x], newItems[x], Math.Min(_ySize, ySize));
         }
-        
+
         _items = newItems;
         _xSize = xSize;
         _ySize = ySize;
         _xCapacity = xSize;
         _yCapacity = ySize;
     }
-
     /// <summary>
     /// Reduces the dimensions of the 2D list to the specified sizes.
     /// </summary>
@@ -492,10 +494,8 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadonlyList2D<T> {
         _ySize--;
 
         for (int x = 0; x < _xSize; x++) {
-            var newArray = new T[_yCapacity];
-            Array.Copy(_items[x], newArray, y);
-            Array.Copy(_items[x], y + 1, newArray, y, _ySize - y);
-            _items[x] = newArray;
+            Array.Copy(_items[x], y + 1, _items[x], y, _ySize - y);
+            _items[x][_ySize] = default!;
         }
     }
 
@@ -604,9 +604,9 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadonlyList2D<T> {
     /// <param name="resize">If true, enables automatic resizing of this list depending on
     /// the size and offset of the placed array.</param>
     public void Place(T[,] matrix, Point2D? offsetPoint = null, bool resize = true) {
-        var offset = offsetPoint ?? Point2D.Empty;
+        var offset = offsetPoint ?? Point2D.Zero;
 
-        var placedMax = offset + matrix.Size;
+        var placedMax = offset + matrix.Size.ToPoint();
 
         var max = new Point2D(Math.Max(_xSize, placedMax.X), Math.Max(_ySize, placedMax.Y));
         var min = new Point2D(Math.Min(offset.X, 0), Math.Min(offset.Y, 0));
@@ -645,7 +645,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadonlyList2D<T> {
             // set _matrix to the new matrix and update size data
             _items     = newMatrix;
             _xSize     = newSize.X;
-            _ySize     = newSize.X;
+            _ySize     = newSize.Y;
             _xCapacity = _xSize;
             _yCapacity = _ySize;
         }
@@ -676,9 +676,9 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadonlyList2D<T> {
     /// <param name="resize">If true, enables automatic resizing of this list depending on
     /// the size and offset of the placed array.</param>
     public void Place(List2D<T> matrix, Point2D? offsetPoint = null, bool resize = true) {
-        var offset = offsetPoint ?? Point2D.Empty;
+        var offset = offsetPoint ?? Point2D.Zero;
 
-        var placedMax = offset + matrix.Size;
+        var placedMax = offset + matrix.Size.ToPoint();
 
         var max = new Point2D(Math.Max(_xSize, placedMax.X), Math.Max(_ySize, placedMax.Y));
         var min = new Point2D(Math.Min(offset.X, 0), Math.Min(offset.Y, 0));
@@ -706,7 +706,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadonlyList2D<T> {
             }
 
             // copy input into the new matrix
-            for (int x = 0; x < matrix._ySize; x++) {
+            for (int x = 0; x < matrix._xSize; x++) {
                 Array.Copy(matrix._items[x], 0, newMatrix[x + newXOffset], newYOffset, matrix._ySize);
             }
             
@@ -724,20 +724,11 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadonlyList2D<T> {
             }
             
             // copy input into _matrix
-            if ((placedMax.X > _xSize || placedMax.Y > _ySize) && resize) {
-                Expand(newSize.X, newSize.Y);
-            }
-            
-            // copy input into _matrix
             for (int x = Math.Clamp(offset.X, 0, _xSize); x < Math.Min(_xSize, offset.X + matrix._xSize); x++) {
                 for (int y = Math.Clamp(offset.Y, 0, _ySize); y < Math.Min(_ySize, offset.Y + matrix._ySize); y++) {
                     _items[x][y] = matrix[x - offset.X, y - offset.Y];
                 }
             }
-            
-            // for (int x = 0; x < matrix._xSize; x++) {
-            //     Array.Copy(matrix._items[x], 0, _items[x + offset.X], offset.Y, matrix._ySize);
-            // }
         }
     }
 
@@ -755,9 +746,9 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadonlyList2D<T> {
     /// <param name="resize">If true, enables automatic resizing of this list depending on
     /// the size and offset of the placed array.</param>
     public void Place(T[,] matrix, Func<T, T, bool> predicate, Point2D? offsetPoint = null, bool resize = true) {
-        var offset = offsetPoint ?? Point2D.Empty;
+        var offset = offsetPoint ?? Point2D.Zero;
 
-        var placedMax = offset + matrix.Size;
+        var placedMax = offset + matrix.Size.ToPoint();
 
         var max = new Point2D(Math.Max(_xSize, placedMax.X), Math.Max(_ySize, placedMax.Y));
         var min = new Point2D(Math.Min(offset.X, 0), Math.Min(offset.Y, 0));
@@ -789,7 +780,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadonlyList2D<T> {
             // copy input into the new matrix
             for (int x = 0; x < matrix.Len0; x++) {
                 for (int y = 0; y < matrix.Len1; y++) {
-                    if (predicate(_items[x + oldXOffset][y + oldYOffset], matrix[x, y])) 
+                    if (predicate(newMatrix[x + newXOffset][y + newYOffset], matrix[x, y])) 
                         newMatrix[x + newXOffset][y + newYOffset] = matrix[x, y];   
                 }
             }
@@ -797,7 +788,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadonlyList2D<T> {
             // set _matrix to the new matrix and update size data
             _items     = newMatrix;
             _xSize     = newSize.X;
-            _ySize     = newSize.X;
+            _ySize     = newSize.Y;
             _xCapacity = _xSize;
             _yCapacity = _ySize;
         }
@@ -831,9 +822,9 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadonlyList2D<T> {
     /// <param name="resize">If true, enables automatic resizing of this list depending on
     /// the size and offset of the placed array.</param>
     public void Place(List2D<T> matrix, Func<T, T, bool> predicate, Point2D? offsetPoint = null, bool resize = true) {
-        var offset = offsetPoint ?? Point2D.Empty;
+        var offset = offsetPoint ?? Point2D.Zero;
 
-        var placedMax = offset + matrix.Size;
+        var placedMax = offset + matrix.Size.ToPoint();
 
         var max = new Point2D(Math.Max(_xSize, placedMax.X), Math.Max(_ySize, placedMax.Y));
         var min = new Point2D(Math.Min(offset.X, 0), Math.Min(offset.Y, 0));
@@ -1028,7 +1019,11 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadonlyList2D<T> {
             yield return GetAtX(x);
     }
     
-    IEnumerator<IEnumerable> IEnumerable2D.GetEnumerator() => GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    IEnumerator IEnumerable2D.GetEnumerator() => GetEnumerator();
+
+    IEnumerable IEnumerable2D.GetAtX(int x) => GetAtX(x);
+    IEnumerable IEnumerable2D.GetAtY(int y) => GetAtY(y);
 
 
     /// <summary>
