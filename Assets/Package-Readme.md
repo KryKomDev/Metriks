@@ -1,20 +1,8 @@
-<h1 align="center">Metriks</h1>
+﻿# Metriks
 
-<p align="center">A multidimensional dynamic array library for C#.</p>
-
-<div align="center">
-    <p>
-        <img src="https://img.shields.io/github/license/KryKomDev/Metriks?style=for-the-badge&amp;labelColor=%235F6473&amp;color=%23F2A0A0" alt="GitHub License" />
-        <a href="https://www.nuget.org/packages/Metriks"><img src="https://img.shields.io/nuget/v/Metriks?color=F0CA95&amp;style=for-the-badge&amp;labelColor=5F6473" alt="NuGet" /></a>
-        <img src="https://img.shields.io/nuget/dt/Metriks?color=E3ED8A&amp;style=for-the-badge&amp;labelColor=5F6473" alt="NuGet Downloads" />
-        <img src="https://img.shields.io/github/actions/workflow/status/KryKomDev/Metriks/test.yml?style=for-the-badge&amp;labelColor=%235F6473&amp;color=%2395EC7D" alt="GitHub Actions Workflow Status" />
-        <img src="https://img.shields.io/badge/.NET-Standard2.1-7ACFDC?style=for-the-badge&amp;labelColor=5F6473" alt=".NET Standard" />
-    </p>
-</div>
-
-Metriks is a high-performance C# library providing dynamic multidimensional arrays (lists). 
-It bridges the gap between fixed-size multidimensional arrays (`T[,]`, `T[,,]`) and the 
-flexibility of `List<T>`, allowing you to grow, shrink, and resize your multidimensional 
+Metriks is a high-performance C# library providing dynamic multidimensional arrays (lists).
+It bridges the gap between fixed-size multidimensional arrays (`T[,]`, `T[,,]`) and the
+flexibility of `List<T>`, allowing you to grow, shrink, and resize your multidimensional
 data structures easily.
 
 ## Features
@@ -77,7 +65,7 @@ Metriks provides several ways to change the size of your collections:
 - **Shrink:** Decreases the size of the list, removing elements outside the new bounds.
 - **Resize:** A general-purpose method to set the exact size, either expanding or shrinking as needed.
 
-For detailed information on how data is preserved during resizing, see the 
+For detailed information on how data is preserved during resizing, see the
 [Resize/Expand/Shrink Behavior](Docs/Resize-Expand-Shrink-Behaviour.md) documentation.
 
 ## Performance
@@ -85,7 +73,7 @@ For detailed information on how data is preserved during resizing, see the
 Metriks is designed with performance in mind:
 - Uses jagged arrays internally for efficient memory management and access.
 - Aggressive inlining for hot paths.
-- Specialized classes for 2D, 3D, and 4D to avoid the overhead of generic N-dimensional 
+- Specialized classes for 2D, 3D, and 4D to avoid the overhead of generic N-dimensional
   indexing where possible.
 
 ## License

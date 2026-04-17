@@ -40,7 +40,7 @@ public readonly record struct Size4D {
         Z = z;
     }
     
-    public override string ToString() => $"({W}, {X}, {Y}, {Z})";
+    public override string ToString() => $"{W}x{X}x{Y}x{Z}";
 
     public Point4D ToPoint() => new(W, X, Y, Z);
     
@@ -60,4 +60,26 @@ public readonly record struct Size4D {
         y = Y;
         z = Z;
     }
+    
+    /// <summary>
+    /// Returns a new <see cref="Size4D"/> with the maximum W, X, Y, and Z values
+    /// from the two specified sizes.
+    /// </summary>
+    /// <param name="a">The first <see cref="Size4D"/> to compare.</param>
+    /// <param name="b">The second <see cref="Size4D"/> to compare.</param>
+    /// <returns>A new <see cref="Size4D"/> containing the maximum W, X, Y, and Z values
+    /// from the two input sizes.</returns>
+    public static Size4D Max(Size4D a, Size4D b) =>
+        new(Math.Max(a.W, b.W), Math.Max(a.X, b.X), Math.Max(a.Y, b.Y), Math.Max(a.Z, b.Z));
+
+    /// <summary>
+    /// Returns a new <see cref="Size4D"/> with the minimum W, X, Y, and Z values
+    /// from the two specified sizes.
+    /// </summary>
+    /// <param name="a">The first <see cref="Size4D"/> to compare.</param>
+    /// <param name="b">The second <see cref="Size4D"/> to compare.</param>
+    /// <returns>A new <see cref="Size4D"/> containing the minimum W, X, Y, and Z values
+    /// from the two input sizes.</returns>
+    public static Size4D Min(Size4D a, Size4D b) => 
+        new(Math.Min(a.W, b.W), Math.Min(a.X, b.X), Math.Min(a.Y, b.Y), Math.Min(a.Z, b.Z));
 }

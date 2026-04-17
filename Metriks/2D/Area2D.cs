@@ -1,6 +1,6 @@
 ﻿namespace Metriks;
 
-public readonly record struct Area2D {
+public readonly record struct Area2D : IFormattable {
 
     private readonly int _lx;
     private readonly int _ly;
@@ -66,7 +66,10 @@ public readonly record struct Area2D {
         _hy = lower.Y + s.Y;
     }
 
-    public override string ToString() => $"{Lower}:{Higher}{Size}";
+    public override string ToString() => ToString(null, null);
+
+    public string ToString(string? format, IFormatProvider? formatProvider) => 
+        $"[{Lower.ToString(format, formatProvider)}:{Higher.ToString(format, formatProvider)} | {Size}]";
 
     public static Area2D operator +(Area2D area, Size2D size) => new(area.Lower, area.Size + size);
     public static Area2D operator -(Area2D area, Size2D size) => new(area.Lower, area.Size - size);
