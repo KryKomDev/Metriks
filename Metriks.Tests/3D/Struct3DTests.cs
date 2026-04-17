@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace Metriks.Tests;
 
 public class Struct3DTests {
@@ -105,6 +107,7 @@ public class Struct3DTests {
     [Fact]
     public void Area3D_ToString_ShouldReturnExpectedFormat() {
         var area = new Area3D(new Point3D(0, 0, 0), new Point3D(10, 20, 30));
-        Assert.Equal("[0, 0, 0]:[10, 20, 30](10, 20, 30)", area.ToString());
+        Assert.Equal("[(0, 0, 0):(10, 20, 30) | 10x20x30]", area.ToString(null, CultureInfo.InvariantCulture));
+        Assert.Equal("[[0; 0; 0]:[10; 20; 30] | 10x20x30]", area.ToString(null, CultureInfo.GetCultureInfo("cs-CZ")));
     }
 }

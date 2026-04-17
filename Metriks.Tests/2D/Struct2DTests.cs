@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace Metriks.Tests;
 
 public class Struct2DTests {
@@ -86,14 +88,14 @@ public class Struct2DTests {
         var area = new Area2D(new Point2D(1, 2), new Point2D(3, 4));
         
         {
-            area.Deconstruct(out Point2D p1, out Point2D p2);
+            area.Deconstruct(out var p1, out Point2D p2);
             Assert.Equal(new Point2D(1, 2), p1);
             Assert.Equal(new Point2D(3, 4), p2);
         }
 
         {
-            area.Deconstruct(out Point2D p_start, out Size2D size);
-            Assert.Equal(new Point2D(1, 2), p_start);
+            area.Deconstruct(out var pStart, out Size2D size);
+            Assert.Equal(new Point2D(1, 2), pStart);
             Assert.Equal(new Size2D(2, 2), size);
         }
     }
@@ -101,6 +103,7 @@ public class Struct2DTests {
     [Fact]
     public void Area2D_ToString_ShouldReturnExpectedFormat() {
         var area = new Area2D(new Point2D(0, 0), new Point2D(10, 20));
-        Assert.Equal("[0, 0]:[10, 20](10, 20)", area.ToString());
+        Assert.Equal("[(0, 0):(10, 20) | 10x20]", area.ToString(null, CultureInfo.InvariantCulture));
+        Assert.Equal("[[0; 0]:[10; 20] | 10x20]", area.ToString(null, CultureInfo.GetCultureInfo("cs-CZ")));
     }
 }
