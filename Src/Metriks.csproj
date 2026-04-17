@@ -9,23 +9,24 @@
 
         <Authors>KryKom</Authors>
         <Company>KryKom</Company>
-        <Version>2026.2.1</Version>
+        <Version>2026.2.2</Version>
         <PackageProjectUrl>https://github.com/KryKomDev/Metriks</PackageProjectUrl>
         <PackageLicense>https://github.com/KryKomDev/Metriks/blob/main/LICENSE</PackageLicense>
         <RepositoryUrl>https://github.com/KryKomDev/Metriks</RepositoryUrl>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageIcon>package-icon.png</PackageIcon>
+        <PackageReadmeFile>Package-Readme.md</PackageReadmeFile>
+        <PackageIcon>Package-Icon.png</PackageIcon>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <Description>A multidimensional dynamic array library for C#.</Description>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <ItemGroup>
-        <None Include="../README.md" Pack="true" PackagePath=""/>
-        <None Include="../Assets/package-icon.png" Pack="true" PackagePath=""/>
+        <None Include="../Assets/Package-Readme.md" Pack="true" PackagePath=""/>
+        <None Include="../Assets/Package-Icon.png" Pack="true" PackagePath=""/>
     </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="JetBrains.Annotations" Version="2025.2.4" />
+      <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.2" />
     </ItemGroup>
 </Project>

@@ -27,7 +27,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Metriks\Metriks.csproj" />
+      <ProjectReference Include="../../Src/Metriks.csproj" />
     </ItemGroup>
 
 </Project>
