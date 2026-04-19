@@ -57,6 +57,9 @@ public readonly record struct Point4D : IFormattable {
 
     public Size4D ToSize() => new(W, X, Y, Z);
     
+    public static Point4D operator +(Point4D p) => p;
+    public static Point4D operator -(Point4D p) => new(-p.W, -p.X, -p.Y, -p.Z);
+
     public static Point4D operator +(Point4D l, Point4D r) => new(l.W + r.W, l.X + r.X, l.Y + r.Y, l.Z + r.Z);
     public static Point4D operator -(Point4D l, Point4D r) => new(l.W - r.W, l.X - r.X, l.Y - r.Y, l.Z - r.Z);
     public static Point4D operator *(Point4D l, Point4D r) => new(l.W * r.W, l.X * r.X, l.Y * r.Y, l.Z * r.Z);

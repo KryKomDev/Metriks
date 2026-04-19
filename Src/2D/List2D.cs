@@ -8,8 +8,8 @@ namespace Metriks;
 
 public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
 
-    private const int INITIAL_CAPACITY = 4;
-    private const float GROWTH_FACTOR = 2f;
+    private const int   INITIAL_CAPACITY = 4;
+    private const float GROWTH_FACTOR    = 2f;
 
     /// <summary>
     /// Represents the underlying two-dimensional array used to store the elements of the List2D instance.

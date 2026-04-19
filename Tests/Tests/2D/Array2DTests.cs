@@ -1,6 +1,7 @@
 namespace Metriks.Tests;
 
 public class Array2DTests {
+    
     [Fact]
     public void Copy_FullArray_CopiesAllElements() {
         // Arrange
@@ -141,5 +142,107 @@ public class Array2DTests {
 
         // Act & Assert
         Assert.Throws<IndexOutOfRangeException>(() => Array2D.Copy(source, 0, 0, destination, 0, 0, 1, 1));
+    }
+
+    [Fact]
+    public void Fill_SubRegion_FillsCorrectElements() {
+        // Arrange
+        int[,] array = new int[3, 3];
+
+        // Act
+        Array2D.Fill(array, 42, 1, 1, 1, 1);
+
+        // Assert
+        Assert.Equal(42, array[1, 1]);
+        Assert.Equal(0, array[0, 0]);
+        Assert.Equal(0, array[2, 2]);
+    }
+
+    [Fact]
+    public void Fill_AreaOverload_FillsCorrectElements() {
+        // Arrange
+        int[,] array = new int[3, 3];
+        Area2D area = new Area2D(new Point2D(1, 1), new Size2D(1, 1));
+
+        // Act
+        Array2D.Fill(array, 42, area);
+
+        // Assert
+        Assert.Equal(42, array[1, 1]);
+        Assert.Equal(42, array[2, 2]);
+        Assert.Equal(0, array[0, 0]);
+    }
+
+    [Fact]
+    public void Fill_Factory_FillsCorrectElements() {
+        // Arrange
+        int[,] array = new int[2, 2];
+        int val = 0;
+
+        // Act
+        Array2D.Fill(array, () => ++val, 0, 0, 2, 2);
+
+        // Assert
+        Assert.Equal(1, array[0, 0]);
+        Assert.Equal(1, array[0, 1]);
+        Assert.Equal(2, array[1, 0]);
+        Assert.Equal(2, array[1, 1]);
+    }
+
+    [Fact]
+    public void Fill_ZeroCount_DoesNothing() {
+        // Arrange
+        int[,] array = new int[1, 1];
+
+        // Act
+        Array2D.Fill(array, 42, 0, 0, 0, 1);
+        Array2D.Fill(array, 42, 0, 0, 1, 0);
+
+        // Assert
+        Assert.Equal(0, array[0, 0]);
+    }
+
+    [Fact]
+    public void Clear_SubRegion_ClearsCorrectElements() {
+        // Arrange
+        int[,] array = {
+            { 1, 2, 3 },
+            { 4, 5, 6 },
+            { 7, 8, 9 }
+        };
+
+        // Act
+        Array2D.Clear(array, 1, 1, 1, 1);
+
+        // Assert
+        Assert.Equal(0, array[1, 1]);
+        Assert.Equal(1, array[0, 0]);
+        Assert.Equal(9, array[2, 2]);
+    }
+
+    [Fact]
+    public void Clear_ZeroCount_DoesNothing() {
+        // Arrange
+        int[,] array = { { 1 } };
+
+        // Act
+        Array2D.Clear(array, 0, 0, 0, 1);
+        Array2D.Clear(array, 0, 0, 1, 0);
+
+        // Assert
+        Assert.Equal(1, array[0, 0]);
+    }
+
+    [Fact]
+    public void Copy_NegativeCount_DoesNothing() {
+        // Arrange
+        int[,] source = { { 1 } };
+        int[,] destination = { { 0 } };
+
+        // Act
+        Array2D.Copy(source, 0, 0, destination, 0, 0, -1, 1);
+
+        // Assert
+        Assert.Equal(0, destination[0, 0]);
     }
 }

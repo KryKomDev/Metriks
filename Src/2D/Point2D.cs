@@ -40,12 +40,15 @@ public readonly record struct Point2D : IFormattable {
     }
 
     public Size2D ToSize() => new(X, Y);
+    
+    public static Point2D operator +(Point2D p) => p;
+    public static Point2D operator -(Point2D p) => new(-p.X, -p.Y);
 
     public static Point2D operator +(Point2D l, Point2D r) => new(l.X + r.X, l.Y + r.Y);
     public static Point2D operator -(Point2D l, Point2D r) => new(l.X - r.X, l.Y - r.Y);
     public static Point2D operator *(Point2D l, Point2D r) => new(l.X * r.X, l.Y * r.Y);
     public static Point2D operator /(Point2D l, Point2D r) => new(l.X / r.X, l.Y / r.Y);
-
+    
     public static explicit operator Size2D(Point2D point) => new(point.X, point.Y);
 
     public static Point2D Zero { get; } = new(0, 0);

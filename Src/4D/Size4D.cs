@@ -44,6 +44,9 @@ public readonly record struct Size4D {
 
     public Point4D ToPoint() => new(W, X, Y, Z);
     
+    public static Size4D operator +(Size4D p) => p;
+    public static Size4D operator -(Size4D p) => new(-p.W, -p.X, -p.Y, -p.Z);
+
     public static Size4D operator +(Size4D l, Size4D r) => new(l.W + r.W, l.X + r.X, l.Y + r.Y, l.Z + r.Z);
     public static Size4D operator -(Size4D l, Size4D r) => new(l.W - r.W, l.X - r.X, l.Y - r.Y, l.Z - r.Z);
     public static Size4D operator *(Size4D l, Size4D r) => new(l.W * r.W, l.X * r.X, l.Y * r.Y, l.Z * r.Z);

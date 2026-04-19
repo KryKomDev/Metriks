@@ -28,6 +28,9 @@ public readonly record struct Size2D {
 
     public Point2D ToPoint() => new(X, Y);
     
+    public static Size2D operator +(Size2D p) => p;
+    public static Size2D operator -(Size2D p) => new(-p.X, -p.Y);
+
     public static Size2D operator +(Size2D l, Size2D r) => new(l.X + r.X, l.Y + r.Y);
     public static Size2D operator -(Size2D l, Size2D r) => new(l.X - r.X, l.Y - r.Y);
     public static Size2D operator *(Size2D l, Size2D r) => new(l.X * r.X, l.Y * r.Y);

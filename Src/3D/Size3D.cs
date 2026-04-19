@@ -17,6 +17,9 @@ public readonly record struct Size3D {
     public override string ToString() => $"{X}x{Y}x{Z}";
     public Point3D ToPoint() => new(X, Y, Z);
 
+    public static Size3D operator +(Size3D p) => p;
+    public static Size3D operator -(Size3D p) => new(-p.X, -p.Y, -p.Z);
+
     public static Size3D operator +(Size3D l, Size3D r) => new(l.X + r.X, l.Y + r.Y, l.Z + r.Z);
     public static Size3D operator -(Size3D l, Size3D r) => new(l.X - r.X, l.Y - r.Y, l.Z - r.Z);
     public static Size3D operator *(Size3D l, Size3D r) => new(l.X * r.X, l.Y * r.Y, l.Z * r.Z);

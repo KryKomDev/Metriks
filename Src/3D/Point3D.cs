@@ -31,6 +31,9 @@ public readonly record struct Point3D {
     
     public Size3D ToSize() => new(X, Y, Z);
     
+    public static Point3D operator +(Point3D p) => p;
+    public static Point3D operator -(Point3D p) => new(-p.X, -p.Y, -p.Z);
+    
     public static Point3D operator +(Point3D l, Point3D r) => new(l.X + r.X, l.Y + r.Y, l.Z + r.Z);
     public static Point3D operator -(Point3D l, Point3D r) => new(l.X - r.X, l.Y - r.Y, l.Z - r.Z);
     public static Point3D operator *(Point3D l, Point3D r) => new(l.X * r.X, l.Y * r.Y, l.Z * r.Z);

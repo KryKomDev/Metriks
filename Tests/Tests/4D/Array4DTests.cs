@@ -53,4 +53,67 @@ public class Array4DTests {
         // Assert
         Assert.Equal(42, destination[0, 0, 0, 0]);
     }
+
+    [Fact]
+    public void Copy_Shorthand_CopiesCorrectElements() {
+        // Arrange
+        int[,,,] source = new int[2, 2, 2, 2];
+        source[0, 0, 0, 0] = 42;
+        int[,,,] destination = new int[3, 3, 3, 3];
+
+        // Act
+        Array4D.Copy(source, destination, new Point4D(1, 1, 1, 1));
+
+        // Assert
+        Assert.Equal(42, destination[1, 1, 1, 1]);
+    }
+
+    [Fact]
+    public void Fill_SubRegion_FillsCorrectElements() {
+        // Arrange
+        int[,,,] array = new int[3, 3, 3, 3];
+
+        // Act
+        Array4D.Fill(array, 42, 1, 1, 1, 1, 1, 1, 1, 1);
+
+        // Assert
+        Assert.Equal(42, array[1, 1, 1, 1]);
+        Assert.Equal(0, array[0, 0, 0, 0]);
+    }
+
+    [Fact]
+    public void Clear_SubRegion_ClearsCorrectElements() {
+        // Arrange
+        int[,,,] array = new int[3, 3, 3, 3];
+        Array4D.Fill(array, 42, 0, 0, 0, 0, 3, 3, 3, 3);
+
+        // Act
+        Array4D.Clear(array, 1, 1, 1, 1, 1, 1, 1, 1);
+
+        // Assert
+        Assert.Equal(0, array[1, 1, 1, 1]);
+        Assert.Equal(42, array[0, 0, 0, 0]);
+    }
+
+    [Fact]
+    public void Copy_NullSource_ThrowsNullReferenceException() {
+        // Arrange
+        int[,,,] source = null!;
+        int[,,,] destination = new int[1, 1, 1, 1];
+
+        // Act & Assert
+        Assert.Throws<NullReferenceException>(() => Array4D.Copy(source, 0, 0, 0, 0, destination, 0, 0, 0, 0, 1, 1, 1, 1));
+    }
+
+    [Fact]
+    public void Fill_ZeroCount_DoesNothing() {
+        // Arrange
+        int[,,,] array = new int[1, 1, 1, 1];
+
+        // Act
+        Array4D.Fill(array, 42, 0, 0, 0, 0, 0, 1, 1, 1);
+
+        // Assert
+        Assert.Equal(0, array[0, 0, 0, 0]);
+    }
 }
