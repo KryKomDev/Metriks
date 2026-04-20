@@ -1,0 +1,59 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dotnet/docfx/main/schemas/docfx.schema.json",
+  "metadata": [
+    {
+      "src": [
+        {
+          "src": "../Src",
+          "files": [
+            "**/*.csproj"
+          ]
+        }
+      ],
+      "dest": "api"
+    }
+  ],
+  "build": {
+    "content": [
+      {
+        "files": [
+          "api/**.yml"
+        ]
+      },
+      {
+        "files": [
+          "Index.md",
+          "toc.yml",
+          "articles/toc.yml"
+        ]
+      },
+      {
+        "files": [
+          "*.md"
+        ],
+        "exclude": [
+          "Index.md"
+        ],
+        "dest": "articles"
+      }
+    ],
+    "resource": [
+      {
+        "files": [
+          "Assets/**"
+        ],
+        "src": ".."
+      }
+    ],
+    "output": "_site",
+    "template": [
+      "default",
+      "modern"
+    ],
+    "globalMetadata": {
+      "_appName": "Metriks",
+      "_appTitle": "Metriks Documentation",
+      "_enableSearch": true
+    }
+  }
+}
