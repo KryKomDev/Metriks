@@ -2,8 +2,8 @@
     
     <!--  Main Project  -->
     <Project Path="Src/Metriks.csproj" />
-    <Project Path="Tests/Benchmarks/Metriks.Benchmarks.csproj" />
-    <Project Path="Tests/Tests/Metriks.Tests.csproj" />
+    <Project Path="Benchmarks/Metriks.Benchmarks.csproj" />
+    <Project Path="Tests/Metriks.Tests.csproj" />
     
     <!--  Examples  -->
     <Project Path="Examples/Metriks.Sample/Metriks.Sample.csproj" />
