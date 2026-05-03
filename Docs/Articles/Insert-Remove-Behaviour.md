@@ -8,7 +8,7 @@ This document gives examples only on 2D lists and planes.
 
 ---
 
-## Insering
+## Inserting
 
 Inserting can be done in two ways:
 - At the end of the list
