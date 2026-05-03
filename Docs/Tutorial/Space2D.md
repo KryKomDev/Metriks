@@ -41,8 +41,7 @@ space[1, 1] = "Top-Right";
 
 When you insert or remove rows/columns, `Space2D` intelligently updates the origin offset:
 
-- If you insert a column at a position *before or at* the current origin, the origin shifts to 
-  maintain its logical position relative to the data.
+- If you insert a column at a position *before or at* the current origin, the origin shifts to maintain its logical position relative to the data.
 - If you insert *after* the origin, the origin stays put.
 
 ```csharp
@@ -51,8 +50,7 @@ space.InsertAtX(-1); // Inserts a new column at the beginning and shifts origin
 
 ## Uncoordinated Access
 
-Sometimes you want to access the underlying data without the coordinate offset (as if it were a 
-normal `List2D`).
+Sometimes you want to access the underlying data without the coordinate offset (as if it were a normal `List2D`).
 
 ```csharp
 // These ignore the origin offset
@@ -60,6 +58,4 @@ space.UncoordinatedSet(0, 0, "Top-Left-most data");
 var val = space.UncoordinatedGet(0, 0);
 ```
 
-For a deep dive into how origin shifts during manipulation, see the 
-[Insert Methods](../Docs/Insert-Methods.md) and [Remove Methods](../Docs/Remove-Methods.md) 
-article.
+For a deep dive into how origin shifts during manipulation, see the [Insert / Remove Behaviour](../Articles/Insert-Remove-Behaviour.md) article.

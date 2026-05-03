@@ -62,9 +62,9 @@ Size2D s = area.Size;
 var shiftedArea = area + new Point2D(5, 5);
 ```
 
-> [!TIP]
-> Using these structs makes your code more readable and reduces the number of parameters in your methods.
-> Most Metriks classes have properties and methods that accept or return these structs (e.g., `list.Size`, `space.OriginOffset`).
+## Why use these?
+
+Using these structs makes your code more readable and reduces the number of parameters in your methods.
 
 ```csharp
 // Instead of this:
@@ -73,3 +73,5 @@ void ProcessRegion(int x, int y, int width, int height) { ... }
 // Do this:
 void ProcessRegion(Area2D area) { ... }
 ```
+
+Most Metriks classes have properties and methods that accept or return these structs (e.g., `list.Size`, `space.OriginOffset`).

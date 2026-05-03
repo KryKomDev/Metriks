@@ -41,24 +41,13 @@ IEnumerable<int> columnSums = list.Select(column => column.Sum());
 
 ## Numeric Extensions
 
-Metriks also includes numeric utilities like `Clamp` and `Belongs`.
+Metriks also includes numeric utilities like `Clamp`.
 
-### Clamping
 ```csharp
 int value = 150;
 int clamped = value.Clamp(0, 100); // 100
 ```
 
-### Range Checking (Belongs)
-The `Belongs` extension method checks if a number is within a specified range.
+## Important Note
 
-```csharp
-bool t1 = 5.Belongs(1..10);  // true
-bool t2 = 11.Belongs(1..10); // false
-
-// You can also use the == operator with ranges
-bool t3 = (5 == 1..10);      // true
-```
-
-> [!NOTE]
-> The `Linq2D` extensions are designed to work with `IEnumerable2D<T>`, `List2D<T>`, and `Space2D<T>`. When using them with `Space2D`, the indices are automatically adjusted for the origin offset.
+The `Linq2D` extensions are designed to work with `IEnumerable2D<T>`, `List2D<T>`, and `Space2D<T>`. When using them with `Space2D`, the indices are automatically adjusted for the origin offset.

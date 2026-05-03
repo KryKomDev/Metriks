@@ -52,30 +52,18 @@ list.AddY(); // Increases YSize by 1
 ```
 
 ### Inserting
-`InsertAtX(index)` and `InsertAtY(index)` allow you to insert at a specific position. 
-Existing elements are shifted to make room.
+`InsertAtX(index)` and `InsertAtY(index)` allow you to insert at a specific position. Existing elements are shifted to make room.
 
 ```csharp
 list.InsertAtX(1); // Inserts a new column at index 1
 ```
 
-> [!NOTE]
-> For more details on insertion behavior, see the
-> [Insert Methods](../Docs/Insert-Methods.md) article.
-
 ### Removing
-
-`ShrinkX()` and `ShrinkY()` remove from the end. `RemoveAtX(index)` and `RemoveAtY(index)` 
-remove at a specific position.
+`RemoveX()` and `RemoveY()` remove from the end. `RemoveAtX(index)` and `RemoveAtY(index)` remove at a specific position.
 
 ```csharp
-list.ShrinkX();    // Removes the last column
 list.RemoveAtY(0); // Removes the first row
 ```
-
-> [!NOTE]
-> For more details on remove behavior, see the
-> [Remove Methods](../Docs/Remove-Methods.md) article.
 
 ## Resizing
 
@@ -89,8 +77,4 @@ You can manually control the size and capacity.
 list.Resize(5, 5);
 ```
 
-> [!NOTE]
-> For more details on behavior of these methods, see the
-> [Resize Methods](../Docs/Resize-Methods.md), 
-> [Expand Methods](../Docs/Expand-Methods.md) and 
-> [Shrink Methods](../Docs/Shrink-Methods.md) articles.
+For more details on insertion/removal behavior, see the [Insert / Remove Behaviour](../Articles/Insert-Remove-Behaviour.md) article.
