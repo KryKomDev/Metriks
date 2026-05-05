@@ -32,6 +32,7 @@ Instead of rows and columns, you work with X, Y, and Z planes.
 ```csharp
 list3d.AddZ(); // Adds a new plane along the Z axis
 list3d.InsertAtY(2); // Inserts a new plane at Y index 2
+list3d.ShrinkX(); // Removes the last plane along the X axis
 list3d.RemoveAtX(0); // Removes the first plane along the X axis
 ```
 
@@ -57,7 +58,7 @@ int zSize = list4d.ZSize;
 ```csharp
 list4d.AddW();
 list4d.InsertAtW(1);
-list4d.RemoveW();
+list4d.ShrinkW();
 ```
 
 ## Summary of Dimensions

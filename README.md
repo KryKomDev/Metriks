@@ -78,7 +78,7 @@ Metriks provides several ways to change the size of your collections:
 - **Resize:** A general-purpose method to set the exact size, either expanding or shrinking as needed.
 
 For detailed information on how data is preserved during resizing, see the 
-[Resize/Expand/Shrink Behavior](Docs/Resize-Expand-Shrink-Behaviour.md) documentation.
+[Expand](Docs/Docs/Expand-Methods.md), [Shrink](Docs/Docs/Shrink-Methods.md), and [Resize](Docs/Docs/Resize-Methods.md) documentation.
 
 ## Performance
 

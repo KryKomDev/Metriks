@@ -1,17 +1,13 @@
----
-_layout: landing
----
-
 # Quick Start
 
 Create multidimensional dynamic arrays (lists) and spaces using Metriks.
 
 ## Install Metriks
 
-> Prerequisities
->   - .NET 5 or higher or .NET Standard 2.1 or higher
->   - a working project
->   - knowledge of C# and .NET structures
+> **Prerequisites**
+> - .NET 5 or higher or .NET Standard 2.1 or higher
+> - A working C# project
+> - Knowledge of C# and .NET basics
 
 Install Metriks using the following command:
 
@@ -36,4 +32,4 @@ or add following to your `<ItemGroup>` in your `.csproj` file:
 - [Helper Structs (Point, Size, Area)](Tutorial/Structs.md)
 - [LINQ & Querying](Tutorial/Linq.md)
 - [Visualization & Debugging](Tutorial/Visualization.md)
-- [Overall Structure](Docs/Structure.md)
+- [Class Structure](Docs/Class-Structure.md)

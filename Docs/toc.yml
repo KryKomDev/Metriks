@@ -1,5 +1,6 @@
 - name: Docs
-  href: Shared/toc.yml
-  topicHref: Docs/Structure.md
-- name: API Reference
-  href: api/toc.yml
+  href: docs/
+- name: API
+  href: api/
+#- name: Extensions
+#  href: extensions
