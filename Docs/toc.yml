@@ -1,6 +1,6 @@
-- name: Home
-  href: Index.md
-- name: Articles
-  href: Articles/toc.yml
-- name: API Documentation
+- name: Docs
+  href: docs/
+- name: API
   href: api/
+#- name: Extensions
+#  href: extensions

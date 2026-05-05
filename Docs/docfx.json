@@ -22,19 +22,14 @@
       },
       {
         "files": [
-          "Index.md",
-          "toc.yml",
-          "articles/toc.yml"
-        ]
-      },
-      {
-        "files": [
-          "*.md"
+          "**/*.md",
+          "**/toc.yml"
         ],
         "exclude": [
-          "Index.md"
-        ],
-        "dest": "articles"
+          "obj/**",
+          "_site/**",
+          "api/**"
+        ]
       }
     ],
     "resource": [
@@ -48,11 +43,13 @@
     "output": "_site",
     "template": [
       "default",
-      "modern"
+      "modern",
+      "templates/material"
     ],
     "globalMetadata": {
       "_appName": "Metriks",
       "_appTitle": "Metriks Documentation",
+      "_appLogoPath": "",
       "_enableSearch": true
     }
   }
