@@ -49,7 +49,7 @@
     "globalMetadata": {
       "_appName": "Metriks",
       "_appTitle": "Metriks Documentation",
-      "_appLogoPath": "",
+      "_appLogoPath": "../Assets/Package-Icon-45x45.png",
       "_enableSearch": true
     }
   }
