@@ -1,1 +1,19 @@
-- href: ../Shared/toc.yml
+- name: Get Started
+- href: ../index.md
+  
+- name: Tutorial
+- href: ../Tutorial/List2D.md
+- href: ../Tutorial/List3D-4D.md
+- href: ../Tutorial/Space2D.md
+- href: ../Tutorial/Structs.md
+- href: ../Tutorial/Linq.md
+- href: ../Tutorial/ArrayUtilities.md
+- href: ../Tutorial/Visualization.md
+
+- name: Docs
+- href: Class-Structure.md
+- href: Insert-Methods.md
+- href: Remove-Methods.md
+- href: Resize-Methods.md
+- href: Expand-Methods.md
+- href: Shrink-Methods.md
