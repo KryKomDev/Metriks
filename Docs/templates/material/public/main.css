@@ -75,6 +75,7 @@ img {
 .navbar-brand > img {
   box-shadow: none;
   color: var(--bs-nav-link-color);
+  margin-right: 20px;
 }
 
 [data-bs-theme='light'] nav.navbar {

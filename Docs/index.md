@@ -9,17 +9,33 @@ Create multidimensional dynamic arrays (lists) and spaces using Metriks.
 > - A working C# project
 > - Knowledge of C# and .NET basics
 
-Install Metriks using the following command:
+You can add Metriks to your project using one of the following:
 
-```pwsh
-dotnet add package Metriks
+# [.NET CLI](#tab/dotnet-cli)
+
+```powershell
+dotnet add package Metriks --version *
 ```
 
-or add following to your `<ItemGroup>` in your `.csproj` file:
+# [PMC](#tab/pmc)
+
+```powershell
+NuGet\Install-Package Metriks -Version *
+```
+
+# [PackageReference](#tab/package-reference)
 
 ```xml
 <PackageReference Include="Metriks" Version="*" />
 ```
+
+# [File-based Apps](#tab/file-based-apps)
+
+```c#
+#:package Metriks@2026.2.3
+```
+
+***
 
 ---
 
