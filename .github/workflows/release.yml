@@ -42,12 +42,11 @@ jobs:
       - name: Run Test project
         run: dotnet test ${{ env.TestProjectPath }} --configuration Release --no-restore
         
+      - name: Pack
+        run: dotnet pack ${{ env.ProjectPath }} --configuration Release --no-build --output ./artifacts -p:ContinuousIntegrationBuild=true
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            ./Metriks/bin/Release/net10.0/Metriks.dll
-            ./Metriks/bin/Release/net8.0/Metriks.dll
-            ./Metriks/bin/Release/net5.0/Metriks.dll
-            ./Metriks/bin/Release/netstandard2.1/Metriks.dll
+          files: ./artifacts/*
           generate_release_notes: true
