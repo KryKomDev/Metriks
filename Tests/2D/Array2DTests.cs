@@ -12,7 +12,7 @@ public class Array2DTests {
         int[,] destination = new int[2, 3];
 
         // Act
-        Array2D.Copy(source, 0, 0, destination, 0, 0, 3, 2);
+        Array2D.Copy(source, 0, 0, destination, 0, 0, 2, 3);
 
         // Assert
         Assert.Equal(source, destination);
@@ -118,7 +118,7 @@ public class Array2DTests {
         int[,] destination = new int[rows, cols];
 
         // Act
-        Array2D.Copy(source, 0, 0, destination, 0, 0, cols, rows);
+        Array2D.Copy(source, 0, 0, destination, 0, 0, rows, cols);
 
         // Assert
         Assert.Equal(source, destination);

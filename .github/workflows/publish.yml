@@ -40,11 +40,7 @@ jobs:
         run: dotnet test ${{ env.TestProjectPath }} --configuration Release --no-restore
       
       - name: Pack
-        run: dotnet pack ${{ env.ProjectPath }} --configuration Release --no-build --output ${{ env.NugetOutputDir }}
+        run: dotnet pack ${{ env.ProjectPath }} --configuration Release --no-build --output ${{ env.NugetOutputDir }} -p:ContinuousIntegrationBuild=true
 
       - name: Push to NuGet
-        run: |
-          Get-ChildItem ${{ env.NugetOutputDir }}*.nupkg -Exclude *.symbols.nupkg | ForEach-Object {
-            dotnet nuget push $_.FullName --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
-          }
-        shell: pwsh
+        run: dotnet nuget push "${{ env.NugetOutputDir }}*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate

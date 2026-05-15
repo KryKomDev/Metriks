@@ -13,20 +13,20 @@ public static class Array2D {
     /// </summary>
     /// <typeparam name="T">The type of the elements in the arrays.</typeparam>
     /// <param name="source">The source two-dimensional array.</param>
-    /// <param name="srcXOffset">The starting column index in the source array.</param>
-    /// <param name="srcYOffset">The starting row index in the source array.</param>
+    /// <param name="srcXOffset">The starting row index in the source array.</param>
+    /// <param name="srcYOffset">The starting column index in the source array.</param>
     /// <param name="dest">The destination two-dimensional array.</param>
-    /// <param name="dstXOffset">The starting column index in the destination array.</param>
-    /// <param name="dstYOffset">The starting row index in the destination array.</param>
-    /// <param name="xToCopy">The number of columns to copy.</param>
-    /// <param name="yToCopy">The number of rows to copy.</param>
+    /// <param name="dstXOffset">The starting row index in the destination array.</param>
+    /// <param name="dstYOffset">The starting column index in the destination array.</param>
+    /// <param name="xToCopy">The number of rows to copy.</param>
+    /// <param name="yToCopy">The number of columns to copy.</param>
     public static void Copy<T>(
         T[,] source, int srcXOffset, int srcYOffset,
         T[,] dest,   int dstXOffset, int dstYOffset, 
         int xToCopy, int yToCopy) 
     {
         // Guard against empty copies to prevent IndexOutOfRangeException on [0,0]
-        if (yToCopy <= 0 || xToCopy <= 0) return;
+        if (xToCopy <= 0 || yToCopy <= 0) return;
 
         int srcCols = source.GetLength(1);
         int dstCols = dest  .GetLength(1);
@@ -36,15 +36,15 @@ public static class Array2D {
         ref var srcRef = ref source[0, 0];
         ref var dstRef = ref dest  [0, 0];
 
-        for (int i = 0; i < yToCopy; i++) {
+        for (int i = 0; i < xToCopy; i++) {
             
             // Advance references to the exact offset for the current row
-            ref var srcStart = ref Unsafe.Add(ref srcRef, (srcYOffset + i) * srcCols + srcXOffset);
-            ref var dstStart = ref Unsafe.Add(ref dstRef, (dstYOffset + i) * dstCols + dstXOffset);
+            ref var srcStart = ref Unsafe.Add(ref srcRef, (srcXOffset + i) * srcCols + srcYOffset);
+            ref var dstStart = ref Unsafe.Add(ref dstRef, (dstXOffset + i) * dstCols + dstYOffset);
 
             // Create spans wrapping that row's data and copy
-            var srcSpan = MemoryMarshal.CreateSpan(ref srcStart, xToCopy);
-            var dstSpan = MemoryMarshal.CreateSpan(ref dstStart, xToCopy);
+            var srcSpan = MemoryMarshal.CreateSpan(ref srcStart, yToCopy);
+            var dstSpan = MemoryMarshal.CreateSpan(ref dstStart, yToCopy);
 
             srcSpan.CopyTo(dstSpan);
         }
@@ -90,20 +90,20 @@ public static class Array2D {
     /// <typeparam name="T">The type of the elements in the array.</typeparam>
     /// <param name="array">The two-dimensional array to be filled.</param>
     /// <param name="item">The value to fill in the specified region of the array.</param>
-    /// <param name="xStart">The starting column index of the region to be filled.</param>
-    /// <param name="yStart">The starting row index of the region to be filled.</param>
-    /// <param name="xCount">The number of columns to fill in the region.</param>
-    /// <param name="yCount">The number of rows to fill in the region.</param>
+    /// <param name="xStart">The starting row index of the region to be filled.</param>
+    /// <param name="yStart">The starting column index of the region to be filled.</param>
+    /// <param name="xCount">The number of rows to fill in the region.</param>
+    /// <param name="yCount">The number of columns to fill in the region.</param>
     public static void Fill<T>(T[,] array, T item, int xStart, int yStart, int xCount, int yCount) {
         if (xCount <= 0 || yCount <= 0) return;
 
         int cols = array.GetLength(1);
         var flatArray = MemoryMarshal.CreateSpan(ref array[0, 0], array.Length);
 
-        for (int i = 0; i < yCount; i++) {
-            int offset = (yStart + i) * cols + xStart;
+        for (int i = 0; i < xCount; i++) {
+            int offset = (xStart + i) * cols + yStart;
 
-            var rowSpan = flatArray.Slice(offset, xCount);
+            var rowSpan = flatArray.Slice(offset, yCount);
             rowSpan.Fill(item);
         }
     }
@@ -138,20 +138,20 @@ public static class Array2D {
     /// <typeparam name="T">The type of the elements in the array.</typeparam>
     /// <param name="array">The two-dimensional array to be filled.</param>
     /// <param name="itemFactory">A factory function producing the value to fill the specified region with.</param>
-    /// <param name="xStart">The starting column index of the region to be filled.</param>
-    /// <param name="yStart">The starting row index of the region to be filled.</param>
-    /// <param name="xCount">The number of columns to fill in the region.</param>
-    /// <param name="yCount">The number of rows to fill in the region.</param>
+    /// <param name="xStart">The starting row index of the region to be filled.</param>
+    /// <param name="yStart">The starting column index of the region to be filled.</param>
+    /// <param name="xCount">The number of rows to fill in the region.</param>
+    /// <param name="yCount">The number of columns to fill in the region.</param>
     public static void Fill<T>(T[,] array, Func<T> itemFactory, int xStart, int yStart, int xCount, int yCount) {
         if (xCount <= 0 || yCount <= 0) return;
 
         int cols = array.GetLength(1);
         var flatArray = MemoryMarshal.CreateSpan(ref array[0, 0], array.Length);
 
-        for (int i = 0; i < yCount; i++) {
-            int offset = (yStart + i) * cols + xStart;
+        for (int i = 0; i < xCount; i++) {
+            int offset = (xStart + i) * cols + yStart;
 
-            var rowSpan = flatArray.Slice(offset, xCount);
+            var rowSpan = flatArray.Slice(offset, yCount);
             rowSpan.Fill(itemFactory());
         }
     }
@@ -186,20 +186,20 @@ public static class Array2D {
     /// </summary>
     /// <typeparam name="T">The type of the elements in the array.</typeparam>
     /// <param name="array">The two-dimensional array in which the region will be cleared.</param>
-    /// <param name="xOffset">The starting column index of the region to clear.</param>
-    /// <param name="yOffset">The starting row index of the region to clear.</param>
-    /// <param name="xCount">The number of columns to clear in the region.</param>
-    /// <param name="yCount">The number of rows to clear in the region.</param>
+    /// <param name="xOffset">The starting row index of the region to clear.</param>
+    /// <param name="yOffset">The starting column index of the region to clear.</param>
+    /// <param name="xCount">The number of rows to clear in the region.</param>
+    /// <param name="yCount">The number of columns to clear in the region.</param>
     public static void Clear<T>(T[,] array, int xOffset, int yOffset, int xCount, int yCount) {
         if (xCount <= 0 || yCount <= 0) return;
 
         int cols = array.GetLength(1);
         var flatArray = MemoryMarshal.CreateSpan(ref array[0, 0], array.Length);
 
-        for (int i = 0; i < yCount; i++) {
-            int index = (yOffset + i) * cols + xOffset;
+        for (int i = 0; i < xCount; i++) {
+            int index = (xOffset + i) * cols + yOffset;
 
-            var rowSpan = flatArray.Slice(index, xCount);
+            var rowSpan = flatArray.Slice(index, yCount);
             rowSpan.Clear();
         }
     }
