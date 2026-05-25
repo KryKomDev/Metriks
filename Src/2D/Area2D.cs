@@ -6,26 +6,41 @@ public readonly record struct Area2D : IFormattable {
     private readonly int _ly;
     private readonly int _hx;
     private readonly int _hy;
+
+    public int LowerX {
+        get => _lx;
+        #if NET5_0_OR_GREATER
+        init => (_lx, _hx) = int.Order(value, _hx);
+        #endif
+    }
     
+    public int LowerY {
+        get => _ly;
+        #if NET5_0_OR_GREATER
+        init => (_ly, _hy) = int.Order(value, _hy);
+        #endif
+    }
+    
+    public int HigherX {
+        get => _hx;
+        #if NET5_0_OR_GREATER
+        init => (_lx, _hx) = int.Order(value, _lx);
+        #endif
+    }
+    
+    public int HigherY {
+        get => _hy;
+        #if NET5_0_OR_GREATER
+        init => (_ly, _hy) = int.Order(value, _ly);
+        #endif
+    }
+
     public Point2D Lower {
         get => new(_lx, _ly);
         #if NET5_0_OR_GREATER
         init {
-            if (_hx < value.X) {
-                _lx = _hx;
-                _hx = value.X;
-            }
-            else {
-                _lx = value.X;
-            }
-            
-            if (_hy < value.Y) {
-                _ly = _hy;
-                _hy = value.Y;
-            }
-            else {
-                _ly = value.Y;
-            }
+            (_lx, _hx) = int.Order(value.X, _hx);
+            (_ly, _hy) = int.Order(value.Y, _hy);
         } 
         #endif
     }
@@ -34,27 +49,22 @@ public readonly record struct Area2D : IFormattable {
         get => new(_hx, _hy);
         #if NET5_0_OR_GREATER
         init {
-            if (_lx > value.X) {
-                _hx = _lx;
-                _lx = value.X;
-            }
-            else {
-                _hx = value.X;
-            }
-            
-            if (_ly < value.Y) {
-                _hy = _ly;
-                _ly = value.Y;
-            }
-            else {
-                _hy = value.Y;
-            }
+            (_lx, _hx) = int.Order(value.X, _lx);
+            (_ly, _hy) = int.Order(value.Y, _ly);
         }
         #endif
     }
     
     public Size2D Size => new(Math.Abs(Lower.X - Higher.X), Math.Abs(Lower.Y - Higher.Y));
 
+    public Range RangeX => new(Lower.X, Higher.X);
+    public Range RangeY => new(Lower.Y, Higher.Y);
+
+    public Area2D(int lowerX, int lowerY, int higherX, int higherY) {
+        (_lx, _hx) = lowerX < higherX ? (lowerX, higherX) : (higherX, lowerX);
+        (_ly, _hy) = lowerY < higherY ? (lowerY, higherY) : (higherY, lowerY);
+    }
+    
     public Area2D(Point2D lower, Point2D higher) {
         (_lx, _hx) = lower.X < higher.X ? (lower.X, higher.X) : (higher.X, lower.X);
         (_ly, _hy) = lower.Y < higher.Y ? (lower.Y, higher.Y) : (higher.Y, lower.Y);

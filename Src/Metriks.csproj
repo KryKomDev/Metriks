@@ -10,7 +10,7 @@
         <!-- NuGet -->
         <Authors>KryKom</Authors>
         <Company>KryKom</Company>
-        <Version>2026.2.3.1</Version>
+        <Version>2026.2.4</Version>
         <PackageProjectUrl>https://github.com/KryKomDev/Metriks</PackageProjectUrl>
         <PackageLicense>https://github.com/KryKomDev/Metriks/blob/main/LICENSE</PackageLicense>
         <RepositoryUrl>https://github.com/KryKomDev/Metriks</RepositoryUrl>
@@ -33,7 +33,7 @@
 
     <ItemGroup>
       <PackageReference Include="JetBrains.Annotations" Version="2025.2.4" />
-      <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
+      <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.300" PrivateAssets="All" />
     </ItemGroup>
     
     <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">

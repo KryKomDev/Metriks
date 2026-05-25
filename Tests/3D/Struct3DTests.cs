@@ -110,4 +110,42 @@ public class Struct3DTests {
         Assert.Equal("[(0, 0, 0):(10, 20, 30) | 10x20x30]", area.ToString(null, CultureInfo.InvariantCulture));
         Assert.Equal("[[0; 0; 0]:[10; 20; 30] | 10x20x30]", area.ToString(null, CultureInfo.GetCultureInfo("cs-CZ")));
     }
+
+    [Fact]
+    public void Area3D_CoordinateProperties_ShouldWork() {
+        var area = new Area3D(new Point3D(1, 2, 3), new Point3D(4, 6, 8));
+        Assert.Equal(1, area.LowerX);
+        Assert.Equal(2, area.LowerY);
+        Assert.Equal(3, area.LowerZ);
+        Assert.Equal(4, area.HigherX);
+        Assert.Equal(6, area.HigherY);
+        Assert.Equal(8, area.HigherZ);
+
+        #if NET5_0_OR_GREATER
+        var updated = area with { LowerX = 5, HigherY = 1 };
+        Assert.Equal(4, updated.LowerX);
+        Assert.Equal(5, updated.HigherX);
+        Assert.Equal(1, updated.LowerY);
+        Assert.Equal(2, updated.HigherY);
+        #endif
+    }
+
+    [Fact]
+    public void Area3D_ComponentWiseConstructor_ShouldNormalizeCoordinates() {
+        var area = new Area3D(10, 20, 30, 0, 5, 15);
+        Assert.Equal(0, area.LowerX);
+        Assert.Equal(10, area.HigherX);
+        Assert.Equal(5, area.LowerY);
+        Assert.Equal(20, area.HigherY);
+        Assert.Equal(15, area.LowerZ);
+        Assert.Equal(30, area.HigherZ);
+    }
+
+    [Fact]
+    public void Area3D_RangeProperties_ShouldBeCorrect() {
+        var area = new Area3D(new Point3D(1, 2, 3), new Point3D(10, 20, 30));
+        Assert.Equal(new Range(1, 10), area.RangeX);
+        Assert.Equal(new Range(2, 20), area.RangeY);
+        Assert.Equal(new Range(3, 30), area.RangeZ);
+    }
 }
