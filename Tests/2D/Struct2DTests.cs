@@ -58,6 +58,12 @@ public class Struct2DTests {
         Assert.Equal(p1, area3.Lower);
         Assert.Equal(new Point2D(5, 5), area3.Higher);
         Assert.Equal(size, area3.Size);
+
+        var area4 = new Area2D(10, 20, 0, 5);
+        Assert.Equal(0, area4.LowerX);
+        Assert.Equal(10, area4.HigherX);
+        Assert.Equal(5, area4.LowerY);
+        Assert.Equal(20, area4.HigherY);
     }
 
     [Fact]
@@ -105,5 +111,29 @@ public class Struct2DTests {
         var area = new Area2D(new Point2D(0, 0), new Point2D(10, 20));
         Assert.Equal("[(0, 0):(10, 20) | 10x20]", area.ToString(null, CultureInfo.InvariantCulture));
         Assert.Equal("[[0; 0]:[10; 20] | 10x20]", area.ToString(null, CultureInfo.GetCultureInfo("cs-CZ")));
+    }
+
+    [Fact]
+    public void Area2D_CoordinateProperties_ShouldWork() {
+        var area = new Area2D(new Point2D(1, 2), new Point2D(4, 6));
+        Assert.Equal(1, area.LowerX);
+        Assert.Equal(2, area.LowerY);
+        Assert.Equal(4, area.HigherX);
+        Assert.Equal(6, area.HigherY);
+
+        #if NET5_0_OR_GREATER
+        var updated = area with { LowerX = 5, HigherY = 1 };
+        Assert.Equal(4, updated.LowerX);
+        Assert.Equal(5, updated.HigherX);
+        Assert.Equal(1, updated.LowerY);
+        Assert.Equal(2, updated.HigherY);
+        #endif
+    }
+
+    [Fact]
+    public void Area2D_RangeProperties_ShouldBeCorrect() {
+        var area = new Area2D(new Point2D(1, 2), new Point2D(10, 20));
+        Assert.Equal(new Range(1, 10), area.RangeX);
+        Assert.Equal(new Range(2, 20), area.RangeY);
     }
 }

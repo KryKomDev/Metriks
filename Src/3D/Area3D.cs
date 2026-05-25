@@ -9,13 +9,55 @@ public readonly record struct Area3D : IFormattable {
     private readonly int _hy;
     private readonly int _hz;
     
+    public int LowerX {
+        get => _lx;
+        #if NET5_0_OR_GREATER
+        init => (_lx, _hx) = int.Order(value, _hx);
+        #endif
+    }
+    
+    public int LowerY {
+        get => _ly;
+        #if NET5_0_OR_GREATER
+        init => (_ly, _hy) = int.Order(value, _hy);
+        #endif
+    }
+
+    public int LowerZ {
+        get => _lz;
+        #if NET5_0_OR_GREATER
+        init => (_lz, _hz) = int.Order(value, _hz);
+        #endif
+    }
+    
+    public int HigherX {
+        get => _hx;
+        #if NET5_0_OR_GREATER
+        init => (_lx, _hx) = int.Order(value, _lx);
+        #endif
+    }
+    
+    public int HigherY {
+        get => _hy;
+        #if NET5_0_OR_GREATER
+        init => (_ly, _hy) = int.Order(value, _ly);
+        #endif
+    }
+
+    public int HigherZ {
+        get => _hz;
+        #if NET5_0_OR_GREATER
+        init => (_lz, _hz) = int.Order(value, _lz);
+        #endif
+    }
+
     public Point3D Lower {
         get => new(_lx, _ly, _lz);
         #if NET5_0_OR_GREATER
         init {
-            (_lx, _hx) = value.X < _hx ? (value.X, _hx) : (_hx, value.X);
-            (_ly, _hy) = value.Y < _hy ? (value.Y, _hy) : (_hy, value.Y);
-            (_lz, _hz) = value.Z < _hz ? (value.Z, _hz) : (_hz, value.Z);
+            (_lx, _hx) = int.Order(value.X, _hx);
+            (_ly, _hy) = int.Order(value.Y, _hy);
+            (_lz, _hz) = int.Order(value.Z, _hz);
         } 
         #endif
     }
@@ -24,18 +66,28 @@ public readonly record struct Area3D : IFormattable {
         get => new(_hx, _hy, _hz);
         #if NET5_0_OR_GREATER
         init {
-            (_lx, _hx) = _lx < value.X ? (_lx, value.X) : (value.X, _lx);
-            (_ly, _hy) = _ly < value.Y ? (_ly, value.Y) : (value.Y, _ly);
-            (_lz, _hz) = _lz < value.Z ? (_lz, value.Z) : (value.Z, _lz);
+            (_lx, _hx) = int.Order(value.X, _lx);
+            (_ly, _hy) = int.Order(value.Y, _ly);
+            (_lz, _hz) = int.Order(value.Z, _lz);
         }
         #endif
     }
 
     public Size3D Size => new(
-        Math.Abs(_lx - _hx),
-        Math.Abs(_ly - _hy),
-        Math.Abs(_lz - _hz)
+        Math.Abs(Lower.X - Higher.X),
+        Math.Abs(Lower.Y - Higher.Y),
+        Math.Abs(Lower.Z - Higher.Z)
     );
+
+    public Range RangeX => new(Lower.X, Higher.X);
+    public Range RangeY => new(Lower.Y, Higher.Y);
+    public Range RangeZ => new(Lower.Z, Higher.Z);
+
+    public Area3D(int lowerX, int lowerY, int lowerZ, int higherX, int higherY, int higherZ) {
+        (_lx, _hx) = lowerX < higherX ? (lowerX, higherX) : (higherX, lowerX);
+        (_ly, _hy) = lowerY < higherY ? (lowerY, higherY) : (higherY, lowerY);
+        (_lz, _hz) = lowerZ < higherZ ? (lowerZ, higherZ) : (higherZ, lowerZ);
+    }
 
     public Area3D(Point3D lower, Point3D higher) {
         (_lx, _hx) = lower.X < higher.X ? (lower.X, higher.X) : (higher.X, lower.X);

@@ -78,5 +78,16 @@ public static class Numeric {
     extension(int) {
         public static bool operator ==(int left, Range right) => left.Belongs(right);
         public static bool operator !=(int left, Range right) => !left.Belongs(right);
+
+        /// <summary>
+        /// Orders two integers in ascending order.
+        /// </summary>
+        /// <param name="i0">The first integer to be ordered.</param>
+        /// <param name="i1">The second integer to be ordered.</param>
+        /// <returns>A tuple containing the two integers in ascending order.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static (int, int) Order(int i0, int i1) {
+            return i0 < i1 ? (i0, i1) : (i1, i0);
+        }
     }
 }
