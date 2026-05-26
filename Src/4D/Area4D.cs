@@ -1,4 +1,4 @@
-namespace Metriks;
+﻿namespace Metriks;
 
 public readonly record struct Area4D : IFormattable {
 
@@ -91,17 +91,23 @@ public readonly record struct Area4D : IFormattable {
         #endif
     }
 
+    
     public Size4D Size => new(
-        Math.Abs(Lower.W - Higher.W),
-        Math.Abs(Lower.X - Higher.X),
-        Math.Abs(Lower.Y - Higher.Y),
-        Math.Abs(Lower.Z - Higher.Z)
+        Math.Abs(_lw - _hw),
+        Math.Abs(_lx - _hx),
+        Math.Abs(_ly - _hy),
+        Math.Abs(_lz - _hz)
     );
 
-    public Range RangeW => new(Lower.W, Higher.W);
-    public Range RangeX => new(Lower.X, Higher.X);
-    public Range RangeY => new(Lower.Y, Higher.Y);
-    public Range RangeZ => new(Lower.Z, Higher.Z);
+    public int SizeW => Math.Abs(_lw - _hw);
+    public int SizeX => Math.Abs(_lx - _hx);
+    public int SizeY => Math.Abs(_ly - _hy);
+    public int SizeZ => Math.Abs(_lz - _hz);
+    
+    public Range RangeW => new(_lw, _hw);
+    public Range RangeX => new(_lx, _hx);
+    public Range RangeY => new(_ly, _hy);
+    public Range RangeZ => new(_lz, _hz);
 
     public Area4D(int lowerW, int lowerX, int lowerY, int lowerZ, int higherW, int higherX, int higherY, int higherZ) {
         (_lw, _hw) = lowerW < higherW ? (lowerW, higherW) : (higherW, lowerW);
