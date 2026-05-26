@@ -55,10 +55,14 @@ public readonly record struct Area2D : IFormattable {
         #endif
     }
     
-    public Size2D Size => new(Math.Abs(Lower.X - Higher.X), Math.Abs(Lower.Y - Higher.Y));
+    public Size2D Size => new(Math.Abs(_lx - _hx), Math.Abs(_ly - _hy));
 
-    public Range RangeX => new(Lower.X, Higher.X);
-    public Range RangeY => new(Lower.Y, Higher.Y);
+    public int SizeX => Math.Abs(_lx - _hx);
+    public int SizeY => Math.Abs(_ly - _hy);
+    
+    
+    public Range RangeX => new(_lx, _hx);
+    public Range RangeY => new(_ly, _hy);
 
     public Area2D(int lowerX, int lowerY, int higherX, int higherY) {
         (_lx, _hx) = lowerX < higherX ? (lowerX, higherX) : (higherX, lowerX);
