@@ -1,4 +1,6 @@
-﻿namespace Metriks;
+﻿using System.Runtime.CompilerServices;
+
+namespace Metriks;
 
 public readonly record struct Area2D : IFormattable {
 
@@ -78,6 +80,52 @@ public readonly record struct Area2D : IFormattable {
         (_lx, _ly) = lower;
         _hx = lower.X + s.X; 
         _hy = lower.Y + s.Y;
+    }
+    
+    /// <summary>
+    /// Determines whether the specified 2D point is contained within the current 2D area.
+    /// </summary>
+    /// <param name="point">The 2D point to check for containment within the area.</param>
+    /// <returns>True if the point is contained within the area; otherwise, false.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool ContainsIn(Point2D point) {
+        return ContainsIn(point.X, point.Y);
+    }
+
+    /// <summary>
+    /// Determines whether the specified 2D point is contained within the current 2D area.
+    /// </summary>
+    /// <param name="x">The X-coordinate of the 2D point to check.</param>
+    /// <param name="y">The Y-coordinate of the 2D point to check.</param>
+    /// <returns>True if the 2D point is contained within the area; otherwise, false.</returns>
+    public bool ContainsIn(int x, int y) {
+        return
+            x >= _lx && x <= _hx &&
+            y >= _ly && y <= _hy;
+    }
+
+    /// <summary>
+    /// Determines whether the specified 2D point is strictly within the bounds of the current 2D area,
+    /// excluding the border positions.
+    /// </summary>
+    /// <param name="point">The 2D point to check for containment within the extended area.</param>
+    /// <returns>True if the point is contained within the extended area; otherwise, false.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool ContainsEx(Point2D point) {
+        return ContainsEx(point.X, point.Y);
+    }
+
+    /// <summary>
+    /// Determines whether the specified 2D coordinates are strictly within the bounds of the current 2D area,
+    /// excluding the border positions.
+    /// </summary>
+    /// <param name="x">The X-coordinate of the point to check.</param>
+    /// <param name="y">The Y-coordinate of the point to check.</param>
+    /// <returns>True if the coordinates are strictly within the bounds of the area; otherwise, false.</returns>
+    public bool ContainsEx(int x, int y) {
+        return
+            x > _lx && x < _hx &&
+            y > _ly && y < _hy;
     }
 
     public override string ToString() => ToString(null, null);
