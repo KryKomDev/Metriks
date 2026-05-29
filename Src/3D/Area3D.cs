@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 namespace Metriks;
 
 public readonly record struct Area3D : IFormattable {
@@ -104,6 +106,56 @@ public readonly record struct Area3D : IFormattable {
         _hx = lower.X + s.X; 
         _hy = lower.Y + s.Y;
         _hz = lower.Z + s.Z;
+    }
+    
+    /// <summary>
+    /// Determines whether the specified 3D point is contained within the current 3D area.
+    /// </summary>
+    /// <param name="point">The 3D point to check for containment within the area.</param>
+    /// <returns>True if the point is contained within the area; otherwise, false.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool ContainsIn(Point3D point) {
+        return ContainsIn(point.X, point.Y, point.Z);
+    }
+
+    /// <summary>
+    /// Determines whether the specified 3D point is contained within the current 3D area.
+    /// </summary>
+    /// <param name="x">The X-coordinate of the 3D point to check.</param>
+    /// <param name="y">The Y-coordinate of the 3D point to check.</param>
+    /// <param name="z">The Z-coordinate of the 3D point to check.</param>
+    /// <returns>True if the 3D point is contained within the area; otherwise, false.</returns>
+    public bool ContainsIn(int x, int y, int z) {
+        return
+            x >= _lx && x <= _hx &&
+            y >= _ly && y <= _hy &&
+            z >= _lz && z <= _hz;
+    }
+
+    /// <summary>
+    /// Determines whether the specified 3D point is strictly within the bounds of the current 3D area,
+    /// excluding the border positions.
+    /// </summary>
+    /// <param name="point">The 3D point to check for containment within the extended area.</param>
+    /// <returns>True if the point is contained within the extended area; otherwise, false.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool ContainsEx(Point3D point) {
+        return ContainsEx(point.X, point.Y, point.Z);
+    }
+    
+    /// <summary>
+    /// Determines whether the specified 3D coordinates are strictly within the bounds of the current 3D area,
+    /// excluding the border positions.
+    /// </summary>
+    /// <param name="x">The X-coordinate of the point to check.</param>
+    /// <param name="y">The Y-coordinate of the point to check.</param>
+    /// <param name="z">The Z-coordinate of the point to check.</param>
+    /// <returns>True if the coordinates are strictly within the bounds of the area; otherwise, false.</returns>
+    public bool ContainsEx(int x, int y, int z) {
+        return
+            x > _lx && x < _hx &&
+            y > _ly && y < _hy &&
+            z > _lz && z < _hz;
     }
 
     public override string ToString() => ToString(null, null);

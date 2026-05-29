@@ -1,4 +1,6 @@
-﻿namespace Metriks;
+﻿using System.Runtime.CompilerServices;
+
+namespace Metriks;
 
 public readonly record struct Area4D : IFormattable {
 
@@ -131,6 +133,60 @@ public readonly record struct Area4D : IFormattable {
         _hz = lower.Z + s.Z;
     }
 
+    /// <summary>
+    /// Determines whether the specified 4D point is contained within the current 4D area.
+    /// </summary>
+    /// <param name="point">The 4D point to check for containment within the area.</param>
+    /// <returns>True if the point is contained within the area; otherwise, false.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool ContainsIn(Point4D point) {
+        return ContainsIn(point.W, point.X, point.Y, point.Z);
+    }
+
+    /// <summary>
+    /// Determines whether the specified 4D point is contained within the current 4D area.
+    /// </summary>
+    /// <param name="w">The W-coordinate of the 4D point to check.</param>
+    /// <param name="x">The X-coordinate of the 4D point to check.</param>
+    /// <param name="y">The Y-coordinate of the 4D point to check.</param>
+    /// <param name="z">The Z-coordinate of the 4D point to check.</param>
+    /// <returns>True if the 4D point is contained within the area; otherwise, false.</returns>
+    public bool ContainsIn(int w, int x, int y, int z) {
+        return
+            w >= _lw && w <= _hw &&
+            x >= _lx && x <= _hx &&
+            y >= _ly && y <= _hy &&
+            z >= _lz && z <= _hz;
+    }
+
+    /// <summary>
+    /// Determines whether the specified 4D point is strictly within the bounds of the current 4D area,
+    /// excluding the border positions.
+    /// </summary>
+    /// <param name="point">The 4D point to check for containment within the extended area.</param>
+    /// <returns>True if the point is contained within the extended area; otherwise, false.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool ContainsEx(Point4D point) {
+        return ContainsEx(point.W, point.X, point.Y, point.Z);
+    }
+    
+    /// <summary>
+    /// Determines whether the specified 4D coordinates are strictly within the bounds of the current 4D area,
+    /// excluding the border positions.
+    /// </summary>
+    /// <param name="w">The W-coordinate of the point to check.</param>
+    /// <param name="x">The X-coordinate of the point to check.</param>
+    /// <param name="y">The Y-coordinate of the point to check.</param>
+    /// <param name="z">The Z-coordinate of the point to check.</param>
+    /// <returns>True if the coordinates are strictly within the bounds of the area; otherwise, false.</returns>
+    public bool ContainsEx(int w, int x, int y, int z) {
+        return
+            w > _lw && w < _hw &&
+            x > _lx && x < _hx &&
+            y > _ly && y < _hy &&
+            z > _lz && z < _hz;
+    }
+    
     public override string ToString() => ToString(null, null);
 
     public string ToString(string? format, IFormatProvider? formatProvider) => 
