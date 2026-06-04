@@ -10,7 +10,8 @@
           ]
         }
       ],
-      "dest": "api"
+      "dest": "api",
+      "memberLayout": "separatePages"
     }
   ],
   "build": {
@@ -44,7 +45,7 @@
     "template": [
       "default",
       "modern",
-      "templates/material"
+      "templates/dokfx"
     ],
     "globalMetadata": {
       "_appName": "Metriks",
