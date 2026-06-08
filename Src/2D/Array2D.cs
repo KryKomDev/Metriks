@@ -227,4 +227,24 @@ public static class Array2D {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Clear<T>(T[,] array, Area2D area) =>
         Clear(array, area.Lower, area.Size + Size2D.One);
+
+    /// <summary>
+    /// Flattens a two-dimensional array into a one-dimensional array.
+    /// </summary>
+    /// <typeparam name="T">The type of the elements in the array.</typeparam>
+    /// <param name="array">The two-dimensional array to be flattened.</param>
+    /// <returns>A one-dimensional array containing all elements of the input array in row-major order.</returns>
+    public static T[] Flatten<T>(T[,] array) {
+        var flat = new T[array.Len0 * array.Len1];
+
+        for (int x = 0; x < array.Len0; x++) {
+            var o = x * array.Len1;
+            
+            for (int y = 0; y < array.Len1; y++) {
+                flat[o + y] = array[x, y];
+            }
+        }
+        
+        return flat;
+    }
 }
