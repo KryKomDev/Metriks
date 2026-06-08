@@ -245,4 +245,97 @@ public class Array2DTests {
         // Assert
         Assert.Equal(0, destination[0, 0]);
     }
+    
+    [Fact]
+    public void Flatten_ReturnsElementsInRowMajorOrder()
+    {
+        var array = new[,]
+        {
+            { 1, 2, 3 },
+            { 4, 5, 6 }
+        };
+
+        var result = Array2D.Flatten(array);
+
+        Assert.Equal(new[] { 1, 2, 3, 4, 5, 6 }, result);
+    }
+
+    [Fact]
+    public void Flatten_WithSingleRow_ReturnsSameOrder()
+    {
+        var array = new[,]
+        {
+            { 10, 20, 30, 40 }
+        };
+
+        var result = Array2D.Flatten(array);
+
+        Assert.Equal(new[] { 10, 20, 30, 40 }, result);
+    }
+
+    [Fact]
+    public void Flatten_WithSingleColumn_ReturnsSameOrder()
+    {
+        var array = new[,]
+        {
+            { 10 },
+            { 20 },
+            { 30 },
+            { 40 }
+        };
+
+        var result = Array2D.Flatten(array);
+
+        Assert.Equal(new[] { 10, 20, 30, 40 }, result);
+    }
+
+    [Fact]
+    public void Flatten_WithEmptyFirstDimension_ReturnsEmptyArray()
+    {
+        var array = new int[0, 3];
+
+        var result = Array2D.Flatten(array);
+
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public void Flatten_WithEmptySecondDimension_ReturnsEmptyArray()
+    {
+        var array = new int[3, 0];
+
+        var result = Array2D.Flatten(array);
+
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public void Flatten_WithReferenceTypes_PreservesValues()
+    {
+        var array = new[,]
+        {
+            { "a", "b" },
+            { "c", "d" }
+        };
+
+        var result = Array2D.Flatten(array);
+
+        Assert.Equal(new[] { "a", "b", "c", "d" }, result);
+    }
+
+    [Fact]
+    public void Flatten_ReturnsNewArray()
+    {
+        var array = new[,]
+        {
+            { 1, 2 },
+            { 3, 4 }
+        };
+
+        var result = Array2D.Flatten(array);
+
+        result[0] = 99;
+
+        Assert.Equal(1, array[0, 0]);
+    }
 }
