@@ -247,4 +247,24 @@ public static class Array2D {
         
         return slice;
     }
+    
+    /// <summary>
+    /// Flattens a two-dimensional array into a one-dimensional array.
+    /// </summary>
+    /// <typeparam name="T">The type of the elements in the array.</typeparam>
+    /// <param name="array">The two-dimensional array to be flattened.</param>
+    /// <returns>A one-dimensional array containing all elements of the input array in row-major order.</returns>
+    public static T[] Flatten<T>(T[,] array) {
+        var flat = new T[array.Len0 * array.Len1];
+
+        for (int x = 0; x < array.Len0; x++) {
+            var o = x * array.Len1;
+            
+            for (int y = 0; y < array.Len1; y++) {
+                flat[o + y] = array[x, y];
+            }
+        }
+        
+        return flat;
+    }
 }

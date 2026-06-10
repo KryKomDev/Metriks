@@ -265,4 +265,32 @@ public static class Array4D {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Clear<T>(T[,,,] array, Area4D area) =>
         Clear(array, area.Lower, area.Size + Size4D.One);
+    
+    /// <summary>
+    /// Flattens a four-dimensional array into a one-dimensional array.
+    /// </summary>
+    /// <typeparam name="T">The type of the elements in the array.</typeparam>
+    /// <param name="array">The four-dimensional array to be flattened.</param>
+    /// <returns>A one-dimensional array containing all elements of the input array in row-major order.</returns>
+    public static T[] Flatten<T>(T[,,,] array) {
+        var flat = new T[array.Len0 * array.Len1 * array.Len2 * array.Len3];
+
+        for (int w = 0; w < array.Len0; w++) {
+            var ow = w * array.Len1 * array.Len2 * array.Len3;
+            
+            for (int x = 0; x < array.Len1; x++) { 
+                var ox = array.Len2 * array.Len3;
+            
+                for (int y = 0; y < array.Len2; y++) {
+                    var oy = array.Len3;
+                
+                    for (int z = 0; z < array.Len2; z++) {
+                        flat[ow + ox + oy + y] = array[w, x, y, z];
+                    }
+                }
+            }
+        }
+        
+        return flat;
+    }
 }
