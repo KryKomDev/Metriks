@@ -227,4 +227,24 @@ public static class Array2D {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Clear<T>(T[,] array, Area2D area) =>
         Clear(array, area.Lower, area.Size + Size2D.One);
+
+    public static T[] SliceAtX<T>(T[,] array, int x) {
+        var slice = new T[array.Len1];
+
+        for (int y = 0; y < array.Len1; y++) {
+            slice[y] = array[x, y];
+        }
+        
+        return slice;
+    }
+    
+    public static T[] SliceAtY<T>(T[,] array, int y) {
+        var slice = new T[array.Len0];
+
+        for (int x = 0; x < array.Len0; x++) {
+            slice[x] = array[y, x];
+        }
+        
+        return slice;
+    }
 }
