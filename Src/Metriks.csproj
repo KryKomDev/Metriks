@@ -10,7 +10,7 @@
         <!-- NuGet -->
         <Authors>KryKom</Authors>
         <Company>KryKom</Company>
-        <Version>2026.2.5</Version>
+        <Version>2026.2.6-alpha1</Version>
         <PackageProjectUrl>https://github.com/KryKomDev/Metriks</PackageProjectUrl>
         <PackageLicense>https://github.com/KryKomDev/Metriks/blob/main/LICENSE</PackageLicense>
         <RepositoryUrl>https://github.com/KryKomDev/Metriks</RepositoryUrl>
