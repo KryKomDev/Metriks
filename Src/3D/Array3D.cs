@@ -243,4 +243,28 @@ public static class Array3D {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Clear<T>(T[,,] array, Area3D area) =>
         Clear(array, area.Lower, area.Size + Size3D.One);
+    
+    /// <summary>
+    /// Flattens a three-dimensional array into a one-dimensional array.
+    /// </summary>
+    /// <typeparam name="T">The type of the elements in the array.</typeparam>
+    /// <param name="array">The three-dimensional array to be flattened.</param>
+    /// <returns>A one-dimensional array containing all elements of the input array in row-major order.</returns>
+    public static T[] Flatten<T>(T[,,] array) {
+        var flat = new T[array.Len0 * array.Len1 * array.Len2];
+
+        for (int x = 0; x < array.Len0; x++) {
+            var ox = x * array.Len1 * array.Len2;
+            
+            for (int y = 0; y < array.Len1; y++) {
+                var oy = array.Len2;
+                
+                for (int z = 0; z < array.Len2; z++) {
+                    flat[ox + oy + y] = array[x, y, z];
+                }
+            }
+        }
+        
+        return flat;
+    }
 }

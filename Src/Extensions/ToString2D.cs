@@ -31,4 +31,53 @@ public static class ToString2D {
             return sb.ToString();
         }
     }
+
+    extension<T>(T[,] array) {
+        
+        /// <summary>
+        /// Outputs the contents of a two-dimensional enumerable to the console in a formatted structure.
+        /// </summary>
+        public void Write() {
+            var sb = new StringBuilder();
+            
+            sb.AppendLine("[");
+            
+            for (int x = 0; x < array.Len0; x++) {
+                sb.Append("  [");
+                
+                for (int y = 0; y < array.Len1; y++) {
+                    sb.Append($"{array[x, y]}, ");
+                }
+                
+                sb.AppendLine("],");
+            }
+            
+            sb.AppendLine("]");
+            
+            Console.WriteLine(sb.ToString());
+        }
+
+        /// <summary>
+        /// Returns a string representation of the contents of a two-dimensional enumerable in a formatted structure.
+        /// </summary>
+        public string ToCollectionString() {
+            var sb = new StringBuilder();
+            
+            sb.AppendLine("[");
+            
+            for (int x = 0; x < array.Len0; x++) {
+                sb.Append("  [");
+                
+                for (int y = 0; y < array.Len1; y++) {
+                    sb.Append($"{array[x, y]}, ");
+                }
+                
+                sb.AppendLine("],");
+            }
+            
+            sb.AppendLine("]");
+            
+            return sb.ToString();
+        }
+    }
 }

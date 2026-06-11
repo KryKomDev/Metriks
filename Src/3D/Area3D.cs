@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 namespace Metriks;
 
 public readonly record struct Area3D : IFormattable {
@@ -9,13 +11,55 @@ public readonly record struct Area3D : IFormattable {
     private readonly int _hy;
     private readonly int _hz;
     
+    public int LowerX {
+        get => _lx;
+        #if NET5_0_OR_GREATER
+        init => (_lx, _hx) = int.Order(value, _hx);
+        #endif
+    }
+    
+    public int LowerY {
+        get => _ly;
+        #if NET5_0_OR_GREATER
+        init => (_ly, _hy) = int.Order(value, _hy);
+        #endif
+    }
+
+    public int LowerZ {
+        get => _lz;
+        #if NET5_0_OR_GREATER
+        init => (_lz, _hz) = int.Order(value, _hz);
+        #endif
+    }
+    
+    public int HigherX {
+        get => _hx;
+        #if NET5_0_OR_GREATER
+        init => (_lx, _hx) = int.Order(value, _lx);
+        #endif
+    }
+    
+    public int HigherY {
+        get => _hy;
+        #if NET5_0_OR_GREATER
+        init => (_ly, _hy) = int.Order(value, _ly);
+        #endif
+    }
+
+    public int HigherZ {
+        get => _hz;
+        #if NET5_0_OR_GREATER
+        init => (_lz, _hz) = int.Order(value, _lz);
+        #endif
+    }
+
     public Point3D Lower {
         get => new(_lx, _ly, _lz);
         #if NET5_0_OR_GREATER
         init {
-            (_lx, _hx) = value.X < _hx ? (value.X, _hx) : (_hx, value.X);
-            (_ly, _hy) = value.Y < _hy ? (value.Y, _hy) : (_hy, value.Y);
-            (_lz, _hz) = value.Z < _hz ? (value.Z, _hz) : (_hz, value.Z);
+            (_lx, _hx) = int.Order(value.X, _hx);
+            (_ly, _hy) = int.Order(value.Y, _hy);
+            (_lz, _hz) = int.Order(value.Z, _hz);
         } 
         #endif
     }
@@ -24,9 +68,9 @@ public readonly record struct Area3D : IFormattable {
         get => new(_hx, _hy, _hz);
         #if NET5_0_OR_GREATER
         init {
-            (_lx, _hx) = _lx < value.X ? (_lx, value.X) : (value.X, _lx);
-            (_ly, _hy) = _ly < value.Y ? (_ly, value.Y) : (value.Y, _ly);
-            (_lz, _hz) = _lz < value.Z ? (_lz, value.Z) : (value.Z, _lz);
+            (_lx, _hx) = int.Order(value.X, _lx);
+            (_ly, _hy) = int.Order(value.Y, _ly);
+            (_lz, _hz) = int.Order(value.Z, _lz);
         }
         #endif
     }
@@ -36,6 +80,20 @@ public readonly record struct Area3D : IFormattable {
         Math.Abs(_ly - _hy),
         Math.Abs(_lz - _hz)
     );
+
+    public int SizeX => Math.Abs(_lx - _hx);
+    public int SizeY => Math.Abs(_ly - _hy);
+    public int SizeZ => Math.Abs(_lz - _hz);
+    
+    public Range RangeX => new(_lx, _hx);
+    public Range RangeY => new(_ly, _hy);
+    public Range RangeZ => new(_lz, _hz);
+
+    public Area3D(int lowerX, int lowerY, int lowerZ, int higherX, int higherY, int higherZ) {
+        (_lx, _hx) = lowerX < higherX ? (lowerX, higherX) : (higherX, lowerX);
+        (_ly, _hy) = lowerY < higherY ? (lowerY, higherY) : (higherY, lowerY);
+        (_lz, _hz) = lowerZ < higherZ ? (lowerZ, higherZ) : (higherZ, lowerZ);
+    }
 
     public Area3D(Point3D lower, Point3D higher) {
         (_lx, _hx) = lower.X < higher.X ? (lower.X, higher.X) : (higher.X, lower.X);
@@ -48,6 +106,56 @@ public readonly record struct Area3D : IFormattable {
         _hx = lower.X + s.X; 
         _hy = lower.Y + s.Y;
         _hz = lower.Z + s.Z;
+    }
+    
+    /// <summary>
+    /// Determines whether the specified 3D point is contained within the current 3D area.
+    /// </summary>
+    /// <param name="point">The 3D point to check for containment within the area.</param>
+    /// <returns>True if the point is contained within the area; otherwise, false.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool ContainsIn(Point3D point) {
+        return ContainsIn(point.X, point.Y, point.Z);
+    }
+
+    /// <summary>
+    /// Determines whether the specified 3D point is contained within the current 3D area.
+    /// </summary>
+    /// <param name="x">The X-coordinate of the 3D point to check.</param>
+    /// <param name="y">The Y-coordinate of the 3D point to check.</param>
+    /// <param name="z">The Z-coordinate of the 3D point to check.</param>
+    /// <returns>True if the 3D point is contained within the area; otherwise, false.</returns>
+    public bool ContainsIn(int x, int y, int z) {
+        return
+            x >= _lx && x <= _hx &&
+            y >= _ly && y <= _hy &&
+            z >= _lz && z <= _hz;
+    }
+
+    /// <summary>
+    /// Determines whether the specified 3D point is strictly within the bounds of the current 3D area,
+    /// excluding the border positions.
+    /// </summary>
+    /// <param name="point">The 3D point to check for containment within the extended area.</param>
+    /// <returns>True if the point is contained within the extended area; otherwise, false.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool ContainsEx(Point3D point) {
+        return ContainsEx(point.X, point.Y, point.Z);
+    }
+    
+    /// <summary>
+    /// Determines whether the specified 3D coordinates are strictly within the bounds of the current 3D area,
+    /// excluding the border positions.
+    /// </summary>
+    /// <param name="x">The X-coordinate of the point to check.</param>
+    /// <param name="y">The Y-coordinate of the point to check.</param>
+    /// <param name="z">The Z-coordinate of the point to check.</param>
+    /// <returns>True if the coordinates are strictly within the bounds of the area; otherwise, false.</returns>
+    public bool ContainsEx(int x, int y, int z) {
+        return
+            x > _lx && x < _hx &&
+            y > _ly && y < _hy &&
+            z > _lz && z < _hz;
     }
 
     public override string ToString() => ToString(null, null);
