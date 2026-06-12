@@ -50,11 +50,18 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
     }
 
     public List2D(T[,] collection) : this(collection.Len0, collection.Len1) {
-        for (int x = 0; x < collection.Len0; x++) {
-            _items[x] = new T[collection.Len1];
-            
-            for (int y = 0; y < collection.Len1; y++) {
-                _items[x][y] = collection[x, y];
+        var len1 = collection.Len1;
+        if (len1 > 0) {
+            for (int x = 0; x < collection.Len0; x++) {
+                _items[x] = new T[len1];
+                var srcSpan = System.Runtime.InteropServices.MemoryMarshal.CreateReadOnlySpan(ref collection[x, 0], len1);
+                var dstSpan = new Span<T>(_items[x]);
+                srcSpan.CopyTo(dstSpan);
+            }
+        }
+        else {
+            for (int x = 0; x < collection.Len0; x++) {
+                _items[x] = Array.Empty<T>();
             }
         }
         
@@ -139,7 +146,9 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
         get {
             var (offset, length) = y.GetOffsetAndLength(_ySize);
             var result = new T[length];
-            for (int i = 0; i < length; i++) result[i] = _items[x][offset + i];
+            if (length > 0) {
+                Array.Copy(_items[x], offset, result, 0, length);
+            }
             return result;
         }
     }
@@ -295,23 +304,28 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
                 var newArray = new T[_yCapacity];
                 Array.Copy(_items[x], newArray, _ySize);
                
-                if (defaultValue is not null)
+                if (defaultValue is not null) {
                     Array.Fill(newArray, defaultValue, _ySize, ySize - _ySize);
-                
+                }
+
                 _items[x] = newArray;
             }
         }
 
         for (int x = _xSize; x < xSize; x++) {
             _items[x] = new T[_yCapacity];
-            if (defaultValue is not null)
+            
+            if (defaultValue is not null) {
                 Array.Fill(_items[x], defaultValue, 0, ySize);
+            }
         }
 
         if (defaultValue is not null) {
-            for (int x = 0; x < _xSize; x++) {
-                for (int y = _ySize; y < ySize; y++) {
-                    _items[x][y] = defaultValue;
+            var fillLen = ySize - _ySize;
+            
+            if (fillLen > 0) {
+                for (int x = 0; x < _xSize; x++) {
+                    Array.Fill(_items[x], defaultValue, _ySize, fillLen);
                 }
             }
         }
@@ -440,6 +454,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
         _xCapacity = xSize;
         _yCapacity = ySize;
     }
+    
     /// <summary>
     /// Reduces the dimensions of the 2D list to the specified sizes.
     /// </summary>
@@ -533,22 +548,16 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
 
     public bool Contains(T value) {
         for (int x = 0; x < _xSize; x++) {
-            for (int y = 0; y < _ySize; y++) {
-                if (EqualityComparer<T>.Default.Equals(_items[x][y], value)) 
-                    return true; 
-            }
+            if (Array.IndexOf(_items[x], value, 0, _ySize) >= 0) 
+                return true; 
         }
 
         return false;
     }
     
     public bool ContainsAtX(int x, T value) {
-        for (int y = 0; y < _ySize; y++) {
-            if (EqualityComparer<T>.Default.Equals(_items[x][y], value)) 
-                return true;
-        }
-        
-        return false;
+        if (x < 0 || x >= _xSize) throw new IndexOutOfRangeException("Index 'x' is out of range.");
+        return Array.IndexOf(_items[x], value, 0, _ySize) >= 0;
     }
     
     public bool ContainsAtY(int y, T value) {
@@ -630,15 +639,16 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
 
             // copy existing matrix
             for (int x = 0; x < _xSize; x++) {
-                for (int y = 0; y < _ySize; y++) {
-                    newMatrix[x + oldXOffset][y + oldYOffset] = _items[x][y];
-                }
+                Array.Copy(_items[x], 0, newMatrix[x + oldXOffset], oldYOffset, _ySize);
             }
 
             // copy input into the new matrix
-            for (int x = 0; x < matrix.Len0; x++) {
-                for (int y = 0; y < matrix.Len1; y++) {
-                    newMatrix[x + newXOffset][y + newYOffset] = matrix[x, y];   
+            var len1 = matrix.Len1;
+            if (len1 > 0) {
+                for (int x = 0; x < matrix.Len0; x++) {
+                    var srcSpan = System.Runtime.InteropServices.MemoryMarshal.CreateReadOnlySpan(ref matrix[x, 0], len1);
+                    var dstSpan = System.Runtime.InteropServices.MemoryMarshal.CreateSpan(ref newMatrix[x + newXOffset][newYOffset], len1);
+                    srcSpan.CopyTo(dstSpan);
                 }
             }
             
@@ -656,9 +666,16 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
             }
             
             // copy input into _matrix
-            for (int x = Math.Clamp(offset.X, 0, _xSize); x < Math.Min(_xSize, offset.X + matrix.Len0); x++) {
-                for (int y = Math.Clamp(offset.Y, 0, _ySize); y < Math.Min(_ySize, offset.Y + matrix.Len1); y++) {
-                    _items[x][y] = matrix[x - offset.X, y - offset.Y];
+            var startX = Math.Clamp(offset.X, 0, _xSize);
+            var endX = Math.Min(_xSize, offset.X + matrix.Len0);
+            var startY = Math.Clamp(offset.Y, 0, _ySize);
+            var endY = Math.Min(_ySize, offset.Y + matrix.Len1);
+            var yCount = endY - startY;
+            if (yCount > 0) {
+                for (int x = startX; x < endX; x++) {
+                    var srcSpan = System.Runtime.InteropServices.MemoryMarshal.CreateReadOnlySpan(ref matrix[x - offset.X, startY - offset.Y], yCount);
+                    var dstSpan = System.Runtime.InteropServices.MemoryMarshal.CreateSpan(ref _items[x][startY], yCount);
+                    srcSpan.CopyTo(dstSpan);
                 }
             }
         }
@@ -724,9 +741,14 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
             }
             
             // copy input into _matrix
-            for (int x = Math.Clamp(offset.X, 0, _xSize); x < Math.Min(_xSize, offset.X + matrix._xSize); x++) {
-                for (int y = Math.Clamp(offset.Y, 0, _ySize); y < Math.Min(_ySize, offset.Y + matrix._ySize); y++) {
-                    _items[x][y] = matrix[x - offset.X, y - offset.Y];
+            var startX = Math.Clamp(offset.X, 0, _xSize);
+            var endX = Math.Min(_xSize, offset.X + matrix._xSize);
+            var startY = Math.Clamp(offset.Y, 0, _ySize);
+            var endY = Math.Min(_ySize, offset.Y + matrix._ySize);
+            var yCount = endY - startY;
+            if (yCount > 0) {
+                for (int x = startX; x < endX; x++) {
+                    Array.Copy(matrix._items[x - offset.X], startY - offset.Y, _items[x], startY, yCount);
                 }
             }
         }
@@ -799,10 +821,18 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
             }
             
             // copy input into _matrix
-            for (int x = Math.Clamp(offset.X, 0, _xSize); x < Math.Min(_xSize, offset.X + matrix.Len0); x++) {
-                for (int y = Math.Clamp(offset.Y, 0, _ySize); y < Math.Min(_ySize, offset.Y + matrix.Len1); y++) {
-                    if (predicate(_items[x][y], matrix[x - offset.X, y - offset.Y]))  
-                        _items[x][y] = matrix[x - offset.X, y - offset.Y];
+            var startX = Math.Clamp(offset.X, 0, _xSize);
+            var endX = Math.Min(_xSize, offset.X + matrix.Len0);
+            var startY = Math.Clamp(offset.Y, 0, _ySize);
+            var endY = Math.Min(_ySize, offset.Y + matrix.Len1);
+            
+            for (int x = startX; x < endX; x++) {
+                var rowItems = _items[x];
+                var srcRowIndex = x - offset.X;
+                for (int y = startY; y < endY; y++) {
+                    var srcVal = matrix[srcRowIndex, y - offset.Y];
+                    if (predicate(rowItems[y], srcVal))  
+                        rowItems[y] = srcVal;
                 }
             }
         }
@@ -873,10 +903,22 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
             }
             
             // copy input into _matrix
-            for (int x = Math.Clamp(offset.X, 0, _xSize); x < Math.Min(_xSize, offset.X + matrix._xSize); x++) {
-                for (int y = Math.Clamp(offset.Y, 0, _ySize); y < Math.Min(_ySize, offset.Y + matrix._ySize); y++) {
-                    if (predicate(_items[x][y], matrix[x - offset.X, y - offset.Y]))  
-                        _items[x][y] = matrix[x - offset.X, y - offset.Y];
+            var startX = Math.Clamp(offset.X, 0, _xSize);
+            var endX   = Math.Min(_xSize, offset.X + matrix._xSize);
+            var startY = Math.Clamp(offset.Y, 0, _ySize);
+            var endY   = Math.Min(_ySize, offset.Y + matrix._ySize);
+            
+            for (int x = startX; x < endX; x++) {
+                var rowItems = _items[x];
+                var srcRow = matrix._items[x - offset.X];
+                var yOffset = -offset.Y;
+                
+                for (int y = startY; y < endY; y++) {
+                    var srcVal = srcRow[y + yOffset];
+                    
+                    if (predicate(rowItems[y], srcVal)) {
+                        rowItems[y] = srcVal;
+                    }
                 }
             }
         }
@@ -992,11 +1034,12 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
     public void CopyTo(T[,] array, Point2D index) {
         if (array.Len0 < _xSize + index.X) throw new ArgumentException("Destination array is not large enough in x dimension.");
         if (array.Len1 < _ySize + index.Y) throw new ArgumentException("Destination array is not large enough in y dimension.");
+        if (_xSize == 0 || _ySize == 0) return;
 
         for (int x = 0; x < _xSize; x++) {
-            for (int y = 0; y < _ySize; y++) {
-                array[x + index.X, y + index.Y] = _items[x][y];
-            }
+            var srcSpan = System.Runtime.InteropServices.MemoryMarshal.CreateReadOnlySpan(ref _items[x][0], _ySize);
+            var dstSpan = System.Runtime.InteropServices.MemoryMarshal.CreateSpan(ref array[x + index.X, index.Y], _ySize);
+            srcSpan.CopyTo(dstSpan);
         }
     }
 
@@ -1033,11 +1076,12 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
     [Pure]
     public T[,] ToArray() {
         var arr = new T[_xSize, _ySize];
+        if (_xSize == 0 || _ySize == 0) return arr;
 
         for (int x = 0; x < _xSize; x++) {
-            for (int y = 0; y < _ySize; y++) {
-                arr[x, y] = _items[x][y];
-            }
+            var srcSpan = System.Runtime.InteropServices.MemoryMarshal.CreateReadOnlySpan(ref _items[x][0], _ySize);
+            var dstSpan = System.Runtime.InteropServices.MemoryMarshal.CreateSpan(ref arr[x, 0], _ySize);
+            srcSpan.CopyTo(dstSpan);
         }
         
         return arr;
@@ -1054,10 +1098,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
 
         for (int x = 0; x < _xSize; x++) {
             arr[x] = new T[_ySize];
-            
-            for (int y = 0; y < _ySize; y++) {
-                arr[x][y] = _items[x][y];
-            }
+            Array.Copy(_items[x], arr[x], _ySize);
         }
         
         return arr;

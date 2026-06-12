@@ -32,6 +32,13 @@ public class List4D<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
     private int _yCapacity;
     private int _zCapacity;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="List4D{T}"/> class with the specified initial capacity for each dimension.
+    /// </summary>
+    /// <param name="wCapacity">The initial capacity along the W-axis.</param>
+    /// <param name="xCapacity">The initial capacity along the X-axis.</param>
+    /// <param name="yCapacity">The initial capacity along the Y-axis.</param>
+    /// <param name="zCapacity">The initial capacity along the Z-axis.</param>
     public List4D(
         int wCapacity = INITIAL_CAPACITY,
         int xCapacity = INITIAL_CAPACITY,
@@ -49,29 +56,57 @@ public class List4D<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
         _zCapacity = zCapacity;
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="List4D{T}"/> class populated with elements from the specified 4D array.
+    /// </summary>
+    /// <param name="collection">The 4D array of elements to copy from.</param>
     public List4D(T[,,,] collection) : this(
         collection.GetLength(0), 
         collection.GetLength(1), 
         collection.GetLength(2),
         collection.GetLength(3)) 
     {
-        for (int w = 0; w < collection.GetLength(0); w++) {
-            _items[w] = new T[collection.GetLength(1)][][];
-            for (int x = 0; x < collection.GetLength(1); x++) {
-                _items[w][x] = new T[collection.GetLength(2)][];
-                for (int y = 0; y < collection.GetLength(2); y++) {
-                    _items[w][x][y] = new T[collection.GetLength(3)];
-                    for (int z = 0; z < collection.GetLength(3); z++) {
-                        _items[w][x][y][z] = collection[w, x, y, z];
+        var len0 = collection.GetLength(0);
+        var len1 = collection.GetLength(1);
+        var len2 = collection.GetLength(2);
+        var len3 = collection.GetLength(3);
+
+        for (int w = 0; w < len0; w++) {
+            _items[w] = new T[len1][][];
+        }
+
+        if (len1 > 0 && len2 > 0 && len3 > 0) {
+            for (int w = 0; w < len0; w++) {
+                var rowW = _items[w];
+                for (int x = 0; x < len1; x++) {
+                    rowW[x] = new T[len2][];
+                    var rowWX = rowW[x];
+                    for (int y = 0; y < len2; y++) {
+                        rowWX[y] = new T[len3];
+                        var srcSpan = System.Runtime.InteropServices.MemoryMarshal.CreateReadOnlySpan(ref collection[w, x, y, 0], len3);
+                        var dstSpan = new Span<T>(rowWX[y]);
+                        srcSpan.CopyTo(dstSpan);
+                    }
+                }
+            }
+        }
+        else {
+            for (int w = 0; w < len0; w++) {
+                var rowW = _items[w];
+                for (int x = 0; x < len1; x++) {
+                    rowW[x] = new T[len2][];
+                    var rowWX = rowW[x];
+                    for (int y = 0; y < len2; y++) {
+                        rowWX[y] = Array.Empty<T>();
                     }
                 }
             }
         }
         
-        _wSize = _wCapacity;
-        _xSize = _xCapacity;
-        _ySize = _yCapacity;
-        _zSize = _zCapacity;
+        _wSize = len0;
+        _xSize = len1;
+        _ySize = len2;
+        _zSize = len3;
     }
     
     public int WSize => _wSize;
@@ -211,6 +246,15 @@ public class List4D<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
     public void AddY() => InsertAtY(_ySize);
     public void AddZ() => InsertAtZ(_zSize);
 
+    /// <summary>
+    /// Expands the dimensions of the 4D list to the specified size, filling new elements with a default value.
+    /// </summary>
+    /// <param name="wSize">The new size along the W-axis.</param>
+    /// <param name="xSize">The new size along the X-axis.</param>
+    /// <param name="ySize">The new size along the Y-axis.</param>
+    /// <param name="zSize">The new size along the Z-axis.</param>
+    /// <param name="defaultValue">The value to fill the new elements with.</param>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown if any new size is smaller than the current size.</exception>
     public void Expand(int wSize, int xSize, int ySize, int zSize, T? defaultValue = default!) {
         if (wSize < _wSize || xSize < _xSize || ySize < _ySize || zSize < _zSize) throw new ArgumentOutOfRangeException();
         if (wSize == _wSize && xSize == _xSize && ySize == _ySize && zSize == _zSize) return;
@@ -225,60 +269,65 @@ public class List4D<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
         for (int w = 0; w < wSize; w++) {
             bool isNewW = w >= _wSize;
             if (isNewW) {
-                _items[w] = Create3DArray(xSize, ySize, zSize);
+                var rowW = Create3DArray(xSize, ySize, zSize);
+                _items[w] = rowW;
                 if (defaultValue is not null) {
-                    for (int x = 0; x < xSize; x++)
+                    for (int x = 0; x < xSize; x++) {
+                        var rowWX = rowW[x];
                         for (int y = 0; y < ySize; y++)
-                            Array.Fill(_items[w][x][y], defaultValue);
+                            Array.Fill(rowWX[y], defaultValue);
+                    }
                 }
                 continue;
             }
 
             // Existing W, expand its children
-            if (xSize > _xCapacity) {
-                // We'd need to handle _xCapacity globally for the parent, but here it's per W technically in the jagged array
-                // but List4D seems to try to keep them uniform.
-            }
-            
-            if (xSize > _items[w].Length) {
+            var existingW = _items[w];
+            if (xSize > existingW.Length) {
                 var newX = new T[xSize][][];
-                Array.Copy(_items[w], newX, _xSize);
+                Array.Copy(existingW, newX, _xSize);
                 _items[w] = newX;
+                existingW = newX;
             }
 
             for (int x = 0; x < xSize; x++) {
                 bool isNewX = x >= _xSize;
                 if (isNewX) {
-                    _items[w][x] = Create2DArray(ySize, zSize);
+                    var rowWX = Create2DArray(ySize, zSize);
+                    existingW[x] = rowWX;
                     if (defaultValue is not null) {
                         for (int y = 0; y < ySize; y++)
-                            Array.Fill(_items[w][x][y], defaultValue);
+                            Array.Fill(rowWX[y], defaultValue);
                     }
                     continue;
                 }
 
-                if (ySize > _items[w][x].Length) {
+                var existingWX = existingW[x];
+                if (ySize > existingWX.Length) {
                     var newY = new T[ySize][];
-                    Array.Copy(_items[w][x], newY, _ySize);
-                    _items[w][x] = newY;
+                    Array.Copy(existingWX, newY, _ySize);
+                    existingW[x] = newY;
+                    existingWX = newY;
                 }
 
                 for (int y = 0; y < ySize; y++) {
                     bool isNewY = y >= _ySize;
                     if (isNewY) {
-                        _items[w][x][y] = new T[zSize];
-                        if (defaultValue is not null) Array.Fill(_items[w][x][y], defaultValue);
+                        var cellWXY = new T[zSize];
+                        existingWX[y] = cellWXY;
+                        if (defaultValue is not null) Array.Fill(cellWXY, defaultValue);
                         continue;
                     }
 
-                    if (zSize > _items[w][x][y].Length) {
+                    var cellWXYExisting = existingWX[y];
+                    if (zSize > cellWXYExisting.Length) {
                         var newZ = new T[zSize];
-                        Array.Copy(_items[w][x][y], newZ, _zSize);
+                        Array.Copy(cellWXYExisting, newZ, _zSize);
                         if (defaultValue is not null) Array.Fill(newZ, defaultValue, _zSize, zSize - _zSize);
-                        _items[w][x][y] = newZ;
+                        existingWX[y] = newZ;
                     }
                     else if (zSize > _zSize && defaultValue is not null) {
-                         Array.Fill(_items[w][x][y], defaultValue, _zSize, zSize - _zSize);
+                         Array.Fill(cellWXYExisting, defaultValue, _zSize, zSize - _zSize);
                     }
                 }
             }
@@ -291,6 +340,15 @@ public class List4D<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
         _zCapacity = Math.Max(_zCapacity, zSize);
     }
 
+    /// <summary>
+    /// Expands the dimensions of the 4D list to the specified size, generating new elements using the specified factory function.
+    /// </summary>
+    /// <param name="wSize">The new size along the W-axis.</param>
+    /// <param name="xSize">The new size along the X-axis.</param>
+    /// <param name="ySize">The new size along the Y-axis.</param>
+    /// <param name="zSize">The new size along the Z-axis.</param>
+    /// <param name="defaultValueFactory">A factory function that generates values for the new elements.</param>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown if any new size is smaller than the current size.</exception>
     public void Expand(int wSize, int xSize, int ySize, int zSize, Func<T> defaultValueFactory) {
         if (wSize < _wSize || xSize < _xSize || ySize < _ySize || zSize < _zSize) throw new ArgumentOutOfRangeException();
         if (wSize == _wSize && xSize == _xSize && ySize == _ySize && zSize == _zSize) return;
@@ -305,49 +363,63 @@ public class List4D<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
         for (int w = 0; w < wSize; w++) {
             bool isNewW = w >= _wSize;
             if (isNewW) {
-                _items[w] = Create3DArray(xSize, ySize, zSize);
-                for (int x = 0; x < xSize; x++)
-                    for (int y = 0; y < ySize; y++)
+                var rowW = Create3DArray(xSize, ySize, zSize);
+                _items[w] = rowW;
+                for (int x = 0; x < xSize; x++) {
+                    var rowWX = rowW[x];
+                    for (int y = 0; y < ySize; y++) {
+                        var rowWXY = rowWX[y];
                         for (int z = 0; z < zSize; z++)
-                            _items[w][x][y][z] = defaultValueFactory();
+                            rowWXY[z] = defaultValueFactory();
+                    }
+                }
                 continue;
             }
 
-            if (xSize > _items[w].Length) {
+            var existingW = _items[w];
+            if (xSize > existingW.Length) {
                 var newX = new T[xSize][][];
-                Array.Copy(_items[w], newX, _xSize);
+                Array.Copy(existingW, newX, _xSize);
                 _items[w] = newX;
+                existingW = newX;
             }
 
             for (int x = 0; x < xSize; x++) {
                 bool isNewX = x >= _xSize;
                 if (isNewX) {
-                    _items[w][x] = Create2DArray(ySize, zSize);
-                    for (int y = 0; y < ySize; y++)
+                    var rowWX = Create2DArray(ySize, zSize);
+                    existingW[x] = rowWX;
+                    for (int y = 0; y < ySize; y++) {
+                        var rowWXY = rowWX[y];
                         for (int z = 0; z < zSize; z++)
-                            _items[w][x][y][z] = defaultValueFactory();
+                            rowWXY[z] = defaultValueFactory();
+                    }
                     continue;
                 }
 
-                if (ySize > _items[w][x].Length) {
+                var existingWX = existingW[x];
+                if (ySize > existingWX.Length) {
                     var newY = new T[ySize][];
-                    Array.Copy(_items[w][x], newY, _ySize);
-                    _items[w][x] = newY;
+                    Array.Copy(existingWX, newY, _ySize);
+                    existingW[x] = newY;
+                    existingWX = newY;
                 }
 
                 for (int y = 0; y < ySize; y++) {
                     bool isNewY = y >= _ySize;
                     if (isNewY) {
-                        _items[w][x][y] = new T[zSize];
-                        for (int z = 0; z < zSize; z++) _items[w][x][y][z] = defaultValueFactory();
+                        var cellWXY = new T[zSize];
+                        existingWX[y] = cellWXY;
+                        for (int z = 0; z < zSize; z++) cellWXY[z] = defaultValueFactory();
                         continue;
                     }
 
-                    if (zSize > _items[w][x][y].Length) {
+                    var cellWXYExisting = existingWX[y];
+                    if (zSize > cellWXYExisting.Length) {
                         var newZ = new T[zSize];
-                        Array.Copy(_items[w][x][y], newZ, _zSize);
+                        Array.Copy(cellWXYExisting, newZ, _zSize);
                         for (int z = _zSize; z < zSize; z++) newZ[z] = defaultValueFactory();
-                        _items[w][x][y] = newZ;
+                        existingWX[y] = newZ;
                     }
                 }
             }
@@ -490,48 +562,97 @@ public class List4D<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
                 }
     }
 
+    /// <summary>
+    /// Determines whether the 4D list contains a specific value.
+    /// </summary>
+    /// <param name="value">The value to locate in the 4D list.</param>
+    /// <returns><c>true</c> if the value is found; otherwise, <c>false</c>.</returns>
     public bool Contains(T value) {
-        for (int w = 0; w < _wSize; w++)
-            for (int x = 0; x < _xSize; x++)
-                for (int y = 0; y < _ySize; y++)
-                    for (int z = 0; z < _zSize; z++)
-                        if (EqualityComparer<T>.Default.Equals(_items[w][x][y][z], value)) return true;
+        for (int w = 0; w < _wSize; w++) {
+            var rowW = _items[w];
+            for (int x = 0; x < _xSize; x++) {
+                var rowWX = rowW[x];
+                for (int y = 0; y < _ySize; y++) {
+                    if (Array.IndexOf(rowWX[y], value, 0, _zSize) >= 0)
+                        return true;
+                }
+            }
+        }
         return false;
     }
 
+    /// <summary>
+    /// Determines whether the specified hyperplane (along the W-axis) contains a specific value.
+    /// </summary>
+    /// <param name="w">The index on the W-axis.</param>
+    /// <param name="value">The value to locate.</param>
+    /// <returns><c>true</c> if the value is found; otherwise, <c>false</c>.</returns>
     public bool ContainsAtW(int w, T value) {
         if (w < 0 || w >= _wSize) return false;
-        for (int x = 0; x < _xSize; x++)
-            for (int y = 0; y < _ySize; y++)
-                for (int z = 0; z < _zSize; z++)
-                    if (EqualityComparer<T>.Default.Equals(_items[w][x][y][z], value)) return true;
+        var rowW = _items[w];
+        for (int x = 0; x < _xSize; x++) {
+            var rowWX = rowW[x];
+            for (int y = 0; y < _ySize; y++) {
+                if (Array.IndexOf(rowWX[y], value, 0, _zSize) >= 0)
+                    return true;
+            }
+        }
         return false;
     }
 
+    /// <summary>
+    /// Determines whether the specified column (along the X-axis) contains a specific value.
+    /// </summary>
+    /// <param name="x">The column index on the X-axis.</param>
+    /// <param name="value">The value to locate.</param>
+    /// <returns><c>true</c> if the value is found; otherwise, <c>false</c>.</returns>
     public bool ContainsAtX(int x, T value) {
         if (x < 0 || x >= _xSize) return false;
-        for (int w = 0; w < _wSize; w++)
-            for (int y = 0; y < _ySize; y++)
-                for (int z = 0; z < _zSize; z++)
-                    if (EqualityComparer<T>.Default.Equals(_items[w][x][y][z], value)) return true;
+        for (int w = 0; w < _wSize; w++) {
+            var rowWX = _items[w][x];
+            for (int y = 0; y < _ySize; y++) {
+                if (Array.IndexOf(rowWX[y], value, 0, _zSize) >= 0)
+                    return true;
+            }
+        }
         return false;
     }
 
+    /// <summary>
+    /// Determines whether the specified plane (along the Y-axis) contains a specific value.
+    /// </summary>
+    /// <param name="y">The index on the Y-axis.</param>
+    /// <param name="value">The value to locate.</param>
+    /// <returns><c>true</c> if the value is found; otherwise, <c>false</c>.</returns>
     public bool ContainsAtY(int y, T value) {
         if (y < 0 || y >= _ySize) return false;
-        for (int w = 0; w < _wSize; w++)
-            for (int x = 0; x < _xSize; x++)
-                for (int z = 0; z < _zSize; z++)
-                    if (EqualityComparer<T>.Default.Equals(_items[w][x][y][z], value)) return true;
+        for (int w = 0; w < _wSize; w++) {
+            var rowW = _items[w];
+            for (int x = 0; x < _xSize; x++) {
+                if (Array.IndexOf(rowW[x][y], value, 0, _zSize) >= 0)
+                    return true;
+            }
+        }
         return false;
     }
 
+    /// <summary>
+    /// Determines whether the specified plane (along the Z-axis) contains a specific value.
+    /// </summary>
+    /// <param name="z">The index on the Z-axis.</param>
+    /// <param name="value">The value to locate.</param>
+    /// <returns><c>true</c> if the value is found; otherwise, <c>false</c>.</returns>
     public bool ContainsAtZ(int z, T value) {
         if (z < 0 || z >= _zSize) return false;
-        for (int w = 0; w < _wSize; w++)
-            for (int x = 0; x < _xSize; x++)
-                for (int y = 0; y < _ySize; y++)
-                    if (EqualityComparer<T>.Default.Equals(_items[w][x][y][z], value)) return true;
+        for (int w = 0; w < _wSize; w++) {
+            var rowW = _items[w];
+            for (int x = 0; x < _xSize; x++) {
+                var rowWX = rowW[x];
+                for (int y = 0; y < _ySize; y++) {
+                    if (EqualityComparer<T>.Default.Equals(rowWX[y][z], value)) return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -590,17 +711,36 @@ public class List4D<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
             var oldZOffset = -Math.Min(0, offset.Z);
 
             // Copy old
-            for (int w = 0; w < _wSize; w++)
-                for (int x = 0; x < _xSize; x++)
-                    for (int y = 0; y < _ySize; y++)
-                        Array.Copy(_items[w][x][y], 0, newItems[w + oldWOffset][x + oldXOffset][y + oldYOffset], oldZOffset, _zSize);
+            for (int w = 0; w < _wSize; w++) {
+                var rowW = _items[w];
+                var dstW = newItems[w + oldWOffset];
+                for (int x = 0; x < _xSize; x++) {
+                    var rowWX = rowW[x];
+                    var dstWX = dstW[x + oldXOffset];
+                    for (int y = 0; y < _ySize; y++) {
+                        Array.Copy(rowWX[y], 0, dstWX[y + oldYOffset], oldZOffset, _zSize);
+                    }
+                }
+            }
 
             // Copy new
-            for (int w = 0; w < matrix.GetLength(0); w++)
-                for (int x = 0; x < matrix.GetLength(1); x++)
-                    for (int y = 0; y < matrix.GetLength(2); y++)
-                        for (int z = 0; z < matrix.GetLength(3); z++)
-                            newItems[w + newWOffset][x + newXOffset][y + newYOffset][z + newZOffset] = matrix[w, x, y, z];
+            var len3 = matrix.GetLength(3);
+            if (len3 > 0) {
+                var len0 = matrix.GetLength(0);
+                var len1 = matrix.GetLength(1);
+                var len2 = matrix.GetLength(2);
+                for (int w = 0; w < len0; w++) {
+                    var dstW = newItems[w + newWOffset];
+                    for (int x = 0; x < len1; x++) {
+                        var dstWX = dstW[x + newXOffset];
+                        for (int y = 0; y < len2; y++) {
+                            var srcSpan = System.Runtime.InteropServices.MemoryMarshal.CreateReadOnlySpan(ref matrix[w, x, y, 0], len3);
+                            var dstSpan = new Span<T>(dstWX[y + newYOffset], newZOffset, len3);
+                            srcSpan.CopyTo(dstSpan);
+                        }
+                    }
+                }
+            }
 
             _items = newItems;
             _wSize = newSize.W; _xSize = newSize.X; _ySize = newSize.Y; _zSize = newSize.Z;
@@ -611,11 +751,31 @@ public class List4D<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
                 Expand(newSize.W, newSize.X, newSize.Y, newSize.Z);
             }
 
-            for (int w = Math.Clamp(offset.W, 0, _wSize); w < Math.Min(_wSize, offset.W + matrix.GetLength(0)); w++)
-                for (int x = Math.Clamp(offset.X, 0, _xSize); x < Math.Min(_xSize, offset.X + matrix.GetLength(1)); x++)
-                    for (int y = Math.Clamp(offset.Y, 0, _ySize); y < Math.Min(_ySize, offset.Y + matrix.GetLength(2)); y++)
-                        for (int z = Math.Clamp(offset.Z, 0, _zSize); z < Math.Min(_zSize, offset.Z + matrix.GetLength(3)); z++)
-                            _items[w][x][y][z] = matrix[w - offset.W, x - offset.X, y - offset.Y, z - offset.Z];
+            var startW = Math.Clamp(offset.W, 0, _wSize);
+            var endW = Math.Min(_wSize, offset.W + matrix.GetLength(0));
+            var startX = Math.Clamp(offset.X, 0, _xSize);
+            var endX = Math.Min(_xSize, offset.X + matrix.GetLength(1));
+            var startY = Math.Clamp(offset.Y, 0, _ySize);
+            var endY = Math.Min(_ySize, offset.Y + matrix.GetLength(2));
+            var startZ = Math.Clamp(offset.Z, 0, _zSize);
+            var endZ = Math.Min(_zSize, offset.Z + matrix.GetLength(3));
+            var zCount = endZ - startZ;
+
+            if (zCount > 0) {
+                for (int w = startW; w < endW; w++) {
+                    var rowW = _items[w];
+                    var srcW = w - offset.W;
+                    for (int x = startX; x < endX; x++) {
+                        var rowWX = rowW[x];
+                        var srcX = x - offset.X;
+                        for (int y = startY; y < endY; y++) {
+                            var srcSpan = System.Runtime.InteropServices.MemoryMarshal.CreateReadOnlySpan(ref matrix[srcW, srcX, y - offset.Y, startZ - offset.Z], zCount);
+                            var dstSpan = new Span<T>(rowWX[y], startZ, zCount);
+                            srcSpan.CopyTo(dstSpan);
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -667,16 +827,30 @@ public class List4D<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
             var oldZOffset = -Math.Min(0, offset.Z);
 
             // Copy old
-            for (int w = 0; w < _wSize; w++)
-                for (int x = 0; x < _xSize; x++)
-                    for (int y = 0; y < _ySize; y++)
-                        Array.Copy(_items[w][x][y], 0, newItems[w + oldWOffset][x + oldXOffset][y + oldYOffset], oldZOffset, _zSize);
+            for (int w = 0; w < _wSize; w++) {
+                var rowW = _items[w];
+                var dstW = newItems[w + oldWOffset];
+                for (int x = 0; x < _xSize; x++) {
+                    var rowWX = rowW[x];
+                    var dstWX = dstW[x + oldXOffset];
+                    for (int y = 0; y < _ySize; y++) {
+                        Array.Copy(rowWX[y], 0, dstWX[y + oldYOffset], oldZOffset, _zSize);
+                    }
+                }
+            }
 
             // Copy new
-            for (int w = 0; w < matrix._wSize; w++)
-                for (int x = 0; x < matrix._xSize; x++)
-                    for (int y = 0; y < matrix._ySize; y++)
-                        Array.Copy(matrix._items[w][x][y], 0, newItems[w + newWOffset][x + newXOffset][y + newYOffset], newZOffset, matrix._zSize);
+            for (int w = 0; w < matrix._wSize; w++) {
+                var rowW = matrix._items[w];
+                var dstW = newItems[w + newWOffset];
+                for (int x = 0; x < matrix._xSize; x++) {
+                    var rowWX = rowW[x];
+                    var dstWX = dstW[x + newXOffset];
+                    for (int y = 0; y < matrix._ySize; y++) {
+                        Array.Copy(rowWX[y], 0, dstWX[y + newYOffset], newZOffset, matrix._zSize);
+                    }
+                }
+            }
 
             _items = newItems;
             _wSize = newSize.W; _xSize = newSize.X; _ySize = newSize.Y; _zSize = newSize.Z;
@@ -687,11 +861,29 @@ public class List4D<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
                 Expand(newSize.W, newSize.X, newSize.Y, newSize.Z);
             }
 
-            for (int w = Math.Clamp(offset.W, 0, _wSize); w < Math.Min(_wSize, offset.W + matrix._wSize); w++)
-                for (int x = Math.Clamp(offset.X, 0, _xSize); x < Math.Min(_xSize, offset.X + matrix._xSize); x++)
-                    for (int y = Math.Clamp(offset.Y, 0, _ySize); y < Math.Min(_ySize, offset.Y + matrix._ySize); y++)
-                        for (int z = Math.Clamp(offset.Z, 0, _zSize); z < Math.Min(_zSize, offset.Z + matrix._zSize); z++)
-                            _items[w][x][y][z] = matrix._items[w - offset.W][x - offset.X][y - offset.Y][z - offset.Z];
+            var startW = Math.Clamp(offset.W, 0, _wSize);
+            var endW = Math.Min(_wSize, offset.W + matrix._wSize);
+            var startX = Math.Clamp(offset.X, 0, _xSize);
+            var endX = Math.Min(_xSize, offset.X + matrix._xSize);
+            var startY = Math.Clamp(offset.Y, 0, _ySize);
+            var endY = Math.Min(_ySize, offset.Y + matrix._ySize);
+            var startZ = Math.Clamp(offset.Z, 0, _zSize);
+            var endZ = Math.Min(_zSize, offset.Z + matrix._zSize);
+            var zCount = endZ - startZ;
+
+            if (zCount > 0) {
+                for (int w = startW; w < endW; w++) {
+                    var dstW = _items[w];
+                    var srcW = matrix._items[w - offset.W];
+                    for (int x = startX; x < endX; x++) {
+                        var dstWX = dstW[x];
+                        var srcWX = srcW[x - offset.X];
+                        for (int y = startY; y < endY; y++) {
+                            Array.Copy(srcWX[y - offset.Y], startZ - offset.Z, dstWX[y], startZ, zCount);
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -746,18 +938,38 @@ public class List4D<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
             var oldZOffset = -Math.Min(0, offset.Z);
 
             // Copy old
-            for (int w = 0; w < _wSize; w++)
-                for (int x = 0; x < _xSize; x++)
-                    for (int y = 0; y < _ySize; y++)
-                        Array.Copy(_items[w][x][y], 0, newItems[w + oldWOffset][x + oldXOffset][y + oldYOffset], oldZOffset, _zSize);
+            for (int w = 0; w < _wSize; w++) {
+                var rowW = _items[w];
+                var dstW = newItems[w + oldWOffset];
+                for (int x = 0; x < _xSize; x++) {
+                    var rowWX = rowW[x];
+                    var dstWX = dstW[x + oldXOffset];
+                    for (int y = 0; y < _ySize; y++) {
+                        Array.Copy(rowWX[y], 0, dstWX[y + oldYOffset], oldZOffset, _zSize);
+                    }
+                }
+            }
 
             // Copy new
-            for (int w = 0; w < matrix.GetLength(0); w++)
-                for (int x = 0; x < matrix.GetLength(1); x++)
-                    for (int y = 0; y < matrix.GetLength(2); y++)
-                        for (int z = 0; z < matrix.GetLength(3); z++)
-                            if (predicate(newItems[w + newWOffset][x + newXOffset][y + newYOffset][z + newZOffset], matrix[w, x, y, z]))
-                                newItems[w + newWOffset][x + newXOffset][y + newYOffset][z + newZOffset] = matrix[w, x, y, z];
+            var len0 = matrix.GetLength(0);
+            var len1 = matrix.GetLength(1);
+            var len2 = matrix.GetLength(2);
+            var len3 = matrix.GetLength(3);
+            for (int w = 0; w < len0; w++) {
+                var dstW = newItems[w + newWOffset];
+                for (int x = 0; x < len1; x++) {
+                    var dstWX = dstW[x + newXOffset];
+                    for (int y = 0; y < len2; y++) {
+                        var dstWXY = dstWX[y + newYOffset];
+                        for (int z = 0; z < len3; z++) {
+                            var val = matrix[w, x, y, z];
+                            if (predicate(dstWXY[z + newZOffset], val)) {
+                                dstWXY[z + newZOffset] = val;
+                            }
+                        }
+                    }
+                }
+            }
 
             _items = newItems;
             _wSize = newSize.W; _xSize = newSize.X; _ySize = newSize.Y; _zSize = newSize.Z;
@@ -768,12 +980,33 @@ public class List4D<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
                 Expand(newSize.W, newSize.X, newSize.Y, newSize.Z);
             }
 
-            for (int w = Math.Clamp(offset.W, 0, _wSize); w < Math.Min(_wSize, offset.W + matrix.GetLength(0)); w++)
-                for (int x = Math.Clamp(offset.X, 0, _xSize); x < Math.Min(_xSize, offset.X + matrix.GetLength(1)); x++)
-                    for (int y = Math.Clamp(offset.Y, 0, _ySize); y < Math.Min(_ySize, offset.Y + matrix.GetLength(2)); y++)
-                        for (int z = Math.Clamp(offset.Z, 0, _zSize); z < Math.Min(_zSize, offset.Z + matrix.GetLength(3)); z++)
-                            if (predicate(_items[w][x][y][z], matrix[w - offset.W, x - offset.X, y - offset.Y, z - offset.Z]))
-                                _items[w][x][y][z] = matrix[w - offset.W, x - offset.X, y - offset.Y, z - offset.Z];
+            var startW = Math.Clamp(offset.W, 0, _wSize);
+            var endW = Math.Min(_wSize, offset.W + matrix.GetLength(0));
+            var startX = Math.Clamp(offset.X, 0, _xSize);
+            var endX = Math.Min(_xSize, offset.X + matrix.GetLength(1));
+            var startY = Math.Clamp(offset.Y, 0, _ySize);
+            var endY = Math.Min(_ySize, offset.Y + matrix.GetLength(2));
+            var startZ = Math.Clamp(offset.Z, 0, _zSize);
+            var endZ = Math.Min(_zSize, offset.Z + matrix.GetLength(3));
+
+            for (int w = startW; w < endW; w++) {
+                var rowW = _items[w];
+                var srcW = w - offset.W;
+                for (int x = startX; x < endX; x++) {
+                    var rowWX = rowW[x];
+                    var srcX = x - offset.X;
+                    for (int y = startY; y < endY; y++) {
+                        var rowWXY = rowWX[y];
+                        var srcY = y - offset.Y;
+                        for (int z = startZ; z < endZ; z++) {
+                            var val = matrix[srcW, srcX, srcY, z - offset.Z];
+                            if (predicate(rowWXY[z], val)) {
+                                rowWXY[z] = val;
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -827,18 +1060,37 @@ public class List4D<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
             var oldZOffset = -Math.Min(0, offset.Z);
 
             // Copy old
-            for (int w = 0; w < _wSize; w++)
-                for (int x = 0; x < _xSize; x++)
-                    for (int y = 0; y < _ySize; y++)
-                        Array.Copy(_items[w][x][y], 0, newItems[w + oldWOffset][x + oldXOffset][y + oldYOffset], oldZOffset, _zSize);
+            for (int w = 0; w < _wSize; w++) {
+                var rowW = _items[w];
+                var dstW = newItems[w + oldWOffset];
+                for (int x = 0; x < _xSize; x++) {
+                    var rowWX = rowW[x];
+                    var dstWX = dstW[x + oldXOffset];
+                    for (int y = 0; y < _ySize; y++) {
+                        Array.Copy(rowWX[y], 0, dstWX[y + oldYOffset], oldZOffset, _zSize);
+                    }
+                }
+            }
 
             // Copy new
-            for (int w = 0; w < matrix._wSize; w++)
-                for (int x = 0; x < matrix._xSize; x++)
-                    for (int y = 0; y < matrix._ySize; y++)
-                        for (int z = 0; z < matrix._zSize; z++)
-                            if (predicate(newItems[w + newWOffset][x + newXOffset][y + newYOffset][z + newZOffset], matrix._items[w][x][y][z]))
-                                newItems[w + newWOffset][x + newXOffset][y + newYOffset][z + newZOffset] = matrix._items[w][x][y][z];
+            for (int w = 0; w < matrix._wSize; w++) {
+                var srcW = matrix._items[w];
+                var dstW = newItems[w + newWOffset];
+                for (int x = 0; x < matrix._xSize; x++) {
+                    var srcWX = srcW[x];
+                    var dstWX = dstW[x + newXOffset];
+                    for (int y = 0; y < matrix._ySize; y++) {
+                        var srcWXY = srcWX[y];
+                        var dstWXY = dstWX[y + newYOffset];
+                        for (int z = 0; z < matrix._zSize; z++) {
+                            var val = srcWXY[z];
+                            if (predicate(dstWXY[z + newZOffset], val)) {
+                                dstWXY[z + newZOffset] = val;
+                            }
+                        }
+                    }
+                }
+            }
 
             _items = newItems;
             _wSize = newSize.W; _xSize = newSize.X; _ySize = newSize.Y; _zSize = newSize.Z;
@@ -849,12 +1101,33 @@ public class List4D<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
                 Expand(newSize.W, newSize.X, newSize.Y, newSize.Z);
             }
 
-            for (int w = Math.Clamp(offset.W, 0, _wSize); w < Math.Min(_wSize, offset.W + matrix._wSize); w++)
-                for (int x = Math.Clamp(offset.X, 0, _xSize); x < Math.Min(_xSize, offset.X + matrix._xSize); x++)
-                    for (int y = Math.Clamp(offset.Y, 0, _ySize); y < Math.Min(_ySize, offset.Y + matrix._ySize); y++)
-                        for (int z = Math.Clamp(offset.Z, 0, _zSize); z < Math.Min(_zSize, offset.Z + matrix._zSize); z++)
-                            if (predicate(_items[w][x][y][z], matrix._items[w - offset.W][x - offset.X][y - offset.Y][z - offset.Z]))
-                                _items[w][x][y][z] = matrix._items[w - offset.W][x - offset.X][y - offset.Y][z - offset.Z];
+            var startW = Math.Clamp(offset.W, 0, _wSize);
+            var endW = Math.Min(_wSize, offset.W + matrix._wSize);
+            var startX = Math.Clamp(offset.X, 0, _xSize);
+            var endX = Math.Min(_xSize, offset.X + matrix._xSize);
+            var startY = Math.Clamp(offset.Y, 0, _ySize);
+            var endY = Math.Min(_ySize, offset.Y + matrix._ySize);
+            var startZ = Math.Clamp(offset.Z, 0, _zSize);
+            var endZ = Math.Min(_zSize, offset.Z + matrix._zSize);
+
+            for (int w = startW; w < endW; w++) {
+                var dstW = _items[w];
+                var srcW = matrix._items[w - offset.W];
+                for (int x = startX; x < endX; x++) {
+                    var dstWX = dstW[x];
+                    var srcWX = srcW[x - offset.X];
+                    for (int y = startY; y < endY; y++) {
+                        var dstWXY = dstWX[y];
+                        var srcWXY = srcWX[y - offset.Y];
+                        for (int z = startZ; z < endZ; z++) {
+                            var val = srcWXY[z - offset.Z];
+                            if (predicate(dstWXY[z], val)) {
+                                dstWXY[z] = val;
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -915,11 +1188,18 @@ public class List4D<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
     /// </summary>
     /// <param name="factory">A function that generates values to fill the 4D list.</param>
     public void Fill(Func<T> factory) {
-        for (int w = 0; w < _wSize; w++)
-            for (int x = 0; x < _xSize; x++)
-                for (int y = 0; y < _ySize; y++)
-                    for (int z = 0; z < _zSize; z++)
-                        _items[w][x][y][z] = factory();
+        for (int w = 0; w < _wSize; w++) {
+            var rowW = _items[w];
+            for (int x = 0; x < _xSize; x++) {
+                var rowWX = rowW[x];
+                for (int y = 0; y < _ySize; y++) {
+                    var rowWXY = rowWX[y];
+                    for (int z = 0; z < _zSize; z++) {
+                        rowWXY[z] = factory();
+                    }
+                }
+            }
+        }
     }
 
     /// <summary>
@@ -948,11 +1228,18 @@ public class List4D<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
             wCount < 0 || xCount < 0 || yCount < 0 || zCount < 0)
             throw new IndexOutOfRangeException();
 
-        for (int w = wStart; w < wEnd; w++)
-            for (int x = xStart; x < xEnd; x++)
-                for (int y = yStart; y < yEnd; y++)
-                    for (int z = zStart; z < zEnd; z++)
-                        _items[w][x][y][z] = factory();
+        for (int w = wStart; w < wEnd; w++) {
+            var rowW = _items[w];
+            for (int x = xStart; x < xEnd; x++) {
+                var rowWX = rowW[x];
+                for (int y = yStart; y < yEnd; y++) {
+                    var rowWXY = rowWX[y];
+                    for (int z = zStart; z < zEnd; z++) {
+                        rowWXY[z] = factory();
+                    }
+                }
+            }
+        }
     }
 
     /// <summary>
@@ -971,11 +1258,19 @@ public class List4D<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
     [Pure]
     public T[,,,] ToArray() {
         var arr = new T[_wSize, _xSize, _ySize, _zSize];
-        for (int w = 0; w < _wSize; w++)
-            for (int x = 0; x < _xSize; x++)
-                for (int y = 0; y < _ySize; y++)
-                    for (int z = 0; z < _zSize; z++)
-                        arr[w, x, y, z] = _items[w][x][y][z];
+        if (_wSize == 0 || _xSize == 0 || _ySize == 0 || _zSize == 0) return arr;
+
+        for (int w = 0; w < _wSize; w++) {
+            var rowW = _items[w];
+            for (int x = 0; x < _xSize; x++) {
+                var rowWX = rowW[x];
+                for (int y = 0; y < _ySize; y++) {
+                    var srcSpan = System.Runtime.InteropServices.MemoryMarshal.CreateReadOnlySpan(ref rowWX[y][0], _zSize);
+                    var dstSpan = System.Runtime.InteropServices.MemoryMarshal.CreateSpan(ref arr[w, x, y, 0], _zSize);
+                    srcSpan.CopyTo(dstSpan);
+                }
+            }
+        }
         return arr;
     }
 
@@ -1001,20 +1296,50 @@ public class List4D<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
         return arr;
     }
 
+    /// <summary>
+    /// Copies the elements of the 4D list to a 4D array, starting at the specified destination index.
+    /// </summary>
+    /// <param name="array">The destination 4D array.</param>
+    /// <param name="index">The index in the destination array at which copying begins.</param>
+    /// <exception cref="ArgumentException">Thrown if the destination array is not large enough.</exception>
     public void CopyTo(T[,,,] array, Point4D index) {
-        for (int w = 0; w < _wSize; w++)
-            for (int x = 0; x < _xSize; x++)
-                for (int y = 0; y < _ySize; y++)
-                    for (int z = 0; z < _zSize; z++)
-                        array[w + index.W, x + index.X, y + index.Y, z + index.Z] = _items[w][x][y][z];
+        if (array.GetLength(0) < _wSize + index.W) throw new ArgumentException("Destination array is not large enough in w dimension.");
+        if (array.GetLength(1) < _xSize + index.X) throw new ArgumentException("Destination array is not large enough in x dimension.");
+        if (array.GetLength(2) < _ySize + index.Y) throw new ArgumentException("Destination array is not large enough in y dimension.");
+        if (array.GetLength(3) < _zSize + index.Z) throw new ArgumentException("Destination array is not large enough in z dimension.");
+        if (_wSize == 0 || _xSize == 0 || _ySize == 0 || _zSize == 0) return;
+
+        for (int w = 0; w < _wSize; w++) {
+            var rowW = _items[w];
+            for (int x = 0; x < _xSize; x++) {
+                var rowWX = rowW[x];
+                for (int y = 0; y < _ySize; y++) {
+                    var srcSpan = System.Runtime.InteropServices.MemoryMarshal.CreateReadOnlySpan(ref rowWX[y][0], _zSize);
+                    var dstSpan = System.Runtime.InteropServices.MemoryMarshal.CreateSpan(ref array[w + index.W, x + index.X, y + index.Y, index.Z], _zSize);
+                    srcSpan.CopyTo(dstSpan);
+                }
+            }
+        }
     }
 
+    /// <summary>
+    /// Copies the elements of the 4D list to a standard multidimensional array, starting at the specified destination index.
+    /// </summary>
+    /// <param name="array">The destination array.</param>
+    /// <param name="index">The index in the destination array at which copying begins.</param>
     public void CopyTo(Array array, Point4D index) {
-        for (int w = 0; w < _wSize; w++)
-            for (int x = 0; x < _xSize; x++)
-                for (int y = 0; y < _ySize; y++)
-                    for (int z = 0; z < _zSize; z++)
-                        array.SetValue(_items[w][x][y][z], w + index.W, x + index.X, y + index.Y, z + index.Z);
+        for (int w = 0; w < _wSize; w++) {
+            var rowW = _items[w];
+            for (int x = 0; x < _xSize; x++) {
+                var rowWX = rowW[x];
+                for (int y = 0; y < _ySize; y++) {
+                    var rowWXY = rowWX[y];
+                    for (int z = 0; z < _zSize; z++) {
+                        array.SetValue(rowWXY[z], w + index.W, x + index.X, y + index.Y, z + index.Z);
+                    }
+                }
+            }
+        }
     }
 
     public IEnumerator<IEnumerable3D<T>> GetEnumerator() {

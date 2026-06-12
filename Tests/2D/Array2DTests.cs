@@ -338,4 +338,28 @@ public class Array2DTests {
 
         Assert.Equal(1, array[0, 0]);
     }
+
+    [Fact]
+    public void SliceAtX_ReturnsCorrectSlice() {
+        var array = new[,] {
+            { 1, 2, 3 },
+            { 4, 5, 6 }
+        };
+
+        var slice = Array2D.SliceAtX(array, 1);
+
+        Assert.Equal(new[] { 4, 5, 6 }, slice);
+    }
+
+    [Fact]
+    public void SliceAtY_ReturnsCorrectSlice() {
+        var array = new[,] {
+            { 1, 2, 3 },
+            { 4, 5, 6 }
+        };
+
+        var slice = Array2D.SliceAtY(array, 1);
+
+        Assert.Equal(new[] { 2, 5 }, slice);
+    }
 }

@@ -245,26 +245,96 @@ public static class Array3D {
         Clear(array, area.Lower, area.Size + Size3D.One);
     
     /// <summary>
+    /// Extracts a two-dimensional array slice from a three-dimensional array at a specific X coordinate.
+    /// </summary>
+    /// <typeparam name="T">The type of the elements in the array.</typeparam>
+    /// <param name="array">The three-dimensional source array.</param>
+    /// <param name="x">The fixed X coordinate from which to slice the data.</param>
+    /// <returns>A two-dimensional array containing the slice of the array at the specified X coordinate.</returns>
+    public static T[,] SliceAtX<T>(T[,,] array, int x) {
+        var len1 = array.Len1;
+        var len2 = array.Len2;
+        var slice = new T[len1, len2];
+        var totalElements = len1 * len2;
+        if (totalElements == 0) {
+            if (x < 0 || x >= array.Len0) throw new IndexOutOfRangeException();
+            return slice;
+        }
+        MemoryMarshal.CreateReadOnlySpan(ref array[x, 0, 0], totalElements)
+            .CopyTo(MemoryMarshal.CreateSpan(ref slice[0, 0], totalElements));
+        return slice;
+    }
+
+    /// <summary>
+    /// Extracts a two-dimensional array slice from a three-dimensional array at a specific Y coordinate.
+    /// </summary>
+    /// <typeparam name="T">The type of the elements in the array.</typeparam>
+    /// <param name="array">The three-dimensional source array.</param>
+    /// <param name="y">The fixed Y coordinate from which to slice the data.</param>
+    /// <returns>A two-dimensional array containing the slice of the array at the specified Y coordinate.</returns>
+    public static T[,] SliceAtY<T>(T[,,] array, int y) {
+        var len0 = array.Len0;
+        var len2 = array.Len2;
+        var slice = new T[len0, len2];
+        if (len0 == 0 || len2 == 0) {
+            if (y < 0 || y >= array.Len1) throw new IndexOutOfRangeException();
+            return slice;
+        }
+        
+        for (int x = 0; x < len0; x++) {
+            var srcSpan = MemoryMarshal.CreateReadOnlySpan(ref array[x, y, 0], len2);
+            var dstSpan = MemoryMarshal.CreateSpan(ref slice[x, 0], len2);
+            srcSpan.CopyTo(dstSpan);
+        }
+        
+        return slice;
+    }
+
+    /// <summary>
+    /// Extracts a two-dimensional array slice from a three-dimensional array at a specific Z coordinate.
+    /// </summary>
+    /// <typeparam name="T">The type of the elements in the array.</typeparam>
+    /// <param name="array">The three-dimensional source array.</param>
+    /// <param name="z">The fixed Z coordinate from which to slice the data.</param>
+    /// <returns>A two-dimensional array containing the slice of the array at the specified Z coordinate.</returns>
+    public static T[,] SliceAtZ<T>(T[,,] array, int z) {
+        var len0 = array.Len0;
+        var len1 = array.Len1;
+        var slice = new T[len0, len1];
+        if (len0 == 0 || len1 == 0) {
+            if (z < 0 || z >= array.Len2) throw new IndexOutOfRangeException();
+            return slice;
+        }
+
+        ref var srcStart = ref array[0, 0, z];
+        ref var dstStart = ref slice[0, 0];
+        
+        var strideSrcY = array.Len2;
+        var strideSrcX = array.Len1 * array.Len2;
+        var strideDstX = len1;
+        
+        for (int x = 0; x < len0; x++) {
+            ref var srcRow = ref Unsafe.Add(ref srcStart, x * strideSrcX);
+            ref var dstRow = ref Unsafe.Add(ref dstStart, x * strideDstX);
+            
+            for (int y = 0; y < len1; y++) {
+                Unsafe.Add(ref dstRow, y) = Unsafe.Add(ref srcRow, y * strideSrcY);
+            }
+        }
+        
+        return slice;
+    }
+    
+    /// <summary>
     /// Flattens a three-dimensional array into a one-dimensional array.
     /// </summary>
     /// <typeparam name="T">The type of the elements in the array.</typeparam>
     /// <param name="array">The three-dimensional array to be flattened.</param>
     /// <returns>A one-dimensional array containing all elements of the input array in row-major order.</returns>
     public static T[] Flatten<T>(T[,,] array) {
-        var flat = new T[array.Len0 * array.Len1 * array.Len2];
-
-        for (int x = 0; x < array.Len0; x++) {
-            var ox = x * array.Len1 * array.Len2;
-            
-            for (int y = 0; y < array.Len1; y++) {
-                var oy = array.Len2;
-                
-                for (int z = 0; z < array.Len2; z++) {
-                    flat[ox + oy + y] = array[x, y, z];
-                }
-            }
-        }
-        
+        if (array.Length == 0) return Array.Empty<T>();
+        var flat = new T[array.Length];
+        MemoryMarshal.CreateReadOnlySpan(ref array[0, 0, 0], array.Length).CopyTo(flat);
         return flat;
     }
 }
