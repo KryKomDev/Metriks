@@ -28,6 +28,12 @@ public class List3D<T> : IList3D<T>, ICollection3D, IReadOnlyList3D<T> {
     private int _yCapacity;
     private int _zCapacity;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="List3D{T}"/> class with the specified initial capacity for each dimension.
+    /// </summary>
+    /// <param name="xCapacity">The initial capacity along the X-axis.</param>
+    /// <param name="yCapacity">The initial capacity along the Y-axis.</param>
+    /// <param name="zCapacity">The initial capacity along the Z-axis.</param>
     public List3D(
         int xCapacity = INITIAL_CAPACITY,
         int yCapacity = INITIAL_CAPACITY,
@@ -41,25 +47,45 @@ public class List3D<T> : IList3D<T>, ICollection3D, IReadOnlyList3D<T> {
         _zCapacity = zCapacity;
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="List3D{T}"/> class populated with elements from the specified 3D array.
+    /// </summary>
+    /// <param name="collection">The 3D array of elements to copy from.</param>
     public List3D(T[,,] collection) : this(
         collection.GetLength(0),
         collection.GetLength(1),
         collection.GetLength(2)) {
-        for (int x = 0; x < collection.GetLength(0); x++) {
-            _items[x] = new T[collection.GetLength(1)][];
+        var len0 = collection.GetLength(0);
+        var len1 = collection.GetLength(1);
+        var len2 = collection.GetLength(2);
 
-            for (int y = 0; y < collection.GetLength(1); y++) {
-                _items[x][y] = new T[collection.GetLength(2)];
+        for (int x = 0; x < len0; x++) {
+            _items[x] = new T[len1][];
+        }
 
-                for (int z = 0; z < collection.GetLength(2); z++) {
-                    _items[x][y][z] = collection[x, y, z];
+        if (len1 > 0 && len2 > 0) {
+            for (int x = 0; x < len0; x++) {
+                var rowX = _items[x];
+                for (int y = 0; y < len1; y++) {
+                    rowX[y] = new T[len2];
+                    var srcSpan = System.Runtime.InteropServices.MemoryMarshal.CreateReadOnlySpan(ref collection[x, y, 0], len2);
+                    var dstSpan = new Span<T>(rowX[y]);
+                    srcSpan.CopyTo(dstSpan);
+                }
+            }
+        }
+        else if (len1 > 0) {
+            for (int x = 0; x < len0; x++) {
+                var rowX = _items[x];
+                for (int y = 0; y < len1; y++) {
+                    rowX[y] = Array.Empty<T>();
                 }
             }
         }
 
-        _xSize = _xCapacity;
-        _ySize = _yCapacity;
-        _zSize = _zCapacity;
+        _xSize = len0;
+        _ySize = len1;
+        _zSize = len2;
     }
 
     public int XSize => _xSize;
@@ -77,16 +103,14 @@ public class List3D<T> : IList3D<T>, ICollection3D, IReadOnlyList3D<T> {
 
     public T this[int x, int y, int z] {
         get {
-            if (x < 0 || x >= _xSize) throw new IndexOutOfRangeException();
-            if (y < 0 || y >= _ySize) throw new IndexOutOfRangeException();
-            if (z < 0 || z >= _zSize) throw new IndexOutOfRangeException();
+            if (x < 0 || x >= _xSize || y < 0 || y >= _ySize || z < 0 || z >= _zSize) 
+                throw new IndexOutOfRangeException();
 
             return _items[x][y][z];
         }
         set {
-            if (x < 0 || x >= _xSize) throw new IndexOutOfRangeException();
-            if (y < 0 || y >= _ySize) throw new IndexOutOfRangeException();
-            if (z < 0 || z >= _zSize) throw new IndexOutOfRangeException();
+            if (x < 0 || x >= _xSize || y < 0 || y >= _ySize || z < 0 || z >= _zSize)
+                throw new IndexOutOfRangeException();
 
             _items[x][y][z] = value;
         }
@@ -179,6 +203,14 @@ public class List3D<T> : IList3D<T>, ICollection3D, IReadOnlyList3D<T> {
     public void AddY() => InsertAtY(_ySize);
     public void AddZ() => InsertAtZ(_zSize);
 
+    /// <summary>
+    /// Expands the dimensions of the 3D list to the specified size, filling new elements with a default value.
+    /// </summary>
+    /// <param name="xSize">The new size along the X-axis.</param>
+    /// <param name="ySize">The new size along the Y-axis.</param>
+    /// <param name="zSize">The new size along the Z-axis.</param>
+    /// <param name="defaultValue">The value to fill the new elements with.</param>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown if any new size is smaller than the current size.</exception>
     public void Expand(int xSize, int ySize, int zSize, T? defaultValue = default!) {
         if (xSize < _xSize || ySize < _ySize || zSize < _zSize) throw new ArgumentOutOfRangeException();
 
@@ -206,33 +238,38 @@ public class List3D<T> : IList3D<T>, ICollection3D, IReadOnlyList3D<T> {
             _zCapacity = zSize + 1;
 
             for (int x = 0; x < _xSize; x++) {
+                var rowX = _items[x];
                 for (int y = 0; y < _ySize; y++) {
                     var newArray = new T[_zCapacity];
-                    Array.Copy(_items[x][y], newArray, _zSize);
+                    Array.Copy(rowX[y], newArray, _zSize);
                     if (defaultValue is not null) Array.Fill(newArray, defaultValue, _zSize, zSize - _zSize);
-                    _items[x][y] = newArray;
+                    rowX[y] = newArray;
                 }
             }
         }
 
         for (int x = _xSize; x < xSize; x++) {
-            _items[x] = new T[_yCapacity][];
+            var rowX = new T[_yCapacity][];
+            _items[x] = rowX;
 
             for (int y = 0; y < ySize; y++) {
-                _items[x][y] = new T[_zCapacity];
-                if (defaultValue is not null) Array.Fill(_items[x][y], defaultValue, 0, zSize);
+                var cellXY = new T[_zCapacity];
+                rowX[y] = cellXY;
+                if (defaultValue is not null) Array.Fill(cellXY, defaultValue, 0, zSize);
             }
         }
 
         for (int x = 0; x < _xSize; x++) {
+            var rowX = _items[x];
             for (int y = _ySize; y < ySize; y++) {
-                _items[x][y] = new T[_zCapacity];
-                if (defaultValue is not null) Array.Fill(_items[x][y], defaultValue, 0, zSize);
+                var cellXY = new T[_zCapacity];
+                rowX[y] = cellXY;
+                if (defaultValue is not null) Array.Fill(cellXY, defaultValue, 0, zSize);
             }
 
             if (defaultValue is null) continue;
 
-            for (int y = 0; y < _ySize; y++) Array.Fill(_items[x][y], defaultValue, _zSize, zSize - _zSize);
+            for (int y = 0; y < _ySize; y++) Array.Fill(rowX[y], defaultValue, _zSize, zSize - _zSize);
         }
 
         _xSize = xSize;
@@ -240,6 +277,14 @@ public class List3D<T> : IList3D<T>, ICollection3D, IReadOnlyList3D<T> {
         _zSize = zSize;
     }
 
+    /// <summary>
+    /// Expands the dimensions of the 3D list to the specified size, generating new elements using the specified factory function.
+    /// </summary>
+    /// <param name="xSize">The new size along the X-axis.</param>
+    /// <param name="ySize">The new size along the Y-axis.</param>
+    /// <param name="zSize">The new size along the Z-axis.</param>
+    /// <param name="defaultValueFactory">A factory function that generates values for the new elements.</param>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown if any new size is smaller than the current size.</exception>
     public void Expand(int xSize, int ySize, int zSize, Func<T> defaultValueFactory) {
         if (xSize < _xSize || ySize < _ySize || zSize < _zSize) throw new ArgumentOutOfRangeException();
         if (xSize == _xSize && ySize == _ySize && zSize == _zSize) return;
@@ -266,33 +311,39 @@ public class List3D<T> : IList3D<T>, ICollection3D, IReadOnlyList3D<T> {
         if (zSize > _zCapacity) {
             _zCapacity = zSize + 1;
             for (int x = 0; x < _xSize; x++) {
+                var rowX = _items[x];
                 for (int y = 0; y < _ySize; y++) {
                     var newArray = new T[_zCapacity];
-                    Array.Copy(_items[x][y], newArray, _zSize);
-                    _items[x][y] = newArray;
+                    Array.Copy(rowX[y], newArray, _zSize);
+                    rowX[y] = newArray;
                 }
             }
         }
 
         // New X
         for (int x = _xSize; x < xSize; x++) {
-            _items[x] = new T[_yCapacity][];
+            var rowX = new T[_yCapacity][];
+            _items[x] = rowX;
             for (int y = 0; y < ySize; y++) {
-                _items[x][y] = new T[_zCapacity];
-                for (int z = 0; z < zSize; z++) _items[x][y][z] = defaultValueFactory();
+                var cellXY = new T[_zCapacity];
+                rowX[y] = cellXY;
+                for (int z = 0; z < zSize; z++) cellXY[z] = defaultValueFactory();
             }
         }
 
         // Existing X, new Y
         for (int x = 0; x < _xSize; x++) {
+            var rowX = _items[x];
             for (int y = _ySize; y < ySize; y++) {
-                _items[x][y] = new T[_zCapacity];
-                for (int z = 0; z < zSize; z++) _items[x][y][z] = defaultValueFactory();
+                var cellXY = new T[_zCapacity];
+                rowX[y] = cellXY;
+                for (int z = 0; z < zSize; z++) cellXY[z] = defaultValueFactory();
             }
             // Existing X, existing Y, new Z
             for (int y = 0; y < _ySize; y++) {
+                var cellXY = rowX[y];
                 for (int z = _zSize; z < zSize; z++) {
-                    _items[x][y][z] = defaultValueFactory();
+                    cellXY[z] = defaultValueFactory();
                 }
             }
         }
@@ -402,45 +453,74 @@ public class List3D<T> : IList3D<T>, ICollection3D, IReadOnlyList3D<T> {
         if (_zSize > 0) _zSize--;
     }
 
+    /// <summary>
+    /// Determines whether the 3D list contains a specific value.
+    /// </summary>
+    /// <param name="value">The value to locate in the 3D list.</param>
+    /// <returns><c>true</c> if the value is found; otherwise, <c>false</c>.</returns>
     public bool Contains(T value) {
-        for (int x = 0; x < _xSize; x++)
-        for (int y = 0; y < _ySize; y++)
-        for (int z = 0; z < _zSize; z++)
-            if (EqualityComparer<T>.Default.Equals(_items[x][y][z], value))
-                return true;
+        for (int x = 0; x < _xSize; x++) {
+            var rowX = _items[x];
+            for (int y = 0; y < _ySize; y++) {
+                if (Array.IndexOf(rowX[y], value, 0, _zSize) >= 0)
+                    return true;
+            }
+        }
 
         return false;
     }
 
+    /// <summary>
+    /// Determines whether the specified column (along the X-axis) contains a specific value.
+    /// </summary>
+    /// <param name="x">The column index on the X-axis.</param>
+    /// <param name="value">The value to locate.</param>
+    /// <returns><c>true</c> if the value is found; otherwise, <c>false</c>.</returns>
     public bool ContainsAtX(int x, T value) {
         if (x < 0 || x >= _xSize) return false;
 
-        for (int y = 0; y < _ySize; y++)
-        for (int z = 0; z < _zSize; z++)
-            if (EqualityComparer<T>.Default.Equals(_items[x][y][z], value))
+        var rowX = _items[x];
+        for (int y = 0; y < _ySize; y++) {
+            if (Array.IndexOf(rowX[y], value, 0, _zSize) >= 0)
                 return true;
+        }
 
         return false;
     }
 
+    /// <summary>
+    /// Determines whether the specified plane (along the Y-axis) contains a specific value.
+    /// </summary>
+    /// <param name="y">The index on the Y-axis.</param>
+    /// <param name="value">The value to locate.</param>
+    /// <returns><c>true</c> if the value is found; otherwise, <c>false</c>.</returns>
     public bool ContainsAtY(int y, T value) {
         if (y < 0 || y >= _ySize) return false;
 
-        for (int x = 0; x < _xSize; x++)
-        for (int z = 0; z < _zSize; z++)
-            if (EqualityComparer<T>.Default.Equals(_items[x][y][z], value))
+        for (int x = 0; x < _xSize; x++) {
+            if (Array.IndexOf(_items[x][y], value, 0, _zSize) >= 0)
                 return true;
+        }
 
         return false;
     }
 
+    /// <summary>
+    /// Determines whether the specified plane (along the Z-axis) contains a specific value.
+    /// </summary>
+    /// <param name="z">The index on the Z-axis.</param>
+    /// <param name="value">The value to locate.</param>
+    /// <returns><c>true</c> if the value is found; otherwise, <c>false</c>.</returns>
     public bool ContainsAtZ(int z, T value) {
         if (z < 0 || z >= _zSize) return false;
 
-        for (int x = 0; x < _xSize; x++)
-        for (int y = 0; y < _ySize; y++)
-            if (EqualityComparer<T>.Default.Equals(_items[x][y][z], value))
-                return true;
+        for (int x = 0; x < _xSize; x++) {
+            var rowX = _items[x];
+            for (int y = 0; y < _ySize; y++) {
+                if (EqualityComparer<T>.Default.Equals(rowX[y][z], value))
+                    return true;
+            }
+        }
 
         return false;
     }
@@ -491,15 +571,28 @@ public class List3D<T> : IList3D<T>, ICollection3D, IReadOnlyList3D<T> {
             var oldZOffset = -Math.Min(0, offset.Z);
 
             // Copy old
-            for (int x = 0; x < _xSize; x++)
-                for (int y = 0; y < _ySize; y++)
-                    Array.Copy(_items[x][y], 0, newItems[x + oldXOffset][y + oldYOffset], oldZOffset, _zSize);
+            for (int x = 0; x < _xSize; x++) {
+                var srcRowX = _items[x];
+                var dstRowX = newItems[x + oldXOffset];
+                for (int y = 0; y < _ySize; y++) {
+                    Array.Copy(srcRowX[y], 0, dstRowX[y + oldYOffset], oldZOffset, _zSize);
+                }
+            }
 
             // Copy new
-            for (int x = 0; x < matrix.GetLength(0); x++)
-                for (int y = 0; y < matrix.GetLength(1); y++)
-                    for (int z = 0; z < matrix.GetLength(2); z++)
-                        newItems[x + newXOffset][y + newYOffset][z + newZOffset] = matrix[x, y, z];
+            var len2 = matrix.GetLength(2);
+            if (len2 > 0) {
+                var len0 = matrix.GetLength(0);
+                var len1 = matrix.GetLength(1);
+                for (int x = 0; x < len0; x++) {
+                    var dstRowX = newItems[x + newXOffset];
+                    for (int y = 0; y < len1; y++) {
+                        var srcSpan = System.Runtime.InteropServices.MemoryMarshal.CreateReadOnlySpan(ref matrix[x, y, 0], len2);
+                        var dstSpan = new Span<T>(dstRowX[y + newYOffset], newZOffset, len2);
+                        srcSpan.CopyTo(dstSpan);
+                    }
+                }
+            }
 
             _items = newItems;
             _xSize = newSize.X;
@@ -514,10 +607,25 @@ public class List3D<T> : IList3D<T>, ICollection3D, IReadOnlyList3D<T> {
                 Expand(newSize.X, newSize.Y, newSize.Z);
             }
 
-            for (int x = Math.Clamp(offset.X, 0, _xSize); x < Math.Min(_xSize, offset.X + matrix.GetLength(0)); x++)
-                for (int y = Math.Clamp(offset.Y, 0, _ySize); y < Math.Min(_ySize, offset.Y + matrix.GetLength(1)); y++)
-                    for (int z = Math.Clamp(offset.Z, 0, _zSize); z < Math.Min(_zSize, offset.Z + matrix.GetLength(2)); z++)
-                        _items[x][y][z] = matrix[x - offset.X, y - offset.Y, z - offset.Z];
+            var startX = Math.Clamp(offset.X, 0, _xSize);
+            var endX = Math.Min(_xSize, offset.X + matrix.GetLength(0));
+            var startY = Math.Clamp(offset.Y, 0, _ySize);
+            var endY = Math.Min(_ySize, offset.Y + matrix.GetLength(1));
+            var startZ = Math.Clamp(offset.Z, 0, _zSize);
+            var endZ = Math.Min(_zSize, offset.Z + matrix.GetLength(2));
+            var zCount = endZ - startZ;
+
+            if (zCount > 0) {
+                for (int x = startX; x < endX; x++) {
+                    var rowX = _items[x];
+                    var srcX = x - offset.X;
+                    for (int y = startY; y < endY; y++) {
+                        var srcSpan = System.Runtime.InteropServices.MemoryMarshal.CreateReadOnlySpan(ref matrix[srcX, y - offset.Y, startZ - offset.Z], zCount);
+                        var dstSpan = new Span<T>(rowX[y], startZ, zCount);
+                        srcSpan.CopyTo(dstSpan);
+                    }
+                }
+            }
         }
     }
 
@@ -559,14 +667,22 @@ public class List3D<T> : IList3D<T>, ICollection3D, IReadOnlyList3D<T> {
             var oldZOffset = -Math.Min(0, offset.Z);
 
             // Copy old
-            for (int x = 0; x < _xSize; x++)
-                for (int y = 0; y < _ySize; y++)
-                    Array.Copy(_items[x][y], 0, newItems[x + oldXOffset][y + oldYOffset], oldZOffset, _zSize);
+            for (int x = 0; x < _xSize; x++) {
+                var srcRowX = _items[x];
+                var dstRowX = newItems[x + oldXOffset];
+                for (int y = 0; y < _ySize; y++) {
+                    Array.Copy(srcRowX[y], 0, dstRowX[y + oldYOffset], oldZOffset, _zSize);
+                }
+            }
 
             // Copy new
-            for (int x = 0; x < matrix._xSize; x++)
-                for (int y = 0; y < matrix._ySize; y++)
-                    Array.Copy(matrix._items[x][y], 0, newItems[x + newXOffset][y + newYOffset], newZOffset, matrix._zSize);
+            for (int x = 0; x < matrix._xSize; x++) {
+                var srcRowX = matrix._items[x];
+                var dstRowX = newItems[x + newXOffset];
+                for (int y = 0; y < matrix._ySize; y++) {
+                    Array.Copy(srcRowX[y], 0, dstRowX[y + newYOffset], newZOffset, matrix._zSize);
+                }
+            }
 
             _items = newItems;
             _xSize = newSize.X;
@@ -581,10 +697,23 @@ public class List3D<T> : IList3D<T>, ICollection3D, IReadOnlyList3D<T> {
                 Expand(newSize.X, newSize.Y, newSize.Z);
             }
 
-            for (int x = Math.Clamp(offset.X, 0, _xSize); x < Math.Min(_xSize, offset.X + matrix._xSize); x++)
-                for (int y = Math.Clamp(offset.Y, 0, _ySize); y < Math.Min(_ySize, offset.Y + matrix._ySize); y++)
-                    for (int z = Math.Clamp(offset.Z, 0, _zSize); z < Math.Min(_zSize, offset.Z + matrix._zSize); z++)
-                        _items[x][y][z] = matrix._items[x - offset.X][y - offset.Y][z - offset.Z];
+            var startX = Math.Clamp(offset.X, 0, _xSize);
+            var endX = Math.Min(_xSize, offset.X + matrix._xSize);
+            var startY = Math.Clamp(offset.Y, 0, _ySize);
+            var endY = Math.Min(_ySize, offset.Y + matrix._ySize);
+            var startZ = Math.Clamp(offset.Z, 0, _zSize);
+            var endZ = Math.Min(_zSize, offset.Z + matrix._zSize);
+            var zCount = endZ - startZ;
+
+            if (zCount > 0) {
+                for (int x = startX; x < endX; x++) {
+                    var dstRowX = _items[x];
+                    var srcRowX = matrix._items[x - offset.X];
+                    for (int y = startY; y < endY; y++) {
+                        Array.Copy(srcRowX[y - offset.Y], startZ - offset.Z, dstRowX[y], startZ, zCount);
+                    }
+                }
+            }
         }
     }
 
@@ -629,16 +758,30 @@ public class List3D<T> : IList3D<T>, ICollection3D, IReadOnlyList3D<T> {
             var oldZOffset = -Math.Min(0, offset.Z);
 
             // Copy old
-            for (int x = 0; x < _xSize; x++)
-                for (int y = 0; y < _ySize; y++)
-                    Array.Copy(_items[x][y], 0, newItems[x + oldXOffset][y + oldYOffset], oldZOffset, _zSize);
+            for (int x = 0; x < _xSize; x++) {
+                var srcRowX = _items[x];
+                var dstRowX = newItems[x + oldXOffset];
+                for (int y = 0; y < _ySize; y++) {
+                    Array.Copy(srcRowX[y], 0, dstRowX[y + oldYOffset], oldZOffset, _zSize);
+                }
+            }
 
             // Copy new
-            for (int x = 0; x < matrix.GetLength(0); x++)
-                for (int y = 0; y < matrix.GetLength(1); y++)
-                    for (int z = 0; z < matrix.GetLength(2); z++)
-                        if (predicate(newItems[x + newXOffset][y + newYOffset][z + newZOffset], matrix[x, y, z]))
-                            newItems[x + newXOffset][y + newYOffset][z + newZOffset] = matrix[x, y, z];
+            var len0 = matrix.GetLength(0);
+            var len1 = matrix.GetLength(1);
+            var len2 = matrix.GetLength(2);
+            for (int x = 0; x < len0; x++) {
+                var dstRowX = newItems[x + newXOffset];
+                for (int y = 0; y < len1; y++) {
+                    var dstRowXY = dstRowX[y + newYOffset];
+                    for (int z = 0; z < len2; z++) {
+                        var val = matrix[x, y, z];
+                        if (predicate(dstRowXY[z + newZOffset], val)) {
+                            dstRowXY[z + newZOffset] = val;
+                        }
+                    }
+                }
+            }
 
             _items = newItems;
             _xSize = newSize.X;
@@ -653,11 +796,27 @@ public class List3D<T> : IList3D<T>, ICollection3D, IReadOnlyList3D<T> {
                 Expand(newSize.X, newSize.Y, newSize.Z);
             }
 
-            for (int x = Math.Clamp(offset.X, 0, _xSize); x < Math.Min(_xSize, offset.X + matrix.GetLength(0)); x++)
-                for (int y = Math.Clamp(offset.Y, 0, _ySize); y < Math.Min(_ySize, offset.Y + matrix.GetLength(1)); y++)
-                    for (int z = Math.Clamp(offset.Z, 0, _zSize); z < Math.Min(_zSize, offset.Z + matrix.GetLength(2)); z++)
-                        if (predicate(_items[x][y][z], matrix[x - offset.X, y - offset.Y, z - offset.Z]))
-                            _items[x][y][z] = matrix[x - offset.X, y - offset.Y, z - offset.Z];
+            var startX = Math.Clamp(offset.X, 0, _xSize);
+            var endX = Math.Min(_xSize, offset.X + matrix.GetLength(0));
+            var startY = Math.Clamp(offset.Y, 0, _ySize);
+            var endY = Math.Min(_ySize, offset.Y + matrix.GetLength(1));
+            var startZ = Math.Clamp(offset.Z, 0, _zSize);
+            var endZ = Math.Min(_zSize, offset.Z + matrix.GetLength(2));
+
+            for (int x = startX; x < endX; x++) {
+                var rowX = _items[x];
+                var srcX = x - offset.X;
+                for (int y = startY; y < endY; y++) {
+                    var rowXY = rowX[y];
+                    var srcY = y - offset.Y;
+                    for (int z = startZ; z < endZ; z++) {
+                        var val = matrix[srcX, srcY, z - offset.Z];
+                        if (predicate(rowXY[z], val)) {
+                            rowXY[z] = val;
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -701,16 +860,29 @@ public class List3D<T> : IList3D<T>, ICollection3D, IReadOnlyList3D<T> {
             var oldZOffset = -Math.Min(0, offset.Z);
 
             // Copy old
-            for (int x = 0; x < _xSize; x++)
-                for (int y = 0; y < _ySize; y++)
-                    Array.Copy(_items[x][y], 0, newItems[x + oldXOffset][y + oldYOffset], oldZOffset, _zSize);
+            for (int x = 0; x < _xSize; x++) {
+                var srcRowX = _items[x];
+                var dstRowX = newItems[x + oldXOffset];
+                for (int y = 0; y < _ySize; y++) {
+                    Array.Copy(srcRowX[y], 0, dstRowX[y + oldYOffset], oldZOffset, _zSize);
+                }
+            }
 
             // Copy new
-            for (int x = 0; x < matrix._xSize; x++)
-                for (int y = 0; y < matrix._ySize; y++)
-                    for (int z = 0; z < matrix._zSize; z++)
-                        if (predicate(newItems[x + newXOffset][y + newYOffset][z + newZOffset], matrix._items[x][y][z]))
-                            newItems[x + newXOffset][y + newYOffset][z + newZOffset] = matrix._items[x][y][z];
+            for (int x = 0; x < matrix._xSize; x++) {
+                var srcRowX = matrix._items[x];
+                var dstRowX = newItems[x + newXOffset];
+                for (int y = 0; y < matrix._ySize; y++) {
+                    var srcRowXY = srcRowX[y];
+                    var dstRowXY = dstRowX[y + newYOffset];
+                    for (int z = 0; z < matrix._zSize; z++) {
+                        var val = srcRowXY[z];
+                        if (predicate(dstRowXY[z + newZOffset], val)) {
+                            dstRowXY[z + newZOffset] = val;
+                        }
+                    }
+                }
+            }
 
             _items = newItems;
             _xSize = newSize.X;
@@ -725,11 +897,27 @@ public class List3D<T> : IList3D<T>, ICollection3D, IReadOnlyList3D<T> {
                 Expand(newSize.X, newSize.Y, newSize.Z);
             }
 
-            for (int x = Math.Clamp(offset.X, 0, _xSize); x < Math.Min(_xSize, offset.X + matrix._xSize); x++)
-                for (int y = Math.Clamp(offset.Y, 0, _ySize); y < Math.Min(_ySize, offset.Y + matrix._ySize); y++)
-                    for (int z = Math.Clamp(offset.Z, 0, _zSize); z < Math.Min(_zSize, offset.Z + matrix._zSize); z++)
-                        if (predicate(_items[x][y][z], matrix._items[x - offset.X][y - offset.Y][z - offset.Z]))
-                            _items[x][y][z] = matrix._items[x - offset.X][y - offset.Y][z - offset.Z];
+            var startX = Math.Clamp(offset.X, 0, _xSize);
+            var endX = Math.Min(_xSize, offset.X + matrix._xSize);
+            var startY = Math.Clamp(offset.Y, 0, _ySize);
+            var endY = Math.Min(_ySize, offset.Y + matrix._ySize);
+            var startZ = Math.Clamp(offset.Z, 0, _zSize);
+            var endZ = Math.Min(_zSize, offset.Z + matrix._zSize);
+
+            for (int x = startX; x < endX; x++) {
+                var dstRowX = _items[x];
+                var srcRowX = matrix._items[x - offset.X];
+                for (int y = startY; y < endY; y++) {
+                    var dstRowXY = dstRowX[y];
+                    var srcRowXY = srcRowX[y - offset.Y];
+                    for (int z = startZ; z < endZ; z++) {
+                        var val = srcRowXY[z - offset.Z];
+                        if (predicate(dstRowXY[z], val)) {
+                            dstRowXY[z] = val;
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -783,10 +971,15 @@ public class List3D<T> : IList3D<T>, ICollection3D, IReadOnlyList3D<T> {
     /// </summary>
     /// <param name="factory">A function that generates values to fill the 3D list.</param>
     public void Fill(Func<T> factory) {
-        for (int x = 0; x < _xSize; x++)
-            for (int y = 0; y < _ySize; y++)
-                for (int z = 0; z < _zSize; z++)
-                    _items[x][y][z] = factory();
+        for (int x = 0; x < _xSize; x++) {
+            var rowX = _items[x];
+            for (int y = 0; y < _ySize; y++) {
+                var rowXY = rowX[y];
+                for (int z = 0; z < _zSize; z++) {
+                    rowXY[z] = factory();
+                }
+            }
+        }
     }
 
     /// <summary>
@@ -810,10 +1003,15 @@ public class List3D<T> : IList3D<T>, ICollection3D, IReadOnlyList3D<T> {
         if (xStart < 0 || yStart < 0 || zStart < 0 || xEnd > _xSize || yEnd > _ySize || zEnd > _zSize || xCount < 0 || yCount < 0 || zCount < 0)
             throw new IndexOutOfRangeException();
 
-        for (int x = xStart; x < xEnd; x++)
-            for (int y = yStart; y < yEnd; y++)
-                for (int z = zStart; z < zEnd; z++)
-                    _items[x][y][z] = factory();
+        for (int x = xStart; x < xEnd; x++) {
+            var rowX = _items[x];
+            for (int y = yStart; y < yEnd; y++) {
+                var rowXY = rowX[y];
+                for (int z = zStart; z < zEnd; z++) {
+                    rowXY[z] = factory();
+                }
+            }
+        }
     }
 
     /// <summary>
@@ -825,18 +1023,43 @@ public class List3D<T> : IList3D<T>, ICollection3D, IReadOnlyList3D<T> {
     public void Fill(Func<T> factory, Point3D offset, Size3D size)
         => Fill(factory, offset.X, size.X, offset.Y, size.Y, offset.Z, size.Z);
 
+    /// <summary>
+    /// Copies the elements of the 3D list to a 3D array, starting at the specified destination index.
+    /// </summary>
+    /// <param name="array">The destination 3D array.</param>
+    /// <param name="index">The index in the destination array at which copying begins.</param>
+    /// <exception cref="ArgumentException">Thrown if the destination array is not large enough.</exception>
     public void CopyTo(T[,,] array, Point3D index) {
-        for (int x = 0; x < _xSize; x++)
-        for (int y = 0; y < _ySize; y++)
-        for (int z = 0; z < _zSize; z++)
-            array[x + index.X, y + index.Y, z + index.Z] = _items[x][y][z];
+        if (array.GetLength(0) < _xSize + index.X) throw new ArgumentException("Destination array is not large enough in x dimension.");
+        if (array.GetLength(1) < _ySize + index.Y) throw new ArgumentException("Destination array is not large enough in y dimension.");
+        if (array.GetLength(2) < _zSize + index.Z) throw new ArgumentException("Destination array is not large enough in z dimension.");
+        if (_xSize == 0 || _ySize == 0 || _zSize == 0) return;
+
+        for (int x = 0; x < _xSize; x++) {
+            var rowX = _items[x];
+            for (int y = 0; y < _ySize; y++) {
+                var srcSpan = System.Runtime.InteropServices.MemoryMarshal.CreateReadOnlySpan(ref rowX[y][0], _zSize);
+                var dstSpan = System.Runtime.InteropServices.MemoryMarshal.CreateSpan(ref array[x + index.X, y + index.Y, index.Z], _zSize);
+                srcSpan.CopyTo(dstSpan);
+            }
+        }
     }
 
+    /// <summary>
+    /// Copies the elements of the 3D list to a standard multidimensional array, starting at the specified destination index.
+    /// </summary>
+    /// <param name="array">The destination array.</param>
+    /// <param name="index">The index in the destination array at which copying begins.</param>
     public void CopyTo(Array array, Point3D index) {
-        for (int x = 0; x < _xSize; x++)
-        for (int y = 0; y < _ySize; y++)
-        for (int z = 0; z < _zSize; z++)
-            array.SetValue(_items[x][y][z], x + index.X, y + index.Y, z + index.Z);
+        for (int x = 0; x < _xSize; x++) {
+            var rowX = _items[x];
+            for (int y = 0; y < _ySize; y++) {
+                var rowXY = rowX[y];
+                for (int z = 0; z < _zSize; z++) {
+                    array.SetValue(rowXY[z], x + index.X, y + index.Y, z + index.Z);
+                }
+            }
+        }
     }
 
     public IEnumerator<IEnumerable2D<T>> GetEnumerator() {
@@ -929,13 +1152,22 @@ public class List3D<T> : IList3D<T>, ICollection3D, IReadOnlyList3D<T> {
         IEnumerable IEnumerable2D.GetAtY(int y) => GetAtY(y);
     }
 
+    /// <summary>
+    /// Converts the 3D list into a three-dimensional array. (Creates a copy)
+    /// </summary>
+    /// <returns>A three-dimensional array containing the elements of the 3D list.</returns>
     public T[,,] ToArray() {
         var arr = new T[_xSize, _ySize, _zSize];
+        if (_xSize == 0 || _ySize == 0 || _zSize == 0) return arr;
 
-        for (int x = 0; x < _xSize; x++)
-        for (int y = 0; y < _ySize; y++)
-        for (int z = 0; z < _zSize; z++)
-            arr[x, y, z] = _items[x][y][z];
+        for (int x = 0; x < _xSize; x++) {
+            var rowX = _items[x];
+            for (int y = 0; y < _ySize; y++) {
+                var srcSpan = System.Runtime.InteropServices.MemoryMarshal.CreateReadOnlySpan(ref rowX[y][0], _zSize);
+                var dstSpan = System.Runtime.InteropServices.MemoryMarshal.CreateSpan(ref arr[x, y, 0], _zSize);
+                srcSpan.CopyTo(dstSpan);
+            }
+        }
 
         return arr;
     }
@@ -950,6 +1182,7 @@ public class List3D<T> : IList3D<T>, ICollection3D, IReadOnlyList3D<T> {
 
         for (int x = 0; x < _xSize; x++) {
             arr[x] = new T[_ySize][];
+            
             for (int y = 0; y < _ySize; y++) {
                 arr[x][y] = new T[_zSize];
                 Array.Copy(_items[x][y], arr[x][y], _zSize);

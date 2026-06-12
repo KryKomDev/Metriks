@@ -181,4 +181,65 @@ public class Array3DTests {
         // Assert
         Assert.Equal(0, array[0, 0, 0]);
     }
+
+    [Fact]
+    public void SliceAtX_ReturnsCorrectSlice() {
+        int[,,] array = {
+            { { 1, 2 }, { 3, 4 } },
+            { { 5, 6 }, { 7, 8 } }
+        };
+
+        var slice = Array3D.SliceAtX(array, 1);
+        int[,] expected = {
+            { 5, 6 },
+            { 7, 8 }
+        };
+
+        Assert.Equal(expected, slice);
+    }
+
+    [Fact]
+    public void SliceAtY_ReturnsCorrectSlice() {
+        int[,,] array = {
+            { { 1, 2 }, { 3, 4 } },
+            { { 5, 6 }, { 7, 8 } }
+        };
+
+        var slice = Array3D.SliceAtY(array, 1);
+        int[,] expected = {
+            { 3, 4 },
+            { 7, 8 }
+        };
+
+        Assert.Equal(expected, slice);
+    }
+
+    [Fact]
+    public void SliceAtZ_ReturnsCorrectSlice() {
+        int[,,] array = {
+            { { 1, 2 }, { 3, 4 } },
+            { { 5, 6 }, { 7, 8 } }
+        };
+
+        var slice = Array3D.SliceAtZ(array, 1);
+        int[,] expected = {
+            { 2, 4 },
+            { 6, 8 }
+        };
+
+        Assert.Equal(expected, slice);
+    }
+
+    [Fact]
+    public void Flatten_ReturnsCorrectFlattenedArray() {
+        int[,,] array = {
+            { { 1, 2 }, { 3, 4 } },
+            { { 5, 6 }, { 7, 8 } }
+        };
+
+        var flat = Array3D.Flatten(array);
+        int[] expected = { 1, 2, 3, 4, 5, 6, 7, 8 };
+
+        Assert.Equal(expected, flat);
+    }
 }

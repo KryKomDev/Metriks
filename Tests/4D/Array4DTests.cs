@@ -116,4 +116,88 @@ public class Array4DTests {
         // Assert
         Assert.Equal(0, array[0, 0, 0, 0]);
     }
+
+    [Fact]
+    public void SliceAtW_ReturnsCorrectSlice() {
+        int[,,,] array = new int[2, 2, 2, 2];
+        int val = 0;
+        for (int w = 0; w < 2; w++)
+            for (int x = 0; x < 2; x++)
+                for (int y = 0; y < 2; y++)
+                    for (int z = 0; z < 2; z++)
+                        array[w, x, y, z] = ++val;
+
+        var slice = Array4D.SliceAtW(array, 1);
+        
+        Assert.Equal(9, slice[0, 0, 0]);
+        Assert.Equal(16, slice[1, 1, 1]);
+    }
+
+    [Fact]
+    public void SliceAtX_ReturnsCorrectSlice() {
+        int[,,,] array = new int[2, 2, 2, 2];
+        int val = 0;
+        for (int w = 0; w < 2; w++)
+            for (int x = 0; x < 2; x++)
+                for (int y = 0; y < 2; y++)
+                    for (int z = 0; z < 2; z++)
+                        array[w, x, y, z] = ++val;
+
+        var slice = Array4D.SliceAtX(array, 1);
+        
+        Assert.Equal(5, slice[0, 0, 0]);
+        Assert.Equal(16, slice[1, 1, 1]);
+    }
+
+    [Fact]
+    public void SliceAtY_ReturnsCorrectSlice() {
+        int[,,,] array = new int[2, 2, 2, 2];
+        int val = 0;
+        for (int w = 0; w < 2; w++)
+            for (int x = 0; x < 2; x++)
+                for (int y = 0; y < 2; y++)
+                    for (int z = 0; z < 2; z++)
+                        array[w, x, y, z] = ++val;
+
+        var slice = Array4D.SliceAtY(array, 1);
+        
+        Assert.Equal(3, slice[0, 0, 0]);
+        Assert.Equal(16, slice[1, 1, 1]);
+    }
+
+    [Fact]
+    public void SliceAtZ_ReturnsCorrectSlice() {
+        int[,,,] array = new int[2, 2, 2, 2];
+        int val = 0;
+        for (int w = 0; w < 2; w++)
+            for (int x = 0; x < 2; x++)
+                for (int y = 0; y < 2; y++)
+                    for (int z = 0; z < 2; z++)
+                        array[w, x, y, z] = ++val;
+
+        var slice = Array4D.SliceAtZ(array, 1);
+        
+        Assert.Equal(2, slice[0, 0, 0]);
+        Assert.Equal(16, slice[1, 1, 1]);
+    }
+
+    [Fact]
+    public void Flatten_ReturnsCorrectFlattenedArray() {
+        int[,,,] array = new int[2, 2, 2, 2];
+        int val = 0;
+        for (int w = 0; w < 2; w++)
+            for (int x = 0; x < 2; x++)
+                for (int y = 0; y < 2; y++)
+                    for (int z = 0; z < 2; z++)
+                        array[w, x, y, z] = ++val;
+
+        var flat = Array4D.Flatten(array);
+        
+        int[] expected = new int[16];
+        for (int i = 0; i < 16; i++) {
+            expected[i] = i + 1;
+        }
+
+        Assert.Equal(expected, flat);
+    }
 }
