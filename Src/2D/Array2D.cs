@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace Metriks;
@@ -229,21 +229,67 @@ public static class Array2D {
         Clear(array, area.Lower, area.Size + Size2D.One);
 
     /// <summary>
+    /// Extracts a one-dimensional array slice from a two-dimensional array at a specific X coordinate (row index).
+    /// </summary>
+    /// <typeparam name="T">The type of the elements in the array.</typeparam>
+    /// <param name="array">The two-dimensional source array.</param>
+    /// <param name="x">The fixed X coordinate (row index) from which to slice the data.</param>
+    /// <returns>A one-dimensional array containing the elements at the specified X coordinate.</returns>
+    public static T[] SliceAtX<T>(T[,] array, int x) {
+        var len1 = array.Len1;
+        var slice = new T[len1];
+        
+        if (len1 == 0) {
+            if (x < 0 || x >= array.Len0) throw new IndexOutOfRangeException();
+            
+            return slice;
+        }
+        
+        MemoryMarshal.CreateReadOnlySpan(ref array[x, 0], len1).CopyTo(slice);
+        
+        return slice;
+    }
+
+    /// <summary>
+    /// Extracts a one-dimensional array slice from a two-dimensional array at a specific Y coordinate (column index).
+    /// </summary>
+    /// <typeparam name="T">The type of the elements in the array.</typeparam>
+    /// <param name="array">The two-dimensional source array.</param>
+    /// <param name="y">The fixed Y coordinate (column index) from which to slice the data.</param>
+    /// <returns>A one-dimensional array containing the elements at the specified Y coordinate.</returns>
+    public static T[] SliceAtY<T>(T[,] array, int y) {
+        var len0 = array.Len0;
+        var slice = new T[len0];
+        
+        if (len0 == 0) {
+            if (y < 0 || y >= array.Len1) throw new IndexOutOfRangeException();
+            
+            return slice;
+        }
+        
+        var len1 = array.Len1;
+        ref var startRef = ref array[0, y];
+        
+        for (int x = 0; x < len0; x++) {
+            slice[x] = Unsafe.Add(ref startRef, x * len1);
+        }
+        
+        return slice;
+    }
+    
+    /// <summary>
     /// Flattens a two-dimensional array into a one-dimensional array.
     /// </summary>
     /// <typeparam name="T">The type of the elements in the array.</typeparam>
     /// <param name="array">The two-dimensional array to be flattened.</param>
     /// <returns>A one-dimensional array containing all elements of the input array in row-major order.</returns>
     public static T[] Flatten<T>(T[,] array) {
-        var flat = new T[array.Len0 * array.Len1];
-
-        for (int x = 0; x < array.Len0; x++) {
-            var o = x * array.Len1;
-            
-            for (int y = 0; y < array.Len1; y++) {
-                flat[o + y] = array[x, y];
-            }
-        }
+        if (array.Length == 0) 
+            return Array.Empty<T>();
+        
+        var flat = new T[array.Length];
+        
+        MemoryMarshal.CreateReadOnlySpan(ref array[0, 0], array.Length).CopyTo(flat);
         
         return flat;
     }
