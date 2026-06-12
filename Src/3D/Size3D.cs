@@ -1,11 +1,25 @@
-﻿// Metriks
+// Metriks
 // Copyright (c) KryKom & ZlomenyMesic 2025
 
 namespace Metriks;
 
+/// <summary>
+/// Represents a three-dimensional size structure (width, height, and depth) using X, Y, and Z components.
+/// </summary>
 public readonly record struct Size3D {
+    /// <summary>
+    /// Gets the horizontal component (width) of the size.
+    /// </summary>
     public int X { get; }
+
+    /// <summary>
+    /// Gets the vertical component (height) of the size.
+    /// </summary>
     public int Y { get; }
+
+    /// <summary>
+    /// Gets the depth component of the size.
+    /// </summary>
     public int Z { get; }
     
     public Size3D(int x, int y, int z) {
@@ -31,7 +45,14 @@ public readonly record struct Size3D {
         z = Z;
     }
 
+    /// <summary>
+    /// Gets a <see cref="Size3D"/> with X, Y, and Z values set to 0.
+    /// </summary>
     public static Size3D Zero { get; } = new(0, 0, 0);
+
+    /// <summary>
+    /// Gets a <see cref="Size3D"/> with X, Y, and Z values set to 1.
+    /// </summary>
     public static Size3D One  { get; } = new(1, 1, 1);
     
     /// <summary>

@@ -6,6 +6,11 @@ using System.Runtime.CompilerServices;
 
 namespace Metriks;
 
+/// <summary>
+/// Represents a strongly typed, two-dimensional list of elements that can be accessed by X and Y indices.
+/// Provides methods to search, sort, and manipulate 2D lists.
+/// </summary>
+/// <typeparam name="T">The type of elements in the two-dimensional list.</typeparam>
 public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
 
     private const int   INITIAL_CAPACITY = 4;
@@ -70,54 +75,81 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
     }
     
     
+    /// <summary>
+    /// Gets the size (number of elements) along the X-axis.
+    /// </summary>
     public int XSize {
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => _xSize;
     }
 
+    /// <summary>
+    /// Gets the size (number of elements) along the Y-axis.
+    /// </summary>
     public int YSize {
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => _ySize;
     }
 
+    /// <summary>
+    /// Gets a <see cref="Size2D"/> representing the current size of the list in both dimensions.
+    /// </summary>
     public Size2D Size {
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => new(_xSize, _ySize);
     }
 
+    /// <summary>
+    /// Gets the capacity along the X-axis.
+    /// </summary>
     public int XCapacity {
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => _xCapacity;
     }
 
+    /// <summary>
+    /// Gets the capacity along the Y-axis.
+    /// </summary>
     public int YCapacity {
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => _yCapacity;
     }
 
+    /// <summary>
+    /// Gets the total number of elements contained in the <see cref="List2D{T}"/>.
+    /// </summary>
     public int Count {
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => _xSize * _ySize;
     }
 
+    /// <summary>
+    /// Gets the size (number of elements) along the X-axis.
+    /// </summary>
     public int XCount {
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => _xSize;
     }
 
+    /// <summary>
+    /// Gets the size (number of elements) along the Y-axis.
+    /// </summary>
     public int YCount {
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => _ySize;
     }
     
+    /// <summary>
+    /// Gets a value indicating whether the <see cref="List2D{T}"/> is read-only.
+    /// </summary>
     public bool IsReadOnly => false;
 
     public T this[int x, int y] {

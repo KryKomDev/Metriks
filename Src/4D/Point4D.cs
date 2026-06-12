@@ -2,8 +2,14 @@ using System.Globalization;
 
 namespace Metriks;
 
+/// <summary>
+/// Represents a four-dimensional point using W, X, Y, and Z coordinates.
+/// </summary>
 public readonly record struct Point4D : IFormattable {
     
+    /// <summary>
+    /// Gets the W coordinate of the point.
+    /// </summary>
     public int W {
         get;
         #if NET5_0_OR_GREATER
@@ -11,6 +17,9 @@ public readonly record struct Point4D : IFormattable {
         #endif
     }
     
+    /// <summary>
+    /// Gets the X coordinate of the point.
+    /// </summary>
     public int X {
         get;
         #if NET5_0_OR_GREATER
@@ -18,6 +27,9 @@ public readonly record struct Point4D : IFormattable {
         #endif
     }
     
+    /// <summary>
+    /// Gets the Y coordinate of the point.
+    /// </summary>
     public int Y {
         get;
         #if NET5_0_OR_GREATER
@@ -25,6 +37,9 @@ public readonly record struct Point4D : IFormattable {
         #endif
     }
     
+    /// <summary>
+    /// Gets the Z coordinate of the point.
+    /// </summary>
     public int Z {
         get;
         #if NET5_0_OR_GREATER
@@ -67,7 +82,14 @@ public readonly record struct Point4D : IFormattable {
 
     public static explicit operator Size4D(Point4D point) => new(point.W, point.X, point.Y, point.Z);
     
+    /// <summary>
+    /// Gets a <see cref="Point4D"/> with W, X, Y, and Z values set to 0.
+    /// </summary>
     public static Point4D Zero { get; } = new(0, 0, 0, 0);
+
+    /// <summary>
+    /// Gets a <see cref="Point4D"/> with W, X, Y, and Z values set to 1.
+    /// </summary>
     public static Point4D One  { get; } = new(1, 1, 1, 1);
 
     public void Deconstruct(out int w, out int x, out int y, out int z) {

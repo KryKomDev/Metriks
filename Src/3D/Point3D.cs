@@ -1,10 +1,24 @@
-﻿using System.Globalization;
+using System.Globalization;
 
 namespace Metriks;
 
+/// <summary>
+/// Represents a three-dimensional point using X, Y, and Z coordinates.
+/// </summary>
 public readonly record struct Point3D {
+    /// <summary>
+    /// Gets the X coordinate of the point.
+    /// </summary>
     public int X { get; }
+
+    /// <summary>
+    /// Gets the Y coordinate of the point.
+    /// </summary>
     public int Y { get; }
+
+    /// <summary>
+    /// Gets the Z coordinate of the point.
+    /// </summary>
     public int Z { get; }
     
     public Point3D(int x, int y, int z) {
@@ -45,7 +59,14 @@ public readonly record struct Point3D {
         z = Z;
     }
 
+    /// <summary>
+    /// Gets a <see cref="Point3D"/> with X, Y, and Z values set to 0.
+    /// </summary>
     public static Point3D Zero { get; } = new(0, 0, 0);
+
+    /// <summary>
+    /// Gets a <see cref="Point3D"/> with X, Y, and Z values set to 1.
+    /// </summary>
     public static Point3D One  { get; } = new(1, 1, 1);
     
     /// <summary>
