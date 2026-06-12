@@ -7,6 +7,11 @@ using System.Runtime.CompilerServices;
 
 namespace Metriks;
 
+/// <summary>
+/// Represents a strongly typed, four-dimensional list of elements that can be accessed by W, X, Y, and Z indices.
+/// Provides methods to search, sort, and manipulate 4D lists.
+/// </summary>
+/// <typeparam name="T">The type of elements in the four-dimensional list.</typeparam>
 public class List4D<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
 
     private const int INITIAL_CAPACITY = 4;
@@ -14,6 +19,10 @@ public class List4D<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
 
     private T[][][][] _items;
     
+    /// <summary>
+    /// Gets the underlying four-dimensional array used to store the elements of the <see cref="List4D{T}"/> instance.
+    /// PROVIDED FOR INTERNAL USE ONLY. DO NOT USE. <b>!!!DO NOT MODIFY THE ARRAY IN ANY WAY!!!</b>
+    /// </summary>
     internal T[][][][] Items {
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -109,25 +118,79 @@ public class List4D<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
         _zSize = len3;
     }
     
+    /// <summary>
+    /// Gets the size (number of elements) along the W-axis.
+    /// </summary>
     public int WSize => _wSize;
+
+    /// <summary>
+    /// Gets the size (number of elements) along the X-axis.
+    /// </summary>
     public int XSize => _xSize;
+
+    /// <summary>
+    /// Gets the size (number of elements) along the Y-axis.
+    /// </summary>
     public int YSize => _ySize;
+
+    /// <summary>
+    /// Gets the size (number of elements) along the Z-axis.
+    /// </summary>
     public int ZSize => _zSize;
 
+    /// <summary>
+    /// Gets a <see cref="Size4D"/> representing the current size of the list in all four dimensions.
+    /// </summary>
     public Size4D Size => new(_wSize, _xSize, _ySize, _zSize);
 
+    /// <summary>
+    /// Gets the capacity along the W-axis.
+    /// </summary>
     public int WCapacity => _wCapacity;
+
+    /// <summary>
+    /// Gets the capacity along the X-axis.
+    /// </summary>
     public int XCapacity => _xCapacity;
+
+    /// <summary>
+    /// Gets the capacity along the Y-axis.
+    /// </summary>
     public int YCapacity => _yCapacity;
+
+    /// <summary>
+    /// Gets the capacity along the Z-axis.
+    /// </summary>
     public int ZCapacity => _zCapacity;
 
+    /// <summary>
+    /// Gets the total number of elements contained in the <see cref="List4D{T}"/>.
+    /// </summary>
     public int Count => _wSize * _xSize * _ySize * _zSize;
 
+    /// <summary>
+    /// Gets the size (number of elements) along the W-axis.
+    /// </summary>
     public int WCount => _wSize;
+
+    /// <summary>
+    /// Gets the size (number of elements) along the X-axis.
+    /// </summary>
     public int XCount => _xSize;
+
+    /// <summary>
+    /// Gets the size (number of elements) along the Y-axis.
+    /// </summary>
     public int YCount => _ySize;
+
+    /// <summary>
+    /// Gets the size (number of elements) along the Z-axis.
+    /// </summary>
     public int ZCount => _zSize;
     
+    /// <summary>
+    /// Gets a value indicating whether the <see cref="List4D{T}"/> is read-only.
+    /// </summary>
     public bool IsReadOnly => false;
 
     public T this[int w, int x, int y, int z] {

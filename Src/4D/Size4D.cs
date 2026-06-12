@@ -3,8 +3,14 @@
 
 namespace Metriks;
 
+/// <summary>
+/// Represents a four-dimensional size structure using W, X, Y, and Z components.
+/// </summary>
 public readonly record struct Size4D {
     
+    /// <summary>
+    /// Gets the component along the W-axis.
+    /// </summary>
     public int W {
         get;
         #if NET5_0_OR_GREATER
@@ -12,6 +18,9 @@ public readonly record struct Size4D {
         #endif
     }
     
+    /// <summary>
+    /// Gets the horizontal component (width) along the X-axis.
+    /// </summary>
     public int X {
         get;
         #if NET5_0_OR_GREATER
@@ -19,6 +28,9 @@ public readonly record struct Size4D {
         #endif
     }
     
+    /// <summary>
+    /// Gets the vertical component (height) along the Y-axis.
+    /// </summary>
     public int Y {
         get;
         #if NET5_0_OR_GREATER
@@ -26,6 +38,9 @@ public readonly record struct Size4D {
         #endif
     }
     
+    /// <summary>
+    /// Gets the depth component along the Z-axis.
+    /// </summary>
     public int Z {
         get;
         #if NET5_0_OR_GREATER
@@ -54,7 +69,14 @@ public readonly record struct Size4D {
 
     public static explicit operator Point4D(Size4D size) => new(size.W, size.X, size.Y, size.Z);
     
+    /// <summary>
+    /// Gets a <see cref="Size4D"/> with W, X, Y, and Z values set to 0.
+    /// </summary>
     public static Size4D Zero { get; } = new(0, 0, 0, 0);
+
+    /// <summary>
+    /// Gets a <see cref="Size4D"/> with W, X, Y, and Z values set to 1.
+    /// </summary>
     public static Size4D One  { get; } = new(1, 1, 1, 1);
 
     public void Deconstruct(out int w, out int x, out int y, out int z) {

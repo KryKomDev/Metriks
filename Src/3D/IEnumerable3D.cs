@@ -6,6 +6,10 @@ using System.Collections.Generic;
 
 namespace Metriks;
 
+/// <summary>
+/// Exposes the enumerator for a three-dimensional collection, supporting iteration over layers, rows, and columns.
+/// </summary>
+/// <typeparam name="T">The type of elements in the three-dimensional sequence.</typeparam>
 public interface IEnumerable3D<out T> : IEnumerable3D, IEnumerable<IEnumerable2D<T>>
 #if NET9_0_OR_GREATER
     where T : allows ref struct 
@@ -18,6 +22,9 @@ public interface IEnumerable3D<out T> : IEnumerable3D, IEnumerable<IEnumerable2D
     public new IEnumerable2D<T> GetAtZ(int z);
 }
 
+/// <summary>
+/// Exposes the non-generic enumerator for a three-dimensional collection.
+/// </summary>
 public interface IEnumerable3D : IEnumerable {
     public new IEnumerator GetEnumerator();
 

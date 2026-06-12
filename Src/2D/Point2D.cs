@@ -1,9 +1,15 @@
-﻿using System.Globalization;
+using System.Globalization;
 
 namespace Metriks;
 
+/// <summary>
+/// Represents a two-dimensional point using X and Y coordinates.
+/// </summary>
 public readonly record struct Point2D : IFormattable {
 
+    /// <summary>
+    /// Gets the X coordinate of the point.
+    /// </summary>
     public int X {
         get;
         #if NET5_0_OR_GREATER
@@ -11,6 +17,9 @@ public readonly record struct Point2D : IFormattable {
         #endif
     }
 
+    /// <summary>
+    /// Gets the Y coordinate of the point.
+    /// </summary>
     public int Y {
         get;
         #if NET5_0_OR_GREATER
@@ -51,7 +60,14 @@ public readonly record struct Point2D : IFormattable {
     
     public static explicit operator Size2D(Point2D point) => new(point.X, point.Y);
 
+    /// <summary>
+    /// Gets a <see cref="Point2D"/> with X and Y values set to 0.
+    /// </summary>
     public static Point2D Zero { get; } = new(0, 0);
+
+    /// <summary>
+    /// Gets a <see cref="Point2D"/> with X and Y values set to 1.
+    /// </summary>
     public static Point2D One { get; } = new(1, 1);
 
     public void Deconstruct(out int x, out int y) {

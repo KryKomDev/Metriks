@@ -1,7 +1,10 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 
 namespace Metriks;
 
+/// <summary>
+/// Represents a four-dimensional bounding area defined by lower and higher W, X, Y, and Z bounds.
+/// </summary>
 public readonly record struct Area4D : IFormattable {
 
     private readonly int _lw;
@@ -13,6 +16,9 @@ public readonly record struct Area4D : IFormattable {
     private readonly int _hy;
     private readonly int _hz;
     
+    /// <summary>
+    /// Gets the lower bound along the W-axis.
+    /// </summary>
     public int LowerW {
         get => _lw;
         #if NET5_0_OR_GREATER
@@ -20,6 +26,9 @@ public readonly record struct Area4D : IFormattable {
         #endif
     }
 
+    /// <summary>
+    /// Gets the lower bound along the X-axis.
+    /// </summary>
     public int LowerX {
         get => _lx;
         #if NET5_0_OR_GREATER
@@ -27,6 +36,9 @@ public readonly record struct Area4D : IFormattable {
         #endif
     }
     
+    /// <summary>
+    /// Gets the lower bound along the Y-axis.
+    /// </summary>
     public int LowerY {
         get => _ly;
         #if NET5_0_OR_GREATER
@@ -34,6 +46,9 @@ public readonly record struct Area4D : IFormattable {
         #endif
     }
 
+    /// <summary>
+    /// Gets the lower bound along the Z-axis.
+    /// </summary>
     public int LowerZ {
         get => _lz;
         #if NET5_0_OR_GREATER
@@ -41,6 +56,9 @@ public readonly record struct Area4D : IFormattable {
         #endif
     }
     
+    /// <summary>
+    /// Gets the higher bound along the W-axis.
+    /// </summary>
     public int HigherW {
         get => _hw;
         #if NET5_0_OR_GREATER
@@ -48,6 +66,9 @@ public readonly record struct Area4D : IFormattable {
         #endif
     }
 
+    /// <summary>
+    /// Gets the higher bound along the X-axis.
+    /// </summary>
     public int HigherX {
         get => _hx;
         #if NET5_0_OR_GREATER
@@ -55,6 +76,9 @@ public readonly record struct Area4D : IFormattable {
         #endif
     }
     
+    /// <summary>
+    /// Gets the higher bound along the Y-axis.
+    /// </summary>
     public int HigherY {
         get => _hy;
         #if NET5_0_OR_GREATER
@@ -62,6 +86,9 @@ public readonly record struct Area4D : IFormattable {
         #endif
     }
 
+    /// <summary>
+    /// Gets the higher bound along the Z-axis.
+    /// </summary>
     public int HigherZ {
         get => _hz;
         #if NET5_0_OR_GREATER
@@ -69,6 +96,9 @@ public readonly record struct Area4D : IFormattable {
         #endif
     }
 
+    /// <summary>
+    /// Gets the lower-bound point of the area.
+    /// </summary>
     public Point4D Lower {
         get => new(_lw, _lx, _ly, _lz);
         #if NET5_0_OR_GREATER
@@ -81,6 +111,9 @@ public readonly record struct Area4D : IFormattable {
         #endif
     }
     
+    /// <summary>
+    /// Gets the higher-bound point of the area.
+    /// </summary>
     public Point4D Higher {
         get => new(_hw, _hx, _hy, _hz);
         #if NET5_0_OR_GREATER
@@ -93,7 +126,9 @@ public readonly record struct Area4D : IFormattable {
         #endif
     }
 
-    
+    /// <summary>
+    /// Gets the size of the area.
+    /// </summary>
     public Size4D Size => new(
         Math.Abs(_lw - _hw),
         Math.Abs(_lx - _hx),
@@ -101,14 +136,44 @@ public readonly record struct Area4D : IFormattable {
         Math.Abs(_lz - _hz)
     );
 
+    /// <summary>
+    /// Gets the size along the W-axis of the area.
+    /// </summary>
     public int SizeW => Math.Abs(_lw - _hw);
+
+    /// <summary>
+    /// Gets the width (size along the X-axis) of the area.
+    /// </summary>
     public int SizeX => Math.Abs(_lx - _hx);
+
+    /// <summary>
+    /// Gets the height (size along the Y-axis) of the area.
+    /// </summary>
     public int SizeY => Math.Abs(_ly - _hy);
+
+    /// <summary>
+    /// Gets the depth (size along the Z-axis) of the area.
+    /// </summary>
     public int SizeZ => Math.Abs(_lz - _hz);
     
+    /// <summary>
+    /// Gets a <see cref="Range"/> representing the bounds along the W-axis.
+    /// </summary>
     public Range RangeW => new(_lw, _hw);
+
+    /// <summary>
+    /// Gets a <see cref="Range"/> representing the bounds along the X-axis.
+    /// </summary>
     public Range RangeX => new(_lx, _hx);
+
+    /// <summary>
+    /// Gets a <see cref="Range"/> representing the bounds along the Y-axis.
+    /// </summary>
     public Range RangeY => new(_ly, _hy);
+
+    /// <summary>
+    /// Gets a <see cref="Range"/> representing the bounds along the Z-axis.
+    /// </summary>
     public Range RangeZ => new(_lz, _hz);
 
     public Area4D(int lowerW, int lowerX, int lowerY, int lowerZ, int higherW, int higherX, int higherY, int higherZ) {

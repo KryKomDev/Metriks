@@ -1,10 +1,16 @@
-﻿// Metriks
+// Metriks
 // Copyright (c) KryKom 2026
 
 namespace Metriks;
 
+/// <summary>
+/// Represents a two-dimensional size structure (width and height) using X and Y components.
+/// </summary>
 public readonly record struct Size2D {
     
+    /// <summary>
+    /// Gets the horizontal component (width) of the size.
+    /// </summary>
     public int X {
         get;
         #if NET5_0_OR_GREATER
@@ -12,6 +18,9 @@ public readonly record struct Size2D {
         #endif
     }
     
+    /// <summary>
+    /// Gets the vertical component (height) of the size.
+    /// </summary>
     public int Y {
         get;
         #if NET5_0_OR_GREATER
@@ -38,7 +47,14 @@ public readonly record struct Size2D {
 
     public static explicit operator Point2D(Size2D size) => new(size.X, size.Y);
     
+    /// <summary>
+    /// Gets a <see cref="Size2D"/> with X and Y values set to 0.
+    /// </summary>
     public static Size2D Zero { get; } = new(0, 0);
+
+    /// <summary>
+    /// Gets a <see cref="Size2D"/> with X and Y values set to 1.
+    /// </summary>
     public static Size2D One  { get; } = new(1, 1);
 
     public void Deconstruct(out int x, out int y) {

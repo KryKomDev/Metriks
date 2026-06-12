@@ -2,6 +2,9 @@ using System.Runtime.CompilerServices;
 
 namespace Metriks;
 
+/// <summary>
+/// Represents a three-dimensional bounding area defined by lower and higher X, Y, and Z bounds.
+/// </summary>
 public readonly record struct Area3D : IFormattable {
 
     private readonly int _lx;
@@ -11,6 +14,9 @@ public readonly record struct Area3D : IFormattable {
     private readonly int _hy;
     private readonly int _hz;
     
+    /// <summary>
+    /// Gets the lower bound along the X-axis.
+    /// </summary>
     public int LowerX {
         get => _lx;
         #if NET5_0_OR_GREATER
@@ -18,6 +24,9 @@ public readonly record struct Area3D : IFormattable {
         #endif
     }
     
+    /// <summary>
+    /// Gets the lower bound along the Y-axis.
+    /// </summary>
     public int LowerY {
         get => _ly;
         #if NET5_0_OR_GREATER
@@ -25,6 +34,9 @@ public readonly record struct Area3D : IFormattable {
         #endif
     }
 
+    /// <summary>
+    /// Gets the lower bound along the Z-axis.
+    /// </summary>
     public int LowerZ {
         get => _lz;
         #if NET5_0_OR_GREATER
@@ -32,6 +44,9 @@ public readonly record struct Area3D : IFormattable {
         #endif
     }
     
+    /// <summary>
+    /// Gets the higher bound along the X-axis.
+    /// </summary>
     public int HigherX {
         get => _hx;
         #if NET5_0_OR_GREATER
@@ -39,6 +54,9 @@ public readonly record struct Area3D : IFormattable {
         #endif
     }
     
+    /// <summary>
+    /// Gets the higher bound along the Y-axis.
+    /// </summary>
     public int HigherY {
         get => _hy;
         #if NET5_0_OR_GREATER
@@ -46,6 +64,9 @@ public readonly record struct Area3D : IFormattable {
         #endif
     }
 
+    /// <summary>
+    /// Gets the higher bound along the Z-axis.
+    /// </summary>
     public int HigherZ {
         get => _hz;
         #if NET5_0_OR_GREATER
@@ -53,6 +74,9 @@ public readonly record struct Area3D : IFormattable {
         #endif
     }
 
+    /// <summary>
+    /// Gets the lower-bound point of the area.
+    /// </summary>
     public Point3D Lower {
         get => new(_lx, _ly, _lz);
         #if NET5_0_OR_GREATER
@@ -64,6 +88,9 @@ public readonly record struct Area3D : IFormattable {
         #endif
     }
     
+    /// <summary>
+    /// Gets the higher-bound point of the area.
+    /// </summary>
     public Point3D Higher {
         get => new(_hx, _hy, _hz);
         #if NET5_0_OR_GREATER
@@ -75,18 +102,43 @@ public readonly record struct Area3D : IFormattable {
         #endif
     }
 
+    /// <summary>
+    /// Gets the size (width, height, and depth) of the area.
+    /// </summary>
     public Size3D Size => new(
         Math.Abs(_lx - _hx),
         Math.Abs(_ly - _hy),
         Math.Abs(_lz - _hz)
     );
 
+    /// <summary>
+    /// Gets the width (size along the X-axis) of the area.
+    /// </summary>
     public int SizeX => Math.Abs(_lx - _hx);
+
+    /// <summary>
+    /// Gets the height (size along the Y-axis) of the area.
+    /// </summary>
     public int SizeY => Math.Abs(_ly - _hy);
+
+    /// <summary>
+    /// Gets the depth (size along the Z-axis) of the area.
+    /// </summary>
     public int SizeZ => Math.Abs(_lz - _hz);
     
+    /// <summary>
+    /// Gets a <see cref="Range"/> representing the bounds along the X-axis.
+    /// </summary>
     public Range RangeX => new(_lx, _hx);
+
+    /// <summary>
+    /// Gets a <see cref="Range"/> representing the bounds along the Y-axis.
+    /// </summary>
     public Range RangeY => new(_ly, _hy);
+
+    /// <summary>
+    /// Gets a <see cref="Range"/> representing the bounds along the Z-axis.
+    /// </summary>
     public Range RangeZ => new(_lz, _hz);
 
     public Area3D(int lowerX, int lowerY, int lowerZ, int higherX, int higherY, int higherZ) {
