@@ -6,5 +6,5 @@
     <Project Path="Tests/Metriks.Tests.csproj" />
     
     <!--  Examples  -->
-    <Project Path="Examples/Metriks.Sample/Metriks.Sample.csproj" />
+    <Project Path="Samples/Metriks.Sample.csproj" />
 </Solution>

@@ -1,16 +1,21 @@
-<h1 align="center">Metriks</h1>
-
-<p align="center">A multidimensional dynamic array library for C#.</p>
-
 <div align="center">
-    <p>
-        <img src="https://img.shields.io/github/license/KryKomDev/Metriks?style=for-the-badge&amp;labelColor=%235F6473&amp;color=%23F2A0A0" alt="GitHub License" />
-        <a href="https://www.nuget.org/packages/Metriks"><img src="https://img.shields.io/nuget/v/Metriks?color=F0CA95&amp;style=for-the-badge&amp;labelColor=5F6473" alt="NuGet" /></a>
-        <img src="https://img.shields.io/nuget/dt/Metriks?color=E3ED8A&amp;style=for-the-badge&amp;labelColor=5F6473" alt="NuGet Downloads" />
-        <img src="https://img.shields.io/github/actions/workflow/status/KryKomDev/Metriks/test.yml?style=for-the-badge&amp;labelColor=%235F6473&amp;color=%2395EC7D" alt="GitHub Actions Workflow Status" />
-        <img src="https://img.shields.io/badge/.NET-Standard2.1-7ACFDC?style=for-the-badge&amp;labelColor=5F6473" alt=".NET Standard" />
-    </p>
+
+# Metriks
+
+A multidimensional dynamic array library for C#.
+
+![GitHub License](https://img.shields.io/github/license/KryKomDev/Metriks?style=for-the-badge&labelColor=2a313c&color=da3633)
+![GitHub Release](https://img.shields.io/github/v/release/KryKomDev/Metriks?sort=semver&display_name=release&style=for-the-badge&label=Latest%20stable&labelColor=2a313c&color=db6d28)
+![GitHub Release](https://img.shields.io/github/v/release/KryKomDev/Metriks?include_prereleases&sort=semver&display_name=release&style=for-the-badge&label=Latest&labelColor=2a313c&color=db6d28)
+![GitHub Issues or Pull Requests](https://img.shields.io/github/issues-pr/KryKomDev/Metriks?style=for-the-badge&labelColor=2a313c&color=d69a00)
+![GitHub Issues or Pull Requests](https://img.shields.io/github/issues/KryKomDev/Metriks?style=for-the-badge&labelColor=2a313c&color=3fb950)
+[![Commits per month](https://img.shields.io/github/commit-activity/m/KryKomDev/Metriks/master?style=for-the-badge&labelColor=%232a313c&color=58a6ff)](https://img.shields.io/github/commit-activity/m/KryKomDev/Metriks/main?style=for-the-badge&labelColor=%232a313c&color=58a6ff)
+![NuGet Version](https://img.shields.io/nuget/v/Metriks?style=for-the-badge&labelColor=2a313c&color=ab7df8&link=https%3A%2F%2Fwww.nuget.org%2Fpackages%2FMetriks)
+![NuGet Downloads](https://img.shields.io/nuget/dt/Metriks?style=for-the-badge&labelColor=2a313c&color=ab7df8)
+
 </div>
+
+## About
 
 Metriks is a high-performance C# library providing dynamic multidimensional arrays (lists). 
 It bridges the gap between fixed-size multidimensional arrays (`T[,]`, `T[,,]`) and the 
@@ -21,9 +26,10 @@ data structures easily.
 
 - **Specialized Implementations:** Optimized `List2D<T>`, `List3D<T>`, and `List4D<T>` for common dimensions.
 - **Dynamic Resizing:** Easily `Expand`, `Shrink`, or `Resize` your collections while preserving data.
-- **Familiar API:** Implements `IEnumerable`, `ICollection`, and specialized multidimensional interfaces.
+- **Familiar API:** Implements standard collection interfaces and specialized multidimensional contracts (`IList2D<T>`, `IList3D<T>`, `IList4D<T>`).
 - **Modern C# Support:** Full support for `Index` and `Range` syntax on modern .NET targets.
-- **Rich Extensions:** Includes LINQ-like operations and utility extensions for multidimensional data.
+- **Rich Extensions:** Includes LINQ-like operations, flattening, and utility extensions for multidimensional data.
+- **Spatial Grid Support:** `Space2D<T>` provides coordinates relative to movable origins (negative coordinates supported).
 - **Broad Compatibility:** Targets .NET Standard 2.1, .NET 5.0, .NET 8.0, and .NET 10.0.
 
 ## Installation
@@ -44,7 +50,7 @@ using Metriks;
 // Create a 2D list with initial size 0x0 (default capacity 4x4)
 var list = new List2D<int>();
 
-// Expand the list to 3x3 and fill with values
+// Expand the list size to 3x3 and fill with values
 list.Expand(3, 3);
 list[0, 0] = 1;
 list[1, 1] = 2;
@@ -62,10 +68,51 @@ var last = list[^1, ^1];
 
 ### 3D List
 
+Note: Constructor parameters define initial capacity, not size. Use `Resize` or `Expand` to change size before indexing elements.
+
 ```csharp
-var world = new List3D<string>(10, 10, 10);
+var world = new List3D<string>();
+world.Resize(10, 10, 10);
 world[5, 2, 7] = "Block";
-Console.WriteLine(world.Size); // 10, 10, 10
+Console.WriteLine(world.Size); // "10x10x10"
+```
+
+### Shifted Spatial Grid (Space2D)
+
+`Space2D<T>` maps coordinate boundaries relative to an origin offset. This allows you to work with negative coordinates seamlessly.
+
+```csharp
+var space = new Space2D<int>(new int[,] {
+    { 10, 20 },
+    { 30, 40 }
+});
+
+// Move the origin offset by (1, 1)
+space.MoveOrigin(1, 1);
+
+// The original elements are now shifted:
+// Element originally at [0,0] (value 10) is now at [-1, -1]
+int shiftedValue = space[-1, -1]; // 10
+Console.WriteLine($"Current bounds: X[{space.XStart} to {space.XEnd}], Y[{space.YStart} to {space.YEnd}]");
+```
+
+### Slicing and Flattening
+
+Metriks offers optimized slicing along axes and flattening operations:
+
+```csharp
+var list3D = new List3D<int>(new int[,,] {
+    { { 1, 2 }, { 3, 4 } },
+    { { 5, 6 }, { 7, 8 } }
+});
+
+// Extract a 2D slice from a 3D list at X index 1
+IEnumerable2D<int> slice2D = list3D.GetAtX(1);
+slice2D.Write(); // Prints a formatted 2D layer representation
+
+// Flatten a 2D array to a 1D array
+int[,] array2D = { { 1, 2 }, { 3, 4 } };
+int[] flat = Array2D.Flatten(array2D); // [1, 2, 3, 4]
 ```
 
 ## Resizing Behavior
@@ -73,21 +120,25 @@ Console.WriteLine(world.Size); // 10, 10, 10
 Metriks provides several ways to change the size of your collections:
 
 - **Expand:** Increases the size of the list. New elements are initialized with the default
-  value or a provided one.
+  value or a provided factory/default.
 - **Shrink:** Decreases the size of the list, removing elements outside the new bounds.
 - **Resize:** A general-purpose method to set the exact size, either expanding or shrinking as needed.
 
 For detailed information on how data is preserved during resizing, see the 
-[Expand](Docs/Docs/Expand-Methods.md), [Shrink](Docs/Docs/Shrink-Methods.md), and [Resize](Docs/Docs/Resize-Methods.md) documentation.
+[Expand](https://krykomdev.github.io/Metriks/docs/Expand-Methods.html),
+[Shrink](https://krykomdev.github.io/Metriks/docs/Shrink-Methods.html), and 
+[Resize](https://krykomdev.github.io/Metriks/docs/Resize-Methods.html) documentation.
 
 ## Performance
 
 Metriks is designed with performance in mind:
 - Uses jagged arrays internally for efficient memory management and access.
 - Aggressive inlining for hot paths.
+- Employs span-based memory copying (`Span<T>`) for bulk data transfers and resize operations.
 - Specialized classes for 2D, 3D, and 4D to avoid the overhead of generic N-dimensional 
   indexing where possible.
 
 ## License
 
-This project is licensed under the MIT License – see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License – see the 
+[LICENSE](https://github.com/KryKomDev/Metriks/blob/master/LICENSE) file for details.
