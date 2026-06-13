@@ -1,6 +1,4 @@
 - name: Docs
-  href: docs/
+  href: /
 - name: API
   href: api/
-#- name: Extensions
-#  href: extensions
