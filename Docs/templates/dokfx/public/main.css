@@ -355,6 +355,7 @@ form.search {
   width: 100% !important;
   max-width: 320px !important;
   height: 40px !important;
+  flex-shrink: 0 !important;
   box-shadow: none;
   transition:
     background-color 0.2s,
@@ -599,6 +600,7 @@ form.search input.form-control::placeholder {
   padding: 0 0.75rem !important;
   height: 36px !important;
   border: 1px solid transparent !important;
+  flex-shrink: 0 !important;
   transition:
     background-color 0.2s,
     border-color 0.2s,

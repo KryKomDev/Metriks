@@ -39,7 +39,6 @@
         "files": [
           "assets/**"
         ],
-        "src": ".."
       }
     ],
     "output": "_site",
