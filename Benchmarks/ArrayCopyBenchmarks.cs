@@ -1,6 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
 using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Running;
 
 namespace Metriks.Benchmarks;
 

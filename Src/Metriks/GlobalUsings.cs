@@ -1,0 +1,6 @@
+﻿global using NotNullAttribute = System.Diagnostics.CodeAnalysis.NotNullAttribute;
+global using JetBrains.Annotations;
+
+using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("Metriks.Tests")]
