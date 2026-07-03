@@ -1,7 +1,7 @@
 namespace Metriks.Tests;
 
 public class ThrowHelperTests {
-    
+
     [Fact]
     public void ThrowIfLt_ShouldThrow_WhenLess() {
         Assert.Throws<Exception>(() => ThrowHelper.ThrowIfLt(1, 2));

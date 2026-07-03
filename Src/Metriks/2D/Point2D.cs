@@ -1,0 +1,101 @@
+using System.Globalization;
+
+namespace Metriks;
+
+/// <summary>
+///     Represents a two-dimensional point using X and Y coordinates.
+/// </summary>
+public readonly record struct Point2D : IFormattable {
+
+    public Point2D(int x, int y) {
+        X = x;
+        Y = y;
+    }
+
+    /// <summary>
+    ///     Gets the X coordinate of the point.
+    /// </summary>
+    public int X {
+        get;
+        #if NET5_0_OR_GREATER
+        init;
+        #endif
+    }
+
+    /// <summary>
+    ///     Gets the Y coordinate of the point.
+    /// </summary>
+    public int Y {
+        get;
+        #if NET5_0_OR_GREATER
+        init;
+        #endif
+    }
+
+    /// <summary>
+    ///     Gets a <see cref="Point2D" /> with X and Y values set to 0.
+    /// </summary>
+    public static Point2D Zero { get; } = new(0, 0);
+
+    /// <summary>
+    ///     Gets a <see cref="Point2D" /> with X and Y values set to 1.
+    /// </summary>
+    public static Point2D One { get; } = new(1, 1);
+
+    public string ToString(string? format, IFormatProvider? formatProvider) {
+        formatProvider ??= CultureInfo.CurrentCulture;
+
+        var culture = formatProvider as CultureInfo ?? CultureInfo.CurrentCulture;
+        var isCzech = culture.TwoLetterISOLanguageName.Equals("cs", StringComparison.OrdinalIgnoreCase);
+
+        var startBrace = isCzech ? "[" : "(";
+        var endBrace   = isCzech ? "]" : ")";
+
+        var separator = culture.NumberFormat.NumberDecimalSeparator == "," ? ";" : ",";
+
+        return $"{startBrace}{X}{separator} {Y}{endBrace}";
+    }
+
+    public override string ToString() => ToString(null, null);
+
+    public Size2D ToSize() => new(X, Y);
+
+    public static Point2D operator +(Point2D p) => p;
+    public static Point2D operator -(Point2D p) => new(-p.X, -p.Y);
+
+    public static Point2D operator +(Point2D l, Point2D r) => new(l.X + r.X, l.Y + r.Y);
+    public static Point2D operator -(Point2D l, Point2D r) => new(l.X - r.X, l.Y - r.Y);
+    public static Point2D operator *(Point2D l, Point2D r) => new(l.X * r.X, l.Y * r.Y);
+    public static Point2D operator /(Point2D l, Point2D r) => new(l.X / r.X, l.Y / r.Y);
+
+    public static explicit operator Size2D(Point2D point) => new(point.X, point.Y);
+
+    public void Deconstruct(out int x, out int y) {
+        x = X;
+        y = Y;
+    }
+
+    /// <summary>
+    ///     Returns a new <see cref="Point2D" /> with the maximum X and Y values
+    ///     from the two specified points.
+    /// </summary>
+    /// <param name="a">The first <see cref="Point2D" /> to compare.</param>
+    /// <param name="b">The second <see cref="Point2D" /> to compare.</param>
+    /// <returns>
+    ///     A new <see cref="Point2D" /> containing the maximum X and Y values
+    ///     from the two input points.
+    /// </returns>
+    public static Point2D Max(Point2D a, Point2D b) => new(Math.Max(a.X, b.X), Math.Max(a.Y, b.Y));
+
+    /// <summary>
+    ///     Returns a new <see cref="Point2D" /> with the minimum X and Y values
+    ///     from the two specified points.
+    /// </summary>
+    /// <param name="a">The first <see cref="Point2D" /> to compare.</param>
+    /// <param name="b">The second <see cref="Point2D" /> to compare.</param>
+    /// <returns>
+    ///     A new <see cref="Point2D" /> containing the minimum X and Y values
+    ///     from the two input points.
+    /// </returns>
+    public static Point2D Min(Point2D a, Point2D b) => new(Math.Min(a.X, b.X), Math.Min(a.Y, b.Y));
+}

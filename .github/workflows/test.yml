@@ -25,7 +25,7 @@ jobs:
     
     env:
       SolutionName: ./Metriks.sln
-      ProjectPath: ./Src/Metriks.csproj
+      ProjectPath: ./Src/Metriks/Metriks.csproj
       TestProjectPath: ./Tests/Metriks.Tests.csproj
             
     steps:

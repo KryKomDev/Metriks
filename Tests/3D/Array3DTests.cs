@@ -4,14 +4,15 @@ public class Array3DTests {
     [Fact]
     public void Copy_FullArray_CopiesAllElements() {
         // Arrange
-        int[,,] source = new int[2, 2, 2];
-        int val = 0;
-        for (int x = 0; x < 2; x++)
-            for (int y = 0; y < 2; y++)
-                for (int z = 0; z < 2; z++)
-                    source[x, y, z] = ++val;
+        var source = new int[2, 2, 2];
+        var val    = 0;
 
-        int[,,] destination = new int[2, 2, 2];
+        for (var x = 0; x < 2; x++)
+        for (var y = 0; y < 2; y++)
+        for (var z = 0; z < 2; z++)
+            source[x, y, z] = ++val;
+
+        var destination = new int[2, 2, 2];
 
         // Act
         Array3D.Copy(source, 0, 0, 0, destination, 0, 0, 0, 2, 2, 2);
@@ -23,24 +24,26 @@ public class Array3DTests {
     [Fact]
     public void Copy_SubRegion_CopiesCorrectElements() {
         // Arrange
-        int[,,] source = new int[3, 3, 3];
-        for (int x = 0; x < 3; x++)
-            for (int y = 0; y < 3; y++)
-                for (int z = 0; z < 3; z++)
-                    source[x, y, z] = x * 100 + y * 10 + z;
+        var source = new int[3, 3, 3];
 
-        int[,,] destination = new int[2, 2, 2];
+        for (var x = 0; x < 3; x++)
+        for (var y = 0; y < 3; y++)
+        for (var z = 0; z < 3; z++)
+            source[x, y, z] = x * 100 + y * 10 + z;
+
+        var destination = new int[2, 2, 2];
 
         // Act
         // Copy 2x2x2 from (1,1,1)
         Array3D.Copy(source, 1, 1, 1, destination, 0, 0, 0, 2, 2, 2);
 
         // Assert
-        int[,,] expected = new int[2, 2, 2];
-        for (int x = 0; x < 2; x++)
-            for (int y = 0; y < 2; y++)
-                for (int z = 0; z < 2; z++)
-                    expected[x, y, z] = (x + 1) * 100 + (y + 1) * 10 + (z + 1);
+        var expected = new int[2, 2, 2];
+
+        for (var x = 0; x < 2; x++)
+        for (var y = 0; y < 2; y++)
+        for (var z = 0; z < 2; z++)
+            expected[x, y, z] = (x + 1) * 100 + (y + 1) * 10 + z + 1;
 
         Assert.Equal(expected, destination);
     }
@@ -48,14 +51,16 @@ public class Array3DTests {
     [Fact]
     public void Copy_PointAndSizeOverload_CopiesCorrectElements() {
         // Arrange
-        int[,,] source = new int[3, 3, 3];
+        var source = new int[3, 3, 3];
         source[1, 1, 1] = 42;
-        int[,,] destination = new int[1, 1, 1];
+        var destination = new int[1, 1, 1];
 
         // Act
         Array3D.Copy(
-            source, new Point3D(1, 1, 1),
-            destination, new Point3D(0, 0, 0),
+            source,
+            new Point3D(1, 1, 1),
+            destination,
+            new Point3D(0, 0, 0),
             new Size3D(1, 1, 1)
         );
 
@@ -66,22 +71,22 @@ public class Array3DTests {
     [Fact]
     public void Fill_SubRegion_FillsCorrectElements() {
         // Arrange
-        int[,,] array = new int[3, 3, 3];
+        var array = new int[3, 3, 3];
 
         // Act
         Array3D.Fill(array, 42, 1, 1, 1, 1, 1, 1);
 
         // Assert
         Assert.Equal(42, array[1, 1, 1]);
-        Assert.Equal(0, array[0, 0, 0]);
-        Assert.Equal(0, array[2, 2, 2]);
+        Assert.Equal(0,  array[0, 0, 0]);
+        Assert.Equal(0,  array[2, 2, 2]);
     }
 
     [Fact]
     public void Fill_AreaOverload_FillsCorrectElements() {
         // Arrange
-        int[,,] array = new int[3, 3, 3];
-        Area3D area = new Area3D(new Point3D(1, 1, 1), new Size3D(1, 1, 1));
+        var array = new int[3, 3, 3];
+        var area  = new Area3D(new Point3D(1, 1, 1), new Size3D(1, 1, 1));
 
         // Act
         Array3D.Fill(array, 42, area);
@@ -104,17 +109,17 @@ public class Array3DTests {
         // public static void Fill<T>(T[,,] array, T item, Area3D area) => Fill(array, item, area.Lower, area.Size + Size3D.One);
         // So for Area3D((1,1,1), (1,1,1)), size to fill is (2,2,2).
         // Elements filled: (1,1,1), (1,1,2), (1,2,1), (1,2,2), (2,1,1), (2,1,2), (2,2,1), (2,2,2).
-        
+
         Assert.Equal(42, array[1, 1, 1]);
         Assert.Equal(42, array[2, 2, 2]);
-        Assert.Equal(0, array[0, 0, 0]);
+        Assert.Equal(0,  array[0, 0, 0]);
     }
 
     [Fact]
     public void Fill_Factory_FillsCorrectElements() {
         // Arrange
-        int[,,] array = new int[2, 2, 2];
-        int val = 0;
+        var array = new int[2, 2, 2];
+        var val   = 0;
 
         // Act
         Array3D.Fill(array, () => ++val, 0, 0, 0, 2, 2, 2);
@@ -135,14 +140,14 @@ public class Array3DTests {
     [Fact]
     public void Clear_SubRegion_ClearsCorrectElements() {
         // Arrange
-        int[,,] array = new int[3, 3, 3];
+        var array = new int[3, 3, 3];
         Array3D.Fill(array, 42, 0, 0, 0, 3, 3, 3);
 
         // Act
         Array3D.Clear(array, 1, 1, 1, 1, 1, 1);
 
         // Assert
-        Assert.Equal(0, array[1, 1, 1]);
+        Assert.Equal(0,  array[1, 1, 1]);
         Assert.Equal(42, array[0, 0, 0]);
         Assert.Equal(42, array[2, 2, 2]);
     }
@@ -150,8 +155,8 @@ public class Array3DTests {
     [Fact]
     public void Copy_NullSource_ThrowsNullReferenceException() {
         // Arrange
-        int[,,] source = null!;
-        int[,,] destination = new int[1, 1, 1];
+        int[,,] source      = null!;
+        var     destination = new int[1, 1, 1];
 
         // Act & Assert
         Assert.Throws<NullReferenceException>(() => Array3D.Copy(source, 0, 0, 0, destination, 0, 0, 0, 1, 1, 1));
@@ -160,7 +165,7 @@ public class Array3DTests {
     [Fact]
     public void Copy_ZeroCount_DoesNothing() {
         // Arrange
-        int[,,] source = { { { 1 } } };
+        int[,,] source      = { { { 1 } } };
         int[,,] destination = { { { 0 } } };
 
         // Act
@@ -173,7 +178,7 @@ public class Array3DTests {
     [Fact]
     public void Fill_NegativeCount_DoesNothing() {
         // Arrange
-        int[,,] array = new int[1, 1, 1];
+        var array = new int[1, 1, 1];
 
         // Act
         Array3D.Fill(array, 42, 0, 0, 0, -1, 1, 1);
@@ -190,6 +195,7 @@ public class Array3DTests {
         };
 
         var slice = Array3D.SliceAtX(array, 1);
+
         int[,] expected = {
             { 5, 6 },
             { 7, 8 }
@@ -206,6 +212,7 @@ public class Array3DTests {
         };
 
         var slice = Array3D.SliceAtY(array, 1);
+
         int[,] expected = {
             { 3, 4 },
             { 7, 8 }
@@ -222,6 +229,7 @@ public class Array3DTests {
         };
 
         var slice = Array3D.SliceAtZ(array, 1);
+
         int[,] expected = {
             { 2, 4 },
             { 6, 8 }
@@ -237,7 +245,7 @@ public class Array3DTests {
             { { 5, 6 }, { 7, 8 } }
         };
 
-        var flat = Array3D.Flatten(array);
+        var   flat     = Array3D.Flatten(array);
         int[] expected = { 1, 2, 3, 4, 5, 6, 7, 8 };
 
         Assert.Equal(expected, flat);

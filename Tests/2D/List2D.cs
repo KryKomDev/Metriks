@@ -1,11 +1,12 @@
-﻿namespace Metriks.Tests;
+﻿#if METRIKS_ENABLE_JAGGED_LIST
+namespace Metriks.Tests;
 
-public class List2DTests {
+public class List2DJaggedTests {
     
     [Fact]
     public void Constructor_DefaultCapacity_ShouldInitializeCorrectly() {
         // Arrange & Act
-        var list2D = new List2D<int>();
+        var list2D = new List2DJagged<int>();
 
         // Assert
         Assert.Equal(0, list2D.XSize);
@@ -18,7 +19,7 @@ public class List2DTests {
     [Fact]
     public void Constructor_CustomCapacity_ShouldInitializeCorrectly() {
         // Arrange & Act
-        var list2D = new List2D<int>(10, 15);
+        var list2D = new List2DJagged<int>(10, 15);
 
         // Assert
         Assert.Equal(0, list2D.XSize);
@@ -33,7 +34,7 @@ public class List2DTests {
         var array = new[,] { { 1, 2, 3 }, { 4, 5, 6 } };
 
         // Act
-        var list2D = new List2D<int>(array);
+        var list2D = new List2DJagged<int>(array);
 
         // Assert
         Assert.Equal(2, list2D.XSize);
@@ -52,7 +53,7 @@ public class List2DTests {
         var array = new[,] { { 1, 2 }, { 3, 4 }, { 5, 6 } };
 
         // Act
-        var list2D = new List2D<int>(array);
+        var list2D = new List2DJagged<int>(array);
 
         // Assert
         Assert.Equal(3, list2D.XSize);
@@ -68,7 +69,7 @@ public class List2DTests {
     [Fact]
     public void Indexer_ValidIndices_ShouldSetAndGetCorrectly() {
         // Arrange
-        var list2D = new List2D<int>();
+        var list2D = new List2DJagged<int>();
         list2D.AddX();
         list2D.AddY();
 
@@ -84,7 +85,7 @@ public class List2DTests {
     [InlineData(0, 1)]
     public void Indexer_InvalidIndices_ShouldThrowIndexOutOfRangeException(int x, int y) {
         // Arrange
-        var list2D = new List2D<int>();
+        var list2D = new List2DJagged<int>();
         list2D.AddX();
         list2D.AddY();
 
@@ -96,7 +97,7 @@ public class List2DTests {
     [Fact]
     public void AddX_ShouldIncreaseXSize() {
         // Arrange
-        var list2D = new List2D<int>();
+        var list2D = new List2DJagged<int>();
 
         // Act
         list2D.AddX();
@@ -110,7 +111,7 @@ public class List2DTests {
     [Fact] 
     public void AddY_ShouldIncreaseYSize() {
         // Arrange
-        var list2D = new List2D<int>();
+        var list2D = new List2DJagged<int>();
 
         // Act
         list2D.AddY();
@@ -124,7 +125,7 @@ public class List2DTests {
     [Fact]
     public void AddX_ExceedsCapacity_ShouldGrowCapacity() {
         // Arrange
-        var list2D = new List2D<int>(2, 2);
+        var list2D = new List2DJagged<int>(2, 2);
 
         // Act
         list2D.AddX();
@@ -139,7 +140,7 @@ public class List2DTests {
     [Fact]
     public void AddY_ExceedsCapacity_ShouldGrowCapacity() {
         // Arrange
-        var list2D = new List2D<int>(2, 2);
+        var list2D = new List2DJagged<int>(2, 2);
         list2D.AddX(); // Need at least one X to add Y
 
         // Act
@@ -155,7 +156,7 @@ public class List2DTests {
     [Fact]
     public void InsertXAt_ValidIndex_ShouldInsertAtCorrectPosition() {
         // Arrange
-        var list2D = new List2D<int>();
+        var list2D = new List2DJagged<int>();
         list2D.AddX();
         list2D.AddX();
         list2D.AddY();
@@ -178,7 +179,7 @@ public class List2DTests {
     [InlineData(3)]
     public void InsertXAt_InvalidIndex_ShouldThrowIndexOutOfRangeException(int index) {
         // Arrange
-        var list2D = new List2D<int>();
+        var list2D = new List2DJagged<int>();
         list2D.AddX();
         list2D.AddX();
 
@@ -189,7 +190,7 @@ public class List2DTests {
     [Fact]
     public void InsertYAt_ValidIndex_ShouldInsertAtCorrectPosition() {
         // Arrange
-        var list2D = new List2D<int>();
+        var list2D = new List2DJagged<int>();
         list2D.AddX();
         list2D.AddY();
         list2D.AddY();
@@ -212,7 +213,7 @@ public class List2DTests {
     [InlineData(3)]
     public void InsertYAt_InvalidIndex_ShouldThrowIndexOutOfRangeException(int index) {
         // Arrange
-        var list2D = new List2D<int>();
+        var list2D = new List2DJagged<int>();
         list2D.AddX();
         list2D.AddY();
         list2D.AddY();
@@ -224,7 +225,7 @@ public class List2DTests {
     [Fact]
     public void RemoveX_WithElements_ShouldRemoveLastColumn() {
         // Arrange
-        var list2D = new List2D<int>();
+        var list2D = new List2DJagged<int>();
         list2D.AddX();
         list2D.AddX();
         list2D.AddY();
@@ -242,7 +243,7 @@ public class List2DTests {
     [Fact]
     public void RemoveX_EmptyList_ShouldThrowInvalidOperationException() {
         // Arrange
-        var list2D = new List2D<int>();
+        var list2D = new List2DJagged<int>();
 
         // Act & Assert
         Assert.Throws<InvalidOperationException>(() => list2D.ShrinkX());
@@ -251,7 +252,7 @@ public class List2DTests {
     [Fact]
     public void RemoveY_WithElements_ShouldRemoveLastRow() {
         // Arrange
-        var list2D = new List2D<int>();
+        var list2D = new List2DJagged<int>();
         list2D.AddX();
         list2D.AddY();
         list2D.AddY();
@@ -269,7 +270,7 @@ public class List2DTests {
     [Fact]
     public void RemoveY_EmptyList_ShouldThrowInvalidOperationException() {
         // Arrange
-        var list2D = new List2D<int>();
+        var list2D = new List2DJagged<int>();
 
         // Act & Assert
         Assert.Throws<InvalidOperationException>(() => list2D.ShrinkY());
@@ -278,7 +279,7 @@ public class List2DTests {
     [Fact]
     public void RemoveXAt_ValidIndex_ShouldRemoveCorrectColumn() {
         // Arrange
-        var list2D = new List2D<int>();
+        var list2D = new List2DJagged<int>();
         list2D.AddX();
         list2D.AddX();
         list2D.AddX();
@@ -301,7 +302,7 @@ public class List2DTests {
     [InlineData(2)]
     public void RemoveXAt_InvalidIndex_ShouldThrowIndexOutOfRangeException(int index) {
         // Arrange
-        var list2D = new List2D<int>();
+        var list2D = new List2DJagged<int>();
         list2D.AddX();
         list2D.AddX();
 
@@ -312,7 +313,7 @@ public class List2DTests {
     [Fact]
     public void RemoveYAt_ValidIndex_ShouldRemoveCorrectRow() {
         // Arrange
-        var list2D = new List2D<int>();
+        var list2D = new List2DJagged<int>();
         list2D.AddX();
         list2D.AddY();
         list2D.AddY();
@@ -335,7 +336,7 @@ public class List2DTests {
     [InlineData(2)]
     public void RemoveYAt_InvalidIndex_ShouldThrowIndexOutOfRangeException(int index) {
         // Arrange
-        var list2D = new List2D<int>();
+        var list2D = new List2DJagged<int>();
         list2D.AddX();
         list2D.AddY();
         list2D.AddY();
@@ -347,7 +348,7 @@ public class List2DTests {
     [Fact]
     public void Expand_ValidSizes_ShouldExpandCorrectly() {
         // Arrange
-        var list2D = new List2D<int>();
+        var list2D = new List2DJagged<int>();
         list2D.AddX();
         list2D.AddY();
 
@@ -362,7 +363,7 @@ public class List2DTests {
     [Fact]
     public void Expand_SmallerThanCurrent_ShouldThrowArgumentOutOfRangeException() {
         // Arrange
-        var list2D = new List2D<int>();
+        var list2D = new List2DJagged<int>();
         list2D.AddX();
         list2D.AddX();
         list2D.AddY();
@@ -375,7 +376,7 @@ public class List2DTests {
     [Fact]
     public void Expand_Factory_ValidSizes_ShouldExpandCorrectly() {
         // Arrange
-        var list2D = new List2D<int>();
+        var list2D = new List2DJagged<int>();
         list2D.AddX();
         list2D.AddY();
 
@@ -391,7 +392,7 @@ public class List2DTests {
     [Fact]
     public void Expand_Factory_SmallerThanCurrent_ShouldThrowArgumentOutOfRangeException() {
         // Arrange
-        var list2D = new List2D<int>();
+        var list2D = new List2DJagged<int>();
         list2D.AddX();
         list2D.AddX();
         list2D.AddY();
@@ -404,7 +405,7 @@ public class List2DTests {
     [Fact]
     public void Expand_Default_ValidSizes_ShouldExpandCorrectly() {
         // Arrange
-        var list2D = new List2D<int>();
+        var list2D = new List2DJagged<int>();
         list2D.AddX();
         list2D.AddY();
 
@@ -420,7 +421,7 @@ public class List2DTests {
     [Fact]
     public void Expand_Default_SmallerThanCurrent_ShouldThrowArgumentOutOfRangeException() {
         // Arrange
-        var list2D = new List2D<int>();
+        var list2D = new List2DJagged<int>();
         list2D.AddX();
         list2D.AddX();
         list2D.AddY();
@@ -433,7 +434,7 @@ public class List2DTests {
     [Fact]
     public void AllAtX_AllElementsMatch_ShouldReturnTrue() {
         // Arrange
-        var list2D = new List2D<int>();
+        var list2D = new List2DJagged<int>();
         list2D.AddX();
         list2D.AddY();
         list2D.AddY();
@@ -452,7 +453,7 @@ public class List2DTests {
     [Fact]
     public void AllAtX_NotAllElementsMatch_ShouldReturnFalse() {
         // Arrange
-        var list2D = new List2D<int>();
+        var list2D = new List2DJagged<int>();
         list2D.AddX();
         list2D.AddY();
         list2D.AddY();
@@ -471,7 +472,7 @@ public class List2DTests {
     [Fact]
     public void AllAtY_AllElementsMatch_ShouldReturnTrue() {
         // Arrange
-        var list2D = new List2D<int>();
+        var list2D = new List2DJagged<int>();
         list2D.AddX();
         list2D.AddX();
         list2D.AddX();
@@ -490,7 +491,7 @@ public class List2DTests {
     [Fact]
     public void AllAtY_NotAllElementsMatch_ShouldReturnFalse() {
         // Arrange
-        var list2D = new List2D<int>();
+        var list2D = new List2DJagged<int>();
         list2D.AddX();
         list2D.AddX();
         list2D.AddX();
@@ -509,7 +510,7 @@ public class List2DTests {
     [Fact]
     public void GetAtX_ShouldReturnCorrectElements() {
         // Arrange
-        var list2D = new List2D<int>();
+        var list2D = new List2DJagged<int>();
         list2D.AddX();
         list2D.AddY();
         list2D.AddY();
@@ -528,7 +529,7 @@ public class List2DTests {
     [Fact]
     public void GetAtY_ShouldReturnCorrectElements() {
         // Arrange
-        var list2D = new List2D<int>();
+        var list2D = new List2DJagged<int>();
         list2D.AddX();
         list2D.AddX();
         list2D.AddX();
@@ -548,7 +549,7 @@ public class List2DTests {
     public void Place_WithoutOffset_ShouldPlaceAtOrigin() {
         
         // Arrange
-        var list2D = new List2D<int>();
+        var list2D = new List2DJagged<int>();
         var matrix = new[,] { { 1, 2 }, { 3, 4 } };
 
         // Act
@@ -567,7 +568,7 @@ public class List2DTests {
     public void Place_WithPositiveOffset_ShouldPlaceAtOffset() {
         
         // Arrange
-        var list2D = new List2D<int>();
+        var list2D = new List2DJagged<int>();
         list2D.Expand(4, 4); // Make sure we have enough space
         var matrix = new[,] { { 1, 2 } };
 
@@ -582,7 +583,7 @@ public class List2DTests {
     [Fact]
     public void Place_NoResize_NoOffset() {
         
-        var list2D = new List2D<int>(2, 2);
+        var list2D = new List2DJagged<int>(2, 2);
         list2D.AddX();
         list2D.AddX();
         list2D.AddY();
@@ -603,7 +604,7 @@ public class List2DTests {
     [Fact]
     public void Place_NoResize_PositiveOffset() {
         
-        var list2D = new List2D<int>(2, 2);
+        var list2D = new List2DJagged<int>(2, 2);
         list2D.AddX();
         list2D.AddX();
         list2D.AddY();
@@ -624,7 +625,7 @@ public class List2DTests {
     [Fact]
     public void Place_NoResize_NegativeOffset() {
         
-        var list2D = new List2D<int>(2, 2);
+        var list2D = new List2DJagged<int>(2, 2);
         list2D.AddX();
         list2D.AddX();
         list2D.AddY();
@@ -646,7 +647,7 @@ public class List2DTests {
     public void GetEnumerator_ShouldEnumerateColumns() {
         
         // Arrange
-        var list2D = new List2D<int>();
+        var list2D = new List2DJagged<int>();
         list2D.AddX();
         list2D.AddX();
         list2D.AddY();
@@ -668,7 +669,7 @@ public class List2DTests {
     [Fact]
     public void Resize_DefaultValue_ShouldResizeCorrectly() {
         // Arrange
-        var list2D = new List2D<int>(collection: new[,] { { 1, 2 }, { 3, 4 } });
+        var list2D = new List2DJagged<int>(collection: new[,] { { 1, 2 }, { 3, 4 } });
 
         // Act
         list2D.Resize(3, 3, 42);
@@ -690,7 +691,7 @@ public class List2DTests {
     [Fact]
     public void Resize_Factory_ShouldResizeCorrectly() {
         // Arrange
-        var list2D = new List2D<int>(collection: new[,] { { 1, 2 }, { 3, 4 } });
+        var list2D = new List2DJagged<int>(collection: new[,] { { 1, 2 }, { 3, 4 } });
         int counter = 10;
 
         // Act
@@ -711,7 +712,7 @@ public class List2DTests {
     [Fact]
     public void Shrink_ValidSizes_ShouldShrinkCorrectly() {
         // Arrange
-        var list2D = new List2D<int>(collection: new[,] { { 1, 2, 3 }, { 4, 5, 6 }, { 7, 8, 9 } });
+        var list2D = new List2DJagged<int>(collection: new[,] { { 1, 2, 3 }, { 4, 5, 6 }, { 7, 8, 9 } });
 
         // Act
         list2D.Shrink(2, 2);
@@ -728,7 +729,7 @@ public class List2DTests {
     [Fact]
     public void Contains_ShouldReturnCorrectValue() {
         // Arrange
-        var list2D = new List2D<int>(collection: new[,] { { 1, 2 }, { 3, 4 } });
+        var list2D = new List2DJagged<int>(collection: new[,] { { 1, 2 }, { 3, 4 } });
 
         // Act & Assert
         Assert.True(list2D.Contains(3));
@@ -738,7 +739,7 @@ public class List2DTests {
     [Fact]
     public void ContainsAtX_ShouldReturnCorrectValue() {
         // Arrange
-        var list2D = new List2D<int>(collection: new[,] { { 1, 2 }, { 3, 4 } });
+        var list2D = new List2DJagged<int>(collection: new[,] { { 1, 2 }, { 3, 4 } });
 
         // Act & Assert
         Assert.True(list2D.ContainsAtX(1, 3));
@@ -748,7 +749,7 @@ public class List2DTests {
     [Fact]
     public void ContainsAtY_ShouldReturnCorrectValue() {
         // Arrange
-        var list2D = new List2D<int>(collection: new[,] { { 1, 2 }, { 3, 4 } });
+        var list2D = new List2DJagged<int>(collection: new[,] { { 1, 2 }, { 3, 4 } });
 
         // Act & Assert
         Assert.True(list2D.ContainsAtY(1, 2));
@@ -758,7 +759,7 @@ public class List2DTests {
     [Fact]
     public void Fill_Value_ShouldFillEntireList() {
         // Arrange
-        var list2D = new List2D<int>();
+        var list2D = new List2DJagged<int>();
         list2D.Expand(2, 2);
 
         // Act
@@ -771,7 +772,7 @@ public class List2DTests {
     [Fact]
     public void Fill_Value_Region_ShouldFillRegion() {
         // Arrange
-        var list2D = new List2D<int>();
+        var list2D = new List2DJagged<int>();
         list2D.Expand(3, 3);
 
         // Act
@@ -788,7 +789,7 @@ public class List2DTests {
     [Fact]
     public void Clear_ShouldResetList() {
         // Arrange
-        var list2D = new List2D<int>(collection: new[,] { { 1, 2 }, { 3, 4 } });
+        var list2D = new List2DJagged<int>(collection: new[,] { { 1, 2 }, { 3, 4 } });
 
         // Act
         list2D.Clear();
@@ -803,7 +804,7 @@ public class List2DTests {
     [Fact]
     public void CopyTo_Array_ShouldCopyCorrectly() {
         // Arrange
-        var list2D = new List2D<int>(collection: new[,] { { 1, 2 }, { 3, 4 } });
+        var list2D = new List2DJagged<int>(collection: new[,] { { 1, 2 }, { 3, 4 } });
         var target = new int[3, 3];
 
         // Act
@@ -818,7 +819,7 @@ public class List2DTests {
     
     [Fact]
     public void Properties_ShouldReturnCorrectValues() {
-        var list = new List2D<int>(new int[2, 3]);
+        var list = new List2DJagged<int>(new int[2, 3]);
         Assert.Equal(6, list.Count);
         Assert.Equal(2, list.XCount);
         Assert.Equal(3, list.YCount);
@@ -827,7 +828,7 @@ public class List2DTests {
 
     [Fact]
     public void Indexer_Range_ShouldWork() {
-        var list = new List2D<int>(new[,] { { 1, 2, 3 }, { 4, 5, 6 }, { 7, 8, 9 } });
+        var list = new List2DJagged<int>(new[,] { { 1, 2, 3 }, { 4, 5, 6 }, { 7, 8, 9 } });
         
         var xRange = list[1..3, 1]; // elements at x=1,2 and y=1 => [5, 8]
         Assert.Equal(new[] { 5, 8 }, xRange);
@@ -838,7 +839,7 @@ public class List2DTests {
 
     [Fact]
     public void Indexer_Index_ShouldWork() {
-        var list = new List2D<int>(new[,] { { 1, 2 }, { 3, 4 } });
+        var list = new List2DJagged<int>(new[,] { { 1, 2 }, { 3, 4 } });
         Assert.Equal(4, list[^1, ^1]);
         list[^1, ^1] = 10;
         Assert.Equal(10, list[1, 1]);
@@ -846,7 +847,7 @@ public class List2DTests {
 
     [Fact]
     public void Fill_WithFunc_ShouldWork() {
-        var list = new List2D<int>(new int[2, 2]);
+        var list = new List2DJagged<int>(new int[2, 2]);
         int val = 0;
         list.Fill(() => val++);
         Assert.Equal(0, list[0, 0]);
@@ -857,7 +858,7 @@ public class List2DTests {
 
     [Fact]
     public void FillRegion_WithFunc_ShouldWork() {
-        var list = new List2D<int>(new int[4, 4]);
+        var list = new List2DJagged<int>(new int[4, 4]);
         int val = 0;
         list.Fill(() => val++, 1, 2, 1, 2); // x: 1,2; y: 1,2
         Assert.Equal(0, list[1, 1]);
@@ -869,8 +870,8 @@ public class List2DTests {
 
     [Fact]
     public void Place_List2D_ShouldWork() {
-        var list = new List2D<int>(new int[4, 4]);
-        var sub = new List2D<int>(new[,] { { 1, 2 }, { 3, 4 } });
+        var list = new List2DJagged<int>(new int[4, 4]);
+        var sub = new List2DJagged<int>(new[,] { { 1, 2 }, { 3, 4 } });
         list.Place(sub, new Point2D(1, 1));
         
         Assert.Equal(1, list[1, 1]);
@@ -881,7 +882,7 @@ public class List2DTests {
 
     [Fact]
     public void Place_WithPredicate_ShouldWork() {
-        var list = new List2D<int>(new int[2, 2]);
+        var list = new List2DJagged<int>(new int[2, 2]);
         list.Fill(10);
         var arr = new[,] { { 1, 20 }, { 30, 4 } };
         // Place only if source > target
@@ -895,10 +896,12 @@ public class List2DTests {
 
     [Fact]
     public void CopyTo_Array_ShouldWork() {
-        var list = new List2D<int>(new[,] { { 1, 2 }, { 3, 4 } });
+        var list = new List2DJagged<int>(new[,] { { 1, 2 }, { 3, 4 } });
         var target = new int[2, 2];
         list.CopyTo(target, Point2D.Zero);
         Assert.Equal(1, target[0, 0]);
         Assert.Equal(4, target[1, 1]);
     }
 }
+
+#endif

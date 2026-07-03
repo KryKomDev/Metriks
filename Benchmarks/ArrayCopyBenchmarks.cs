@@ -1,24 +1,23 @@
 using System.Diagnostics.CodeAnalysis;
 using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Running;
 
 namespace Metriks.Benchmarks;
 
 [MemoryDiagnoser]
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 public class ArrayCopyBenchmarks {
-    
+
     private const int SIZE_2D = 1000;
-    private int[,] _src2D = null!;
-    private int[,] _dst2D = null!;
 
     private const int SIZE_3D = 100;
-    private int[,,] _src3D = null!;
-    private int[,,] _dst3D = null!;
 
-    private const int SIZE_4D = 30;
-    private int[,,,] _src4D = null!;
-    private int[,,,] _dst4D = null!;
+    private const int      SIZE_4D = 30;
+    private       int[,]   _dst2D  = null!;
+    private       int[,,]  _dst3D  = null!;
+    private       int[,,,] _dst4D  = null!;
+    private       int[,]   _src2D  = null!;
+    private       int[,,]  _src3D  = null!;
+    private       int[,,,] _src4D  = null!;
 
     [GlobalSetup]
     public void Setup() {
@@ -32,11 +31,9 @@ public class ArrayCopyBenchmarks {
 
     [Benchmark(Baseline = true)]
     public void Copy2D_Manual() {
-        for (int i = 0; i < SIZE_2D; i++) {
-            for (int j = 0; j < SIZE_2D; j++) {
-                _dst2D[i, j] = _src2D[i, j];
-            }
-        }
+        for (var i = 0; i < SIZE_2D; i++)
+        for (var j = 0; j < SIZE_2D; j++)
+            _dst2D[i, j] = _src2D[i, j];
     }
 
     [Benchmark]
@@ -46,13 +43,10 @@ public class ArrayCopyBenchmarks {
 
     [Benchmark]
     public void Copy3D_Manual() {
-        for (int i = 0; i < SIZE_3D; i++) {
-            for (int j = 0; j < SIZE_3D; j++) {
-                for (int k = 0; k < SIZE_3D; k++) {
-                    _dst3D[i, j, k] = _src3D[i, j, k];
-                }
-            }
-        }
+        for (var i = 0; i < SIZE_3D; i++)
+        for (var j = 0; j < SIZE_3D; j++)
+        for (var k = 0; k < SIZE_3D; k++)
+            _dst3D[i, j, k] = _src3D[i, j, k];
     }
 
     [Benchmark]
@@ -62,15 +56,11 @@ public class ArrayCopyBenchmarks {
 
     [Benchmark]
     public void Copy4D_Manual() {
-        for (int i = 0; i < SIZE_4D; i++) {
-            for (int j = 0; j < SIZE_4D; j++) {
-                for (int k = 0; k < SIZE_4D; k++) {
-                    for (int l = 0; l < SIZE_4D; l++) {
-                        _dst4D[i, j, k, l] = _src4D[i, j, k, l];
-                    }
-                }
-            }
-        }
+        for (var i = 0; i < SIZE_4D; i++)
+        for (var j = 0; j < SIZE_4D; j++)
+        for (var k = 0; k < SIZE_4D; k++)
+        for (var l = 0; l < SIZE_4D; l++)
+            _dst4D[i, j, k, l] = _src4D[i, j, k, l];
     }
 
     [Benchmark]

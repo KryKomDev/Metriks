@@ -1,7 +1,7 @@
 namespace Metriks.Tests;
 
 public class Array2DTests {
-    
+
     [Fact]
     public void Copy_FullArray_CopiesAllElements() {
         // Arrange
@@ -9,7 +9,8 @@ public class Array2DTests {
             { 1, 2, 3 },
             { 4, 5, 6 }
         };
-        int[,] destination = new int[2, 3];
+
+        var destination = new int[2, 3];
 
         // Act
         Array2D.Copy(source, 0, 0, destination, 0, 0, 2, 3);
@@ -26,7 +27,8 @@ public class Array2DTests {
             { 4, 5, 6 },
             { 7, 8, 9 }
         };
-        int[,] destination = new int[2, 2];
+
+        var destination = new int[2, 2];
 
         // Act
         // Copy 2x2 from top-left
@@ -37,6 +39,7 @@ public class Array2DTests {
             { 1, 2 },
             { 4, 5 }
         };
+
         Assert.Equal(expected, destination);
     }
 
@@ -48,7 +51,8 @@ public class Array2DTests {
             { 4, 5, 6 },
             { 7, 8, 9 }
         };
-        int[,] destination = new int[3, 3];
+
+        var destination = new int[3, 3];
 
         // Act
         // Copy 2x2 from (1,1) in source to (1,1) in destination
@@ -61,13 +65,14 @@ public class Array2DTests {
             { 0, 5, 6 },
             { 0, 8, 9 }
         };
+
         Assert.Equal(expected, destination);
     }
 
     [Fact]
     public void Copy_EmptyRegion_DoesNothing() {
         // Arrange
-        int[,] source = { { 1 } };
+        int[,] source      = { { 1 } };
         int[,] destination = { { 0 } };
 
         // Act
@@ -86,12 +91,15 @@ public class Array2DTests {
             { 4, 5, 6 },
             { 7, 8, 9 }
         };
-        int[,] destination = new int[3, 3];
+
+        var destination = new int[3, 3];
 
         // Act
         Array2D.Copy(
-            source, new Point2D(1, 1),
-            destination, new Point2D(0, 0),
+            source,
+            new Point2D(1, 1),
+            destination,
+            new Point2D(0, 0),
             new Size2D(2, 2)
         );
 
@@ -101,21 +109,22 @@ public class Array2DTests {
             { 8, 9, 0 },
             { 0, 0, 0 }
         };
+
         Assert.Equal(expected, destination);
     }
 
     [Fact]
     public void Copy_LargeArray_CopiesCorrectElements() {
         // Arrange
-        int rows = 100;
-        int cols = 100;
-        int[,] source = new int[rows, cols];
-        for (int r = 0; r < rows; r++) {
-            for (int c = 0; c < cols; c++) {
-                source[r, c] = r * cols + c;
-            }
-        }
-        int[,] destination = new int[rows, cols];
+        var rows   = 100;
+        var cols   = 100;
+        var source = new int[rows, cols];
+
+        for (var r = 0; r < rows; r++)
+        for (var c = 0; c < cols; c++)
+            source[r, c] = r * cols + c;
+
+        var destination = new int[rows, cols];
 
         // Act
         Array2D.Copy(source, 0, 0, destination, 0, 0, rows, cols);
@@ -127,8 +136,8 @@ public class Array2DTests {
     [Fact]
     public void Copy_NullSource_ThrowsNullReferenceException() {
         // Arrange
-        int[,] source = null!;
-        int[,] destination = new int[1, 1];
+        int[,] source      = null!;
+        var    destination = new int[1, 1];
 
         // Act & Assert
         Assert.Throws<NullReferenceException>(() => Array2D.Copy(source, 0, 0, destination, 0, 0, 1, 1));
@@ -137,8 +146,8 @@ public class Array2DTests {
     [Fact]
     public void Copy_EmptyArrayWithPositiveCount_ThrowsIndexOutOfRangeException() {
         // Arrange
-        int[,] source = new int[0, 0];
-        int[,] destination = new int[1, 1];
+        var source      = new int[0, 0];
+        var destination = new int[1, 1];
 
         // Act & Assert
         Assert.Throws<IndexOutOfRangeException>(() => Array2D.Copy(source, 0, 0, destination, 0, 0, 1, 1));
@@ -147,22 +156,22 @@ public class Array2DTests {
     [Fact]
     public void Fill_SubRegion_FillsCorrectElements() {
         // Arrange
-        int[,] array = new int[3, 3];
+        var array = new int[3, 3];
 
         // Act
         Array2D.Fill(array, 42, 1, 1, 1, 1);
 
         // Assert
         Assert.Equal(42, array[1, 1]);
-        Assert.Equal(0, array[0, 0]);
-        Assert.Equal(0, array[2, 2]);
+        Assert.Equal(0,  array[0, 0]);
+        Assert.Equal(0,  array[2, 2]);
     }
 
     [Fact]
     public void Fill_AreaOverload_FillsCorrectElements() {
         // Arrange
-        int[,] array = new int[3, 3];
-        Area2D area = new Area2D(new Point2D(1, 1), new Size2D(1, 1));
+        var array = new int[3, 3];
+        var area  = new Area2D(new Point2D(1, 1), new Size2D(1, 1));
 
         // Act
         Array2D.Fill(array, 42, area);
@@ -170,14 +179,14 @@ public class Array2DTests {
         // Assert
         Assert.Equal(42, array[1, 1]);
         Assert.Equal(42, array[2, 2]);
-        Assert.Equal(0, array[0, 0]);
+        Assert.Equal(0,  array[0, 0]);
     }
 
     [Fact]
     public void Fill_Factory_FillsCorrectElements() {
         // Arrange
-        int[,] array = new int[2, 2];
-        int val = 0;
+        var array = new int[2, 2];
+        var val   = 0;
 
         // Act
         Array2D.Fill(array, () => ++val, 0, 0, 2, 2);
@@ -192,7 +201,7 @@ public class Array2DTests {
     [Fact]
     public void Fill_ZeroCount_DoesNothing() {
         // Arrange
-        int[,] array = new int[1, 1];
+        var array = new int[1, 1];
 
         // Act
         Array2D.Fill(array, 42, 0, 0, 0, 1);
@@ -236,7 +245,7 @@ public class Array2DTests {
     [Fact]
     public void Copy_NegativeCount_DoesNothing() {
         // Arrange
-        int[,] source = { { 1 } };
+        int[,] source      = { { 1 } };
         int[,] destination = { { 0 } };
 
         // Act
@@ -245,12 +254,10 @@ public class Array2DTests {
         // Assert
         Assert.Equal(0, destination[0, 0]);
     }
-    
+
     [Fact]
-    public void Flatten_ReturnsElementsInRowMajorOrder()
-    {
-        var array = new[,]
-        {
+    public void Flatten_ReturnsElementsInRowMajorOrder() {
+        var array = new[,] {
             { 1, 2, 3 },
             { 4, 5, 6 }
         };
@@ -261,10 +268,8 @@ public class Array2DTests {
     }
 
     [Fact]
-    public void Flatten_WithSingleRow_ReturnsSameOrder()
-    {
-        var array = new[,]
-        {
+    public void Flatten_WithSingleRow_ReturnsSameOrder() {
+        var array = new[,] {
             { 10, 20, 30, 40 }
         };
 
@@ -274,10 +279,8 @@ public class Array2DTests {
     }
 
     [Fact]
-    public void Flatten_WithSingleColumn_ReturnsSameOrder()
-    {
-        var array = new[,]
-        {
+    public void Flatten_WithSingleColumn_ReturnsSameOrder() {
+        var array = new[,] {
             { 10 },
             { 20 },
             { 30 },
@@ -290,8 +293,7 @@ public class Array2DTests {
     }
 
     [Fact]
-    public void Flatten_WithEmptyFirstDimension_ReturnsEmptyArray()
-    {
+    public void Flatten_WithEmptyFirstDimension_ReturnsEmptyArray() {
         var array = new int[0, 3];
 
         var result = Array2D.Flatten(array);
@@ -300,8 +302,7 @@ public class Array2DTests {
     }
 
     [Fact]
-    public void Flatten_WithEmptySecondDimension_ReturnsEmptyArray()
-    {
+    public void Flatten_WithEmptySecondDimension_ReturnsEmptyArray() {
         var array = new int[3, 0];
 
         var result = Array2D.Flatten(array);
@@ -310,10 +311,8 @@ public class Array2DTests {
     }
 
     [Fact]
-    public void Flatten_WithReferenceTypes_PreservesValues()
-    {
-        var array = new[,]
-        {
+    public void Flatten_WithReferenceTypes_PreservesValues() {
+        var array = new[,] {
             { "a", "b" },
             { "c", "d" }
         };
@@ -324,10 +323,8 @@ public class Array2DTests {
     }
 
     [Fact]
-    public void Flatten_ReturnsNewArray()
-    {
-        var array = new[,]
-        {
+    public void Flatten_ReturnsNewArray() {
+        var array = new[,] {
             { 1, 2 },
             { 3, 4 }
         };

@@ -3,7 +3,7 @@ using System.Globalization;
 namespace Metriks.Tests;
 
 public class Struct3DTests {
-    
+
     [Fact]
     public void Point3D_Constructor_ShouldInitializeCorrectly() {
         var point = new Point3D(10, 20, 30);
@@ -15,12 +15,12 @@ public class Struct3DTests {
     [Fact]
     public void Point3D_Operations_ShouldWork() {
         var p1 = new Point3D(10, 20, 30);
-        var p2 = new Point3D(5, 5, 5);
-        
-        Assert.Equal(new Point3D(15, 25, 35), p1 + p2);
-        Assert.Equal(new Point3D(5, 15, 25), p1 - p2);
+        var p2 = new Point3D(5,  5,  5);
+
+        Assert.Equal(new Point3D(15, 25,  35),  p1 + p2);
+        Assert.Equal(new Point3D(5,  15,  25),  p1 - p2);
         Assert.Equal(new Point3D(50, 100, 150), p1 * p2);
-        Assert.Equal(new Point3D(2, 4, 6), p1 / p2);
+        Assert.Equal(new Point3D(2,  4,   6),   p1 / p2);
     }
 
     [Fact]
@@ -34,25 +34,25 @@ public class Struct3DTests {
     [Fact]
     public void Size3D_Operations_ShouldWork() {
         var s1 = new Size3D(10, 20, 30);
-        var s2 = new Size3D(5, 5, 5);
-        
-        Assert.Equal(new Size3D(15, 25, 35), s1 + s2);
-        Assert.Equal(new Size3D(5, 15, 25), s1 - s2);
+        var s2 = new Size3D(5,  5,  5);
+
+        Assert.Equal(new Size3D(15, 25,  35),  s1 + s2);
+        Assert.Equal(new Size3D(5,  15,  25),  s1 - s2);
         Assert.Equal(new Size3D(50, 100, 150), s1 * s2);
-        Assert.Equal(new Size3D(2, 4, 6), s1 / s2);
+        Assert.Equal(new Size3D(2,  4,   6),   s1 / s2);
     }
 
     [Fact]
     public void Area3D_Constructor_ShouldNormalizePoints() {
-        var p1 = new Point3D(10, 10, 10);
-        var p2 = new Point3D(0, 20, 5);
+        var p1   = new Point3D(10, 10, 10);
+        var p2   = new Point3D(0,  20, 5);
         var area = new Area3D(p1, p2);
-        
-        Assert.Equal(0, area.Lower.X);
+
+        Assert.Equal(0,  area.Lower.X);
         Assert.Equal(10, area.Higher.X);
         Assert.Equal(10, area.Lower.Y);
         Assert.Equal(20, area.Higher.Y);
-        Assert.Equal(5, area.Lower.Z);
+        Assert.Equal(5,  area.Lower.Z);
         Assert.Equal(10, area.Higher.Z);
     }
 
@@ -66,12 +66,12 @@ public class Struct3DTests {
 
     [Fact]
     public void Area3D_Operations_ShouldWork() {
-        var area = new Area3D(new Point3D(0, 0, 0), new Point3D(10, 10, 10));
-        var size = new Size3D(5, 5, 5);
+        var area  = new Area3D(new Point3D(0, 0, 0), new Point3D(10, 10, 10));
+        var size  = new Size3D(5, 5, 5);
         var point = new Point3D(2, 2, 2);
 
         var plusSize = area + size;
-        Assert.Equal(new Point3D(0, 0, 0), plusSize.Lower);
+        Assert.Equal(new Point3D(0,  0,  0),  plusSize.Lower);
         Assert.Equal(new Point3D(15, 15, 15), plusSize.Higher);
 
         var minusSize = area - size;
@@ -79,28 +79,28 @@ public class Struct3DTests {
         Assert.Equal(new Point3D(5, 5, 5), minusSize.Higher);
 
         var plusPoint = area + point;
-        Assert.Equal(new Point3D(2, 2, 2), plusPoint.Lower);
+        Assert.Equal(new Point3D(2,  2,  2),  plusPoint.Lower);
         Assert.Equal(new Point3D(12, 12, 12), plusPoint.Higher);
 
         var minusPoint = area - point;
         Assert.Equal(new Point3D(-2, -2, -2), minusPoint.Lower);
-        Assert.Equal(new Point3D(8, 8, 8), minusPoint.Higher);
+        Assert.Equal(new Point3D(8,  8,  8),  minusPoint.Higher);
     }
 
     [Fact]
     public void Area3D_Deconstruct_ShouldWork() {
         var area = new Area3D(new Point3D(1, 2, 3), new Point3D(4, 5, 6));
-        
+
         {
-            area.Deconstruct(out Point3D p1, out Point3D p2);
+            area.Deconstruct(out var p1, out Point3D p2);
             Assert.Equal(new Point3D(1, 2, 3), p1);
             Assert.Equal(new Point3D(4, 5, 6), p2);
         }
 
         {
-            area.Deconstruct(out Point3D p_start, out Size3D size);
+            area.Deconstruct(out var p_start, out Size3D size);
             Assert.Equal(new Point3D(1, 2, 3), p_start);
-            Assert.Equal(new Size3D(3, 3, 3), size);
+            Assert.Equal(new Size3D(3, 3, 3),  size);
         }
     }
 
@@ -133,9 +133,9 @@ public class Struct3DTests {
     [Fact]
     public void Area3D_ComponentWiseConstructor_ShouldNormalizeCoordinates() {
         var area = new Area3D(10, 20, 30, 0, 5, 15);
-        Assert.Equal(0, area.LowerX);
+        Assert.Equal(0,  area.LowerX);
         Assert.Equal(10, area.HigherX);
-        Assert.Equal(5, area.LowerY);
+        Assert.Equal(5,  area.LowerY);
         Assert.Equal(20, area.HigherY);
         Assert.Equal(15, area.LowerZ);
         Assert.Equal(30, area.HigherZ);

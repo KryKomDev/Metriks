@@ -11,10 +11,12 @@ data structures easily.
 
 - **Specialized Implementations:** Optimized `List2D<T>`, `List3D<T>`, and `List4D<T>` for common dimensions.
 - **Dynamic Resizing:** Easily `Expand`, `Shrink`, or `Resize` your collections while preserving data.
-- **Familiar API:** Implements standard collection interfaces and specialized multidimensional contracts (`IList2D<T>`, `IList3D<T>`, `IList4D<T>`).
+- **Familiar API:** Implements standard collection interfaces and specialized multidimensional contracts (`IList2D<T>`,
+  `IList3D<T>`, `IList4D<T>`).
 - **Modern C# Support:** Full support for `Index` and `Range` syntax on modern .NET targets.
 - **Rich Extensions:** Includes LINQ-like operations, flattening, and utility extensions for multidimensional data.
-- **Spatial Grid Support:** `Space2D<T>` provides coordinates relative to movable origins (negative coordinates supported).
+- **Spatial Grid Support:** `Space2D<T>` provides coordinates relative to movable origins (negative coordinates
+  supported).
 - **Broad Compatibility:** Targets .NET Standard 2.1, .NET 5.0, .NET 8.0, and .NET 10.0.
 
 ## Installation
@@ -53,7 +55,8 @@ var last = list[^1, ^1];
 
 ### 3D List
 
-Note: Constructor parameters define initial capacity, not size. Use `Resize` or `Expand` to change size before indexing elements.
+Note: Constructor parameters define initial capacity, not size. Use `Resize` or `Expand` to change size before indexing
+elements.
 
 ```csharp
 var world = new List3D<string>();
@@ -64,7 +67,8 @@ Console.WriteLine(world.Size); // "10x10x10"
 
 ### Shifted Spatial Grid (Space2D)
 
-`Space2D<T>` maps coordinate boundaries relative to an origin offset. This allows you to work with negative coordinates seamlessly.
+`Space2D<T>` maps coordinate boundaries relative to an origin offset. This allows you to work with negative coordinates
+seamlessly.
 
 ```csharp
 var space = new Space2D<int>(new int[,] {
@@ -110,13 +114,14 @@ Metriks provides several ways to change the size of your collections:
 - **Resize:** A general-purpose method to set the exact size, either expanding or shrinking as needed.
 
 For detailed information on how data is preserved during resizing, see the
-[Expand](https://krykomdev.github.io/Metriks/docs/Expand-Methods.html), 
-[Shrink](https://krykomdev.github.io/Metriks/docs/Shrink-Methods.html), and 
+[Expand](https://krykomdev.github.io/Metriks/docs/Expand-Methods.html),
+[Shrink](https://krykomdev.github.io/Metriks/docs/Shrink-Methods.html), and
 [Resize](https://krykomdev.github.io/Metriks/docs/Resize-Methods.html) documentation.
 
 ## Performance
 
 Metriks is designed with performance in mind:
+
 - Uses jagged arrays internally for efficient memory management and access.
 - Aggressive inlining for hot paths.
 - Employs span-based memory copying (`Span<T>`) for bulk data transfers and resize operations.
@@ -125,5 +130,5 @@ Metriks is designed with performance in mind:
 
 ## License
 
-This project is licensed under the MIT License – see the 
+This project is licensed under the MIT License – see the
 [LICENSE](https://github.com/KryKomDev/Metriks/blob/master/LICENSE) file for details.

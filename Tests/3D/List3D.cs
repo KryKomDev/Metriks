@@ -1,7 +1,7 @@
 namespace Metriks.Tests;
 
 public class List3DTests {
-    
+
     [Fact]
     public void Constructor_Default_ShouldInitializeCorrectly() {
         var list3D = new List3D<int>();
@@ -16,9 +16,9 @@ public class List3DTests {
         var array = new int[2, 2, 2];
         array[0, 0, 0] = 1;
         array[1, 1, 1] = 8;
-        
+
         var list3D = new List3D<int>(array);
-        
+
         Assert.Equal(2, list3D.XSize);
         Assert.Equal(1, list3D[0, 0, 0]);
         Assert.Equal(8, list3D[1, 1, 1]);
@@ -30,7 +30,7 @@ public class List3DTests {
         list3D.AddX();
         list3D.AddY();
         list3D.AddZ();
-        
+
         Assert.Equal(1, list3D.XSize);
         Assert.Equal(1, list3D.YSize);
         Assert.Equal(1, list3D.ZSize);
@@ -45,7 +45,7 @@ public class List3DTests {
         list3D[2, 0, 0] = 3;
 
         #if NET5_0_OR_GREATER
-        var slice = list3D[0..2, 0, 0];
+        var slice = list3D[..2, 0, 0];
         Assert.Equal(2, slice.Length);
         Assert.Equal(1, slice[0]);
         Assert.Equal(2, slice[1]);
@@ -57,14 +57,14 @@ public class List3DTests {
         var list3D = new List3D<int>();
         list3D.Expand(1, 1, 1);
         list3D[0, 0, 0] = 10;
-        
+
         list3D.InsertAtX(0);
         list3D[0, 0, 0] = 5;
-        
-        Assert.Equal(2, list3D.XSize);
-        Assert.Equal(5, list3D[0, 0, 0]);
+
+        Assert.Equal(2,  list3D.XSize);
+        Assert.Equal(5,  list3D[0, 0, 0]);
         Assert.Equal(10, list3D[1, 0, 0]);
-        
+
         list3D.InsertAtZ(0);
         list3D[0, 0, 0] = 1;
         Assert.Equal(2, list3D.ZSize);
@@ -76,8 +76,8 @@ public class List3DTests {
     public void Expand_ShouldWorkWithDefaultValue() {
         var list3D = new List3D<int>();
         list3D.Expand(2, 2, 2, 42);
-        
-        Assert.Equal(2, list3D.XSize);
+
+        Assert.Equal(2,  list3D.XSize);
         Assert.Equal(42, list3D[1, 1, 1]);
     }
 
@@ -86,7 +86,7 @@ public class List3DTests {
         var list3D = new List3D<int>();
         list3D.Expand(2, 2, 2);
         list3D[0, 0, 0] = 1;
-        
+
         list3D.Resize(1, 1, 1);
         Assert.Equal(1, list3D.XSize);
         Assert.Equal(1, list3D[0, 0, 0]);
@@ -97,9 +97,9 @@ public class List3DTests {
         var list3D = new List3D<int>();
         list3D.Expand(2, 2, 2);
         list3D[1, 0, 1] = 99;
-        
+
         Assert.True(list3D.Contains(99));
-        Assert.True(list3D.ContainsAtX(1, 99));
+        Assert.True(list3D.ContainsAtX(1,  99));
         Assert.False(list3D.ContainsAtX(0, 99));
         Assert.True(list3D.ContainsAtZ(1, 99));
     }
@@ -109,7 +109,7 @@ public class List3DTests {
         var list3D = new List3D<int>();
         list3D.Expand(5, 5, 5);
         list3D.Clear();
-        
+
         Assert.Equal(0, list3D.Count);
         Assert.Equal(0, list3D.XSize);
     }
@@ -119,10 +119,10 @@ public class List3DTests {
         var list3D = new List3D<int>();
         list3D.Expand(2, 2, 2);
         list3D[0, 1, 0] = 5;
-        
+
         var sliceX = list3D.GetAtX(0); // This is an IEnumerable2D
-        var col = sliceX.GetAtY(1).ToList();
-        
+        var col    = sliceX.GetAtY(1).ToList();
+
         Assert.Equal(2, col.Count);
         Assert.Equal(5, col[0]);
     }
@@ -133,7 +133,7 @@ public class List3DTests {
         list3D.Expand(2, 1, 1);
         list3D[0, 0, 0] = 1;
         list3D[1, 0, 0] = 2;
-        
+
         var arr = list3D.ToArray();
         Assert.Equal(1, arr[0, 0, 0]);
         Assert.Equal(2, arr[1, 0, 0]);
@@ -147,7 +147,7 @@ public class List3DTests {
 
         var jagged = list3D.ToJagged();
         Assert.Equal(42, jagged[1][1][1]);
-        
+
         // Ensure it's a deep copy
         jagged[1][1][1] = 0;
         Assert.Equal(42, list3D[1, 1, 1]);
@@ -157,13 +157,13 @@ public class List3DTests {
     public void Fill_ShouldWorkCorrectly() {
         var list3D = new List3D<int>();
         list3D.Expand(2, 2, 2);
-        
+
         list3D.Fill(7);
         Assert.Equal(7, list3D[0, 0, 0]);
         Assert.Equal(7, list3D[1, 1, 1]);
 
         list3D.Fill(42, 1, 1, 1, 1, 1, 1);
-        Assert.Equal(7, list3D[0, 0, 0]);
+        Assert.Equal(7,  list3D[0, 0, 0]);
         Assert.Equal(42, list3D[1, 1, 1]);
     }
 
@@ -171,10 +171,10 @@ public class List3DTests {
     public void Fill_Factory_ShouldWorkCorrectly() {
         var list3D = new List3D<int>();
         list3D.Expand(2, 2, 2);
-        
-        int counter = 0;
+
+        var counter = 0;
         list3D.Fill(() => counter++);
-        
+
         Assert.Equal(0, list3D[0, 0, 0]);
         Assert.Equal(7, list3D[1, 1, 1]);
     }
@@ -185,9 +185,9 @@ public class List3DTests {
         var matrix = new int[2, 2, 2];
         matrix[0, 0, 0] = 1;
         matrix[1, 1, 1] = 2;
-        
+
         list3D.Place(matrix, new Point3D(1, 1, 1));
-        
+
         Assert.Equal(3, list3D.XSize);
         Assert.Equal(3, list3D.YSize);
         Assert.Equal(3, list3D.ZSize);
@@ -204,10 +204,11 @@ public class List3DTests {
         matrix[1, 1, 1] = 2;
 
         // Place at offset 1,1,1. Max would be 3,3,3 which is out of bounds.
-        list3D.Place(matrix, new Point3D(1, 1, 1), resize: false);
+        list3D.Place(matrix, new Point3D(1, 1, 1), false);
 
         Assert.Equal(2, list3D.XSize);
         Assert.Equal(1, list3D[1, 1, 1]);
+
         // list3D[2,2,2] should not exist and not be set
     }
 
@@ -219,14 +220,14 @@ public class List3DTests {
         list3D[1, 0, 0] = 2;
         list3D[0, 1, 0] = 3;
         list3D[0, 0, 1] = 4;
-        
+
         list3D.RemoveAtX(0);
         Assert.Equal(1, list3D.XSize);
         Assert.Equal(2, list3D[0, 0, 0]);
-        
+
         list3D.RemoveAtY(0);
         Assert.Equal(1, list3D.YSize);
-        
+
         list3D.RemoveAtZ(0);
         Assert.Equal(1, list3D.ZSize);
     }
@@ -237,11 +238,60 @@ public class List3DTests {
         list3D.Expand(2, 1, 1);
         list3D[0, 0, 0] = 1;
         list3D[1, 0, 0] = 2;
-        
+
         var target = new int[3, 1, 1];
         list3D.CopyTo(target, new Point3D(1, 0, 0));
-        
+
         Assert.Equal(1, target[1, 0, 0]);
         Assert.Equal(2, target[2, 0, 0]);
+    }
+
+    [Fact]
+    public void Point3DIndexer_ShouldWork() {
+        var list3D = new List3D<int>(1, 1, 1);
+        list3D.Expand(1, 1, 1);
+        var pt = new Point3D(0, 0, 0);
+        list3D[pt] = 99;
+        Assert.Equal(99, list3D[pt]);
+    }
+
+    [Fact]
+    public void SpanMethods_ShouldWork() {
+        var list3D = new List3D<int>(new int[,,] {
+            { { 1, 2 }, { 3, 4 } },
+            { { 5, 6 }, { 7, 8 } }
+        });
+
+        // 1. GetSpanAtXY
+        var zSpan = list3D.GetSpanAtXY(0, 1);
+        Assert.Equal(2, zSpan.Length);
+        Assert.Equal(3, zSpan[0]);
+        Assert.Equal(4, zSpan[1]);
+
+        // 2. CopyAtXYTo
+        var xyDest = new int[2];
+        list3D.CopyAtXYTo(1, 0, xyDest);
+        Assert.Equal(5, xyDest[0]);
+        Assert.Equal(6, xyDest[1]);
+
+        // 3. CopyAtXZTo
+        var xzDest = new int[2];
+        list3D.CopyAtXZTo(0, 1, xzDest);
+        Assert.Equal(2, xzDest[0]);
+        Assert.Equal(4, xzDest[1]);
+
+        // 4. CopyAtYZTo
+        var yzDest = new int[2];
+        list3D.CopyAtYZTo(1, 0, yzDest);
+        Assert.Equal(3, yzDest[0]);
+        Assert.Equal(7, yzDest[1]);
+
+        // 5. CopySliceTo
+        var sliceDest = new int[4];
+        list3D.CopySliceTo(sliceDest, 0, 2, 0, 1, 0, 2);
+        Assert.Equal(1, sliceDest[0]);
+        Assert.Equal(2, sliceDest[1]);
+        Assert.Equal(5, sliceDest[2]);
+        Assert.Equal(6, sliceDest[3]);
     }
 }
