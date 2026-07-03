@@ -1,11 +1,11 @@
 <Solution>
-    <Project Path="Src/Metriks/Metriks.csproj" />
+    <Project Path="Src/Metriks/Metriks.csproj"/>
     <Folder Name="/Src/">
-        <Project Path="Src/Metriks.Extensions/Metriks.Extensions.csproj" />
+        <Project Path="Src/Metriks.Extensions/Metriks.Extensions.csproj"/>
     </Folder>
-    <Project Path="Benchmarks/Metriks.Benchmarks.csproj" />
-    <Project Path="Tests/Metriks.Tests.csproj" />
-    
+    <Project Path="Benchmarks/Metriks.Benchmarks.csproj"/>
+    <Project Path="Tests/Metriks.Tests.csproj"/>
+
     <!--  Examples  -->
-    <Project Path="Samples/Metriks.Sample.csproj" />
+    <Project Path="Samples/Metriks.Sample.csproj"/>
 </Solution>

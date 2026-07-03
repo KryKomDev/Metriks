@@ -4,13 +4,13 @@
 namespace Metriks;
 
 /// <summary>
-/// Represents a generic three-dimensional list of elements that can be accessed by index.
+///     Represents a generic three-dimensional list of elements that can be accessed by index.
 /// </summary>
 /// <typeparam name="T">The type of elements in the three-dimensional list.</typeparam>
 public interface IList3D<T> : ICollection3D<T> {
-    
+
     /// <summary>
-    /// Gets or sets the element at the specified 3D coordinates.
+    ///     Gets or sets the element at the specified 3D coordinates.
     /// </summary>
     /// <param name="x">The zero-based X index of the element to get or set.</param>
     /// <param name="y">The zero-based Y index of the element to get or set.</param>

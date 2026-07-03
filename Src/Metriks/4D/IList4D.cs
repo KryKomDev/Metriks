@@ -4,13 +4,13 @@
 namespace Metriks;
 
 /// <summary>
-/// Represents a generic four-dimensional list of elements that can be accessed by index.
+///     Represents a generic four-dimensional list of elements that can be accessed by index.
 /// </summary>
 /// <typeparam name="T">The type of elements in the four-dimensional list.</typeparam>
 public interface IList4D<T> : ICollection4D<T> {
-    
+
     /// <summary>
-    /// Gets or sets the element at the specified 4D coordinates.
+    ///     Gets or sets the element at the specified 4D coordinates.
     /// </summary>
     /// <param name="w">The zero-based W index of the element to get or set.</param>
     /// <param name="x">The zero-based X index of the element to get or set.</param>

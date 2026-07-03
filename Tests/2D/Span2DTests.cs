@@ -10,13 +10,13 @@ public class Span2DTests {
 
         var span = new Span2D<int>(array);
 
-        Assert.Equal(2, span.XSize);
-        Assert.Equal(3, span.YSize);
-        Assert.Equal(2, span.XCount);
-        Assert.Equal(3, span.YCount);
+        Assert.Equal(2,                span.XSize);
+        Assert.Equal(3,                span.YSize);
+        Assert.Equal(2,                span.XCount);
+        Assert.Equal(3,                span.YCount);
         Assert.Equal(new Size2D(2, 3), span.Size);
-        Assert.Equal(6, span.Length);
-        Assert.Equal(6, span.Count);
+        Assert.Equal(6,                span.Length);
+        Assert.Equal(6,                span.Count);
         Assert.False(span.IsEmpty);
         Assert.Equal(3, span.Stride);
 
@@ -33,7 +33,7 @@ public class Span2DTests {
         };
 
         var span = new Span2D<int>(array);
-        span[0, 1] = 42;
+        span[0, 1]              = 42;
         span[new Point2D(1, 0)] = 99;
 
         Assert.Equal(42, array[0, 1]);
@@ -42,23 +42,29 @@ public class Span2DTests {
 
     [Fact]
     public void Indexer_OutOfBounds_ShouldThrow() {
-        int[,] array = new int[2, 2];
-        var span = new Span2D<int>(array);
+        var array = new int[2, 2];
+        var span  = new Span2D<int>(array);
 
-        bool threw = false;
+        var threw = false;
+
         try {
             var _ = span[2, 0];
-        } catch (IndexOutOfRangeException) {
+        }
+        catch (IndexOutOfRangeException) {
             threw = true;
         }
+
         Assert.True(threw, "Expected IndexOutOfRangeException for [2, 0]");
 
         threw = false;
+
         try {
             var _ = span[0, 2];
-        } catch (IndexOutOfRangeException) {
+        }
+        catch (IndexOutOfRangeException) {
             threw = true;
         }
+
         Assert.True(threw, "Expected IndexOutOfRangeException for [0, 2]");
     }
 
@@ -70,7 +76,7 @@ public class Span2DTests {
         };
 
         var span = new Span2D<int>(array);
-        var row = span.GetRow(1);
+        var row  = span.GetRow(1);
 
         Assert.Equal(3, row.Length);
         Assert.Equal(4, row[0]);
@@ -85,12 +91,11 @@ public class Span2DTests {
             { 3, 4 }
         };
 
-        var span = new Span2D<int>(array);
-        var elements = new System.Collections.Generic.List<int>();
+        var span     = new Span2D<int>(array);
+        var elements = new List<int>();
 
-        foreach (var item in span) {
+        foreach (var item in span)
             elements.Add(item);
-        }
 
         Assert.Equal(new[] { 1, 2, 3, 4 }, elements);
     }
@@ -98,20 +103,20 @@ public class Span2DTests {
     [Fact]
     public void Slice_ShouldReturnCorrectSubSpan() {
         int[,] array = {
-            {  1,  2,  3,  4 },
-            {  5,  6,  7,  8 },
-            {  9, 10, 11, 12 }
+            { 1, 2, 3, 4 },
+            { 5, 6, 7, 8 },
+            { 9, 10, 11, 12 }
         };
 
-        var span = new Span2D<int>(array);
+        var span  = new Span2D<int>(array);
         var slice = span.Slice(1, 1, 2, 2);
 
         Assert.Equal(2, slice.XSize);
         Assert.Equal(2, slice.YSize);
         Assert.Equal(4, slice.Stride);
 
-        Assert.Equal(6, slice[0, 0]);
-        Assert.Equal(7, slice[0, 1]);
+        Assert.Equal(6,  slice[0, 0]);
+        Assert.Equal(7,  slice[0, 1]);
         Assert.Equal(10, slice[1, 0]);
         Assert.Equal(11, slice[1, 1]);
 
@@ -125,9 +130,10 @@ public class Span2DTests {
             { 1, 2 },
             { 3, 4 }
         };
-        int[,] destArray = new int[2, 2];
 
-        var srcSpan = new Span2D<int>(sourceArray);
+        var destArray = new int[2, 2];
+
+        var srcSpan  = new Span2D<int>(sourceArray);
         var destSpan = new Span2D<int>(destArray);
 
         srcSpan.CopyTo(destSpan);
@@ -140,8 +146,8 @@ public class Span2DTests {
 
     [Fact]
     public void FillAndClear_ShouldWorkCorrectly() {
-        int[,] array = new int[2, 2];
-        var span = new Span2D<int>(array);
+        var array = new int[2, 2];
+        var span  = new Span2D<int>(array);
 
         span.Fill(42);
         Assert.Equal(42, array[0, 0]);

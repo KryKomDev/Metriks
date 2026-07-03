@@ -1,24 +1,23 @@
 ﻿namespace Metriks.Tests;
 
 public class Space2DTests {
-    
+
     [Fact]
     public void Constructor_Default_ShouldInitializeWithZeroOffsets() {
         // Arrange & Act
         var list2D = new Space2D<int>();
 
         // Assert
-        Assert.Equal(0, list2D.XOriginOffset);
-        Assert.Equal(0, list2D.YOriginOffset);
-        Assert.Equal(0, list2D.XStart);
-        Assert.Equal(0, list2D.YStart);
+        Assert.Equal(0,  list2D.XOriginOffset);
+        Assert.Equal(0,  list2D.YOriginOffset);
+        Assert.Equal(0,  list2D.XStart);
+        Assert.Equal(0,  list2D.YStart);
         Assert.Equal(-1, list2D.XEnd); // Size is 0, so end is -1
         Assert.Equal(-1, list2D.YEnd); // Size is 0, so end is -1
     }
 
     [Fact]
     public void Indexer_WithoutOffset_ShouldBehaveLikeBaseClass() {
-        
         // Arrange
         var list2D = new Space2D<int>();
         list2D.AddX();
@@ -46,8 +45,8 @@ public class Space2DTests {
         // Assert
         Assert.Equal(-1, list2D.XStart);
         Assert.Equal(-1, list2D.YStart);
-        Assert.Equal(2, list2D.XEnd); // Size is 4, offset is 1, so end is 4-1-1 = 2
-        Assert.Equal(1, list2D.YEnd); // Size is 3, offset is 1, so end is 3-1-1 = 1
+        Assert.Equal(2,  list2D.XEnd); // Size is 4, offset is 1, so end is 4-1-1 = 2
+        Assert.Equal(1,  list2D.YEnd); // Size is 3, offset is 1, so end is 3-1-1 = 1
     }
 
     [Fact]
@@ -65,12 +64,12 @@ public class Space2DTests {
         list2D[-1, 0] = 0;
 
         // Assert
-        Assert.Equal(1, list2D.XOriginOffset);
+        Assert.Equal(1,  list2D.XOriginOffset);
         Assert.Equal(-1, list2D.XStart);
-        Assert.Equal(1, list2D.XEnd);
-        Assert.Equal(0, list2D[-1, 0]);
-        Assert.Equal(1, list2D[0, 0]);
-        Assert.Equal(2, list2D[1, 0]);
+        Assert.Equal(1,  list2D.XEnd);
+        Assert.Equal(0,  list2D[-1, 0]);
+        Assert.Equal(1,  list2D[0, 0]);
+        Assert.Equal(2,  list2D[1, 0]);
     }
 
     [Fact]
@@ -88,12 +87,12 @@ public class Space2DTests {
         list2D[0, -1] = 0;
 
         // Assert
-        Assert.Equal(1, list2D.YOriginOffset);
+        Assert.Equal(1,  list2D.YOriginOffset);
         Assert.Equal(-1, list2D.YStart);
-        Assert.Equal(1, list2D.YEnd);
-        Assert.Equal(0, list2D[0, -1]);
-        Assert.Equal(1, list2D[0, 0]);
-        Assert.Equal(2, list2D[0, 1]);
+        Assert.Equal(1,  list2D.YEnd);
+        Assert.Equal(0,  list2D[0, -1]);
+        Assert.Equal(1,  list2D[0, 0]);
+        Assert.Equal(2,  list2D[0, 1]);
     }
 
     [Fact]
@@ -137,7 +136,7 @@ public class Space2DTests {
         list2D.AddX();
         list2D.AddY();
         list2D.InsertAtY(0); // Creates offset of 1
-            
+
         // Act
         list2D.RemoveAtY(-1);
 
@@ -155,7 +154,7 @@ public class Space2DTests {
         list2D.AddY();
         list2D.AddY();
         list2D.InsertAtX(0); // Creates offset of 1
-            
+
         // Act
         list2D.RemoveAtX(-1);
 
@@ -173,7 +172,7 @@ public class Space2DTests {
         list2D.AddX();
         list2D.AddY();
         list2D.InsertAtY(0); // Creates offset of 1
-            
+
         // Act
         list2D.RemoveAtY(0);
 
@@ -191,7 +190,7 @@ public class Space2DTests {
         list2D.AddY();
         list2D.AddY();
         list2D.InsertAtX(0); // Creates offset of 1
-            
+
         // Act
         list2D.RemoveAtX(0);
 
@@ -281,7 +280,7 @@ public class Space2DTests {
         var matrix = new[,] { { 1, 2 }, { 3, 4 } };
 
         // Act
-        list2D.Place(matrix, null);
+        list2D.Place(matrix);
 
         // Assert
         Assert.Equal(1, list2D[0, 0]);
@@ -294,7 +293,7 @@ public class Space2DTests {
     public void Place_WithPositiveOffset_ShouldPlaceAtOffset() {
         // Arrange
         var list2D = new Space2D<int>();
-        var matrix = new int[,] { { 1, 2 } };
+        var matrix = new[,] { { 1, 2 } };
 
         // Act
         list2D.Place(matrix, new Point2D(2, 1));
@@ -308,7 +307,7 @@ public class Space2DTests {
     public void Place_WithNegativeOffset_ShouldAdjustOriginOffsets() {
         // Arrange
         var list2D = new Space2D<int>();
-        var matrix = new int[,] { { 1, 2 }, { 3, 4 } };
+        var matrix = new[,] { { 1, 2 }, { 3, 4 } };
 
         // Act
         list2D.Place(matrix, new Point2D(-1, -2));
@@ -325,7 +324,7 @@ public class Space2DTests {
     [Fact]
     public void Place_WithPartialNegativeOffset_ShouldAdjustRelevantOffsets() {
         // Arrange
-        var list2D = new Space2D<int>(new[,]{ { 0, 0 }, { 0, 0 } });
+        var list2D = new Space2D<int>(new[,] { { 0, 0 }, { 0, 0 } });
         var matrix = new[,] { { 1, 2 } };
 
         // Act
@@ -352,12 +351,12 @@ public class Space2DTests {
         list2D.InsertAtX(-1);
 
         // Assert
-        Assert.Equal(2, list2D.XOriginOffset);
-        Assert.Equal(2, list2D.YOriginOffset);
+        Assert.Equal(2,  list2D.XOriginOffset);
+        Assert.Equal(2,  list2D.YOriginOffset);
         Assert.Equal(-2, list2D.XStart);
         Assert.Equal(-2, list2D.YStart);
-        Assert.Equal(0, list2D.XEnd); // Size is 3, offset is 2, so end is 3-1-2 = 0
-        Assert.Equal(0, list2D.YEnd); // Size is 3, offset is 2, so end is 3-1-2 = 0
+        Assert.Equal(0,  list2D.XEnd); // Size is 3, offset is 2, so end is 3-1-2 = 0
+        Assert.Equal(0,  list2D.YEnd); // Size is 3, offset is 2, so end is 3-1-2 = 0
     }
 
     [Fact]
@@ -373,10 +372,10 @@ public class Space2DTests {
 
         // Act & Assert
         list2D[-1, -1] = 1;
-        list2D[-1, 0] = 2;
-        list2D[0, -1] = 3;
-        list2D[0, 0] = 4;
-        list2D[1, 1] = 5;
+        list2D[-1, 0]  = 2;
+        list2D[0, -1]  = 3;
+        list2D[0, 0]   = 4;
+        list2D[1, 1]   = 5;
 
         Assert.Equal(1, list2D[-1, -1]);
         Assert.Equal(2, list2D[-1, 0]);
@@ -387,9 +386,9 @@ public class Space2DTests {
 
     [Theory]
     [InlineData(-3, 0)]
-    [InlineData(3, 0)]
-    [InlineData(0, -3)]
-    [InlineData(0, 3)]
+    [InlineData(3,  0)]
+    [InlineData(0,  -3)]
+    [InlineData(0,  3)]
     public void Indexer_OutOfBounds_ShouldThrowIndexOutOfRangeException(int x, int y) {
         // Arrange
         var list2D = new Space2D<int>();
@@ -413,16 +412,16 @@ public class Space2DTests {
         list2D.AddY();
 
         // Act - Complex sequence of operations
-        list2D.InsertAtY(0); // XOriginOffset becomes 1
-        list2D.InsertAtX(0); // YOriginOffset becomes 1
+        list2D.InsertAtY(0);  // XOriginOffset becomes 1
+        list2D.InsertAtX(0);  // YOriginOffset becomes 1
         list2D.InsertAtY(-1); // XOriginOffset becomes 2
         list2D.InsertAtX(-1); // YOriginOffset becomes 2
         list2D.RemoveAtY(-1); // XOriginOffset becomes 1
         list2D.RemoveAtX(0);  // YOriginOffset stays 1
 
         // Assert
-        Assert.Equal(1, list2D.XOriginOffset);
-        Assert.Equal(1, list2D.YOriginOffset);
+        Assert.Equal(1,  list2D.XOriginOffset);
+        Assert.Equal(1,  list2D.YOriginOffset);
         Assert.Equal(-1, list2D.XStart);
         Assert.Equal(-1, list2D.YStart);
     }

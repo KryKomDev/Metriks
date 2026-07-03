@@ -1,13 +1,13 @@
 namespace Metriks;
 
 /// <summary>
-/// Represents a generic read-only three-dimensional list of elements.
+///     Represents a generic read-only three-dimensional list of elements.
 /// </summary>
 /// <typeparam name="T">The type of elements in the read-only three-dimensional list.</typeparam>
 public interface IReadOnlyList3D<out T> : IReadOnlyCollection3D<T> {
 
     /// <summary>
-    /// Gets the element at the specified 3D coordinates.
+    ///     Gets the element at the specified 3D coordinates.
     /// </summary>
     /// <param name="x">The zero-based X index of the element to get.</param>
     /// <param name="y">The zero-based Y index of the element to get.</param>
@@ -17,12 +17,12 @@ public interface IReadOnlyList3D<out T> : IReadOnlyCollection3D<T> {
 }
 
 /// <summary>
-/// Represents a non-generic read-only three-dimensional list of elements.
+///     Represents a non-generic read-only three-dimensional list of elements.
 /// </summary>
 public interface IReadOnlyList3D : IReadOnlyCollection3D {
 
     /// <summary>
-    /// Gets the element at the specified 3D coordinates.
+    ///     Gets the element at the specified 3D coordinates.
     /// </summary>
     /// <param name="x">The zero-based X index of the element to get.</param>
     /// <param name="y">The zero-based Y index of the element to get.</param>

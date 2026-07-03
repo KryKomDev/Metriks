@@ -10,7 +10,7 @@
         <!-- NuGet -->
         <Authors>KryKom</Authors>
         <Company>KryKom</Company>
-        <Version>2026.3-rc1</Version>
+        <Version>2026.3</Version>
         <PackageProjectUrl>https://github.com/KryKomDev/Metriks</PackageProjectUrl>
         <PackageLicense>https://github.com/KryKomDev/Metriks/blob/main/LICENSE</PackageLicense>
         <RepositoryUrl>https://github.com/KryKomDev/Metriks</RepositoryUrl>
@@ -24,10 +24,12 @@
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+<!--        <DefineConstants Condition="'$(EnableJaggedLists)' == 'true'">$(DefineConstants);METRIKS_ENABLE_JAGGED_LIST</DefineConstants>-->
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <DebugType>none</DebugType>
+        <DebugType>none</DebugType>
     </PropertyGroup>
 
     <ItemGroup>
@@ -36,14 +38,14 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="JetBrains.Annotations" Version="2026.2.0" />
-        <PackageReference Include="Polyfill" Version="10.11.0">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        <PackageReference Include="JetBrains.Annotations" Version="2026.2.0"/>
+        <PackageReference Include="Polyfill" Version="10.11.2">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
-        <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.2" />
+        <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.2"/>
     </ItemGroup>
 </Project>
