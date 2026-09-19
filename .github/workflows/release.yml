@@ -56,7 +56,13 @@ jobs:
       shell: bash
 
     - name: Build
-      run: dotnet build ${{ env.ProjectPath }} --configuration Release --no-restore
+      run: > 
+      dotnet build ${{ env.ProjectPath }} \
+        --configuration Release \
+        --no-restore \
+        -p:DebugSymbols=true \
+        -p:DebugType=portable \
+        -p:IncludeSymbols=true
 
     - name: Build Tests
       run: dotnet build ${{ env.TestProjectPath }} --configuration Release --no-restore
@@ -70,7 +76,16 @@ jobs:
         if [ -n "${{ steps.get_version.outputs.version }}" ]; then
           VERSION_ARG="/p:Version=${{ steps.get_version.outputs.version }}"
         fi
-        dotnet pack ${{ env.ProjectPath }} --configuration Release --no-build --output ${{ env.NugetOutputDir }} $VERSION_ARG
+        
+        dotnet pack ${{ env.ProjectPath }} \
+          --configuration Release \
+          --no-build \
+          --output ${{ env.NugetOutputDir }} \
+          -p:DebugSymbols=true \
+          -p:DebugType=portable \
+          -p:IncludeSymbols=true \
+          -p:SymbolPackageFormat=snupkg \
+          $VERSION_ARG
       shell: bash
     
     - name: Upload Build Artifacts
