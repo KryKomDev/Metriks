@@ -184,7 +184,7 @@ public readonly ref struct ReadOnlySpan2D<T> {
     /// </summary>
     /// <param name="area">The area of the slice.</param>
     /// <returns>A new <see cref="ReadOnlySpan2D{T}" /> representing the sliced region.</returns>
-    public ReadOnlySpan2D<T> Slice(Area2D area) => Slice(area.Lower, area.Size + Size2D.One);
+    public ReadOnlySpan2D<T> Slice(Rect2D area) => Slice(area.Lower, area.Size + Size2D.One);
 
     /// <summary>
     ///     Gets a contiguous read-only span representing the row at the specified X index.

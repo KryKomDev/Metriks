@@ -41,25 +41,25 @@ public class Struct2DTests {
     }
 
     [Fact]
-    public void Area2D_Constructors_ShouldInitializeCorrectly() {
+    public void Rect2D_Constructors_ShouldInitializeCorrectly() {
         var p1    = new Point2D(0,  0);
         var p2    = new Point2D(10, 10);
-        var area1 = new Area2D(p1, p2);
+        var area1 = new Rect2D(p1, p2);
         Assert.Equal(p1,                 area1.Lower);
         Assert.Equal(p2,                 area1.Higher);
         Assert.Equal(new Size2D(10, 10), area1.Size);
 
-        var area2 = new Area2D(p2, p1);
+        var area2 = new Rect2D(p2, p1);
         Assert.Equal(p1, area2.Lower);
         Assert.Equal(p2, area2.Higher);
 
         var size  = new Size2D(5, 5);
-        var area3 = new Area2D(p1, size);
+        var area3 = new Rect2D(p1, size);
         Assert.Equal(p1,                area3.Lower);
         Assert.Equal(new Point2D(5, 5), area3.Higher);
         Assert.Equal(size,              area3.Size);
 
-        var area4 = new Area2D(10, 20, 0, 5);
+        var area4 = new Rect2D(10, 20, 0, 5);
         Assert.Equal(0,  area4.LowerX);
         Assert.Equal(10, area4.HigherX);
         Assert.Equal(5,  area4.LowerY);
@@ -67,8 +67,8 @@ public class Struct2DTests {
     }
 
     [Fact]
-    public void Area2D_Operations_ShouldWork() {
-        var area  = new Area2D(new Point2D(0, 0), new Point2D(10, 10));
+    public void Rect2D_Operations_ShouldWork() {
+        var area  = new Rect2D(new Point2D(0, 0), new Point2D(10, 10));
         var size  = new Size2D(5, 5);
         var point = new Point2D(2, 2);
 
@@ -90,8 +90,8 @@ public class Struct2DTests {
     }
 
     [Fact]
-    public void Area2D_Deconstruct_ShouldWork() {
-        var area = new Area2D(new Point2D(1, 2), new Point2D(3, 4));
+    public void Rect2D_Deconstruct_ShouldWork() {
+        var area = new Rect2D(new Point2D(1, 2), new Point2D(3, 4));
 
         {
             area.Deconstruct(out var p1, out Point2D p2);
@@ -107,15 +107,15 @@ public class Struct2DTests {
     }
 
     [Fact]
-    public void Area2D_ToString_ShouldReturnExpectedFormat() {
-        var area = new Area2D(new Point2D(0, 0), new Point2D(10, 20));
+    public void Rect2D_ToString_ShouldReturnExpectedFormat() {
+        var area = new Rect2D(new Point2D(0, 0), new Point2D(10, 20));
         Assert.Equal("[(0, 0):(10, 20) | 10x20]", area.ToString(null, CultureInfo.InvariantCulture));
         Assert.Equal("[[0; 0]:[10; 20] | 10x20]", area.ToString(null, CultureInfo.GetCultureInfo("cs-CZ")));
     }
 
     [Fact]
-    public void Area2D_CoordinateProperties_ShouldWork() {
-        var area = new Area2D(new Point2D(1, 2), new Point2D(4, 6));
+    public void Rect2D_CoordinateProperties_ShouldWork() {
+        var area = new Rect2D(new Point2D(1, 2), new Point2D(4, 6));
         Assert.Equal(1, area.LowerX);
         Assert.Equal(2, area.LowerY);
         Assert.Equal(4, area.HigherX);
@@ -131,8 +131,8 @@ public class Struct2DTests {
     }
 
     [Fact]
-    public void Area2D_RangeProperties_ShouldBeCorrect() {
-        var area = new Area2D(new Point2D(1, 2), new Point2D(10, 20));
+    public void Rect2D_RangeProperties_ShouldBeCorrect() {
+        var area = new Rect2D(new Point2D(1, 2), new Point2D(10, 20));
         Assert.Equal(new Range(1, 10), area.RangeX);
         Assert.Equal(new Range(2, 20), area.RangeY);
     }

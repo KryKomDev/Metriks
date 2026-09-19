@@ -1,8 +1,11 @@
+using System.Text;
+
 namespace Metriks.Sample;
 
 public static class Example {
 
     public static void Main() {
+        
         Console.ForegroundColor = ConsoleColor.Cyan;
         Console.WriteLine("=================================================");
         Console.WriteLine("         METRIKS MULTIDIMENSIONAL SAMPLES        ");

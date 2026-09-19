@@ -238,7 +238,7 @@ public readonly ref struct Span4D<T> {
     /// <summary>
     ///     Slices the four-dimensional span.
     /// </summary>
-    public Span4D<T> Slice(Area4D area) => Slice(area.Lower, area.Size + Size4D.One);
+    public Span4D<T> Slice(Rect4D area) => Slice(area.Lower, area.Size + Size4D.One);
 
     /// <summary>
     ///     Gets a 3D span representing the cube at the specified W index.

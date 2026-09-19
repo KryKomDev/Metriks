@@ -183,7 +183,7 @@ public readonly ref struct Span2D<T> {
     /// </summary>
     /// <param name="area">The area of the slice.</param>
     /// <returns>A new <see cref="Span2D{T}" /> representing the sliced region.</returns>
-    public Span2D<T> Slice(Area2D area) => Slice(area.Lower, area.Size + Size2D.One);
+    public Span2D<T> Slice(Rect2D area) => Slice(area.Lower, area.Size + Size2D.One);
 
     /// <summary>
     ///     Gets a contiguous span representing the row at the specified X index.

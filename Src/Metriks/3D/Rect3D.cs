@@ -1,12 +1,11 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 
 namespace Metriks;
 
 /// <summary>
 ///     Represents a three-dimensional bounding area defined by lower and higher X, Y, and Z bounds.
 /// </summary>
-[Obsolete("Use <see cref=\"Rect3D\" />")]
-public readonly record struct Area3D : IFormattable {
+public readonly record struct Rect3D : IFormattable {
     private readonly int _hx;
     private readonly int _hy;
     private readonly int _hz;
@@ -15,19 +14,19 @@ public readonly record struct Area3D : IFormattable {
     private readonly int _ly;
     private readonly int _lz;
 
-    public Area3D(int lowerX, int lowerY, int lowerZ, int higherX, int higherY, int higherZ) {
+    public Rect3D(int lowerX, int lowerY, int lowerZ, int higherX, int higherY, int higherZ) {
         (_lx, _hx) = lowerX < higherX ? (lowerX, higherX) : (higherX, lowerX);
         (_ly, _hy) = lowerY < higherY ? (lowerY, higherY) : (higherY, lowerY);
         (_lz, _hz) = lowerZ < higherZ ? (lowerZ, higherZ) : (higherZ, lowerZ);
     }
 
-    public Area3D(Point3D lower, Point3D higher) {
+    public Rect3D(Point3D lower, Point3D higher) {
         (_lx, _hx) = lower.X < higher.X ? (lower.X, higher.X) : (higher.X, lower.X);
         (_ly, _hy) = lower.Y < higher.Y ? (lower.Y, higher.Y) : (higher.Y, lower.Y);
         (_lz, _hz) = lower.Z < higher.Z ? (lower.Z, higher.Z) : (higher.Z, lower.Z);
     }
 
-    public Area3D(Point3D lower, Size3D s) {
+    public Rect3D(Point3D lower, Size3D s) {
         (_lx, _ly, _lz) = lower;
         _hx             = lower.X + s.X;
         _hy             = lower.Y + s.Y;
@@ -208,11 +207,11 @@ public readonly record struct Area3D : IFormattable {
 
     public override string ToString() => ToString(null, null);
 
-    public static Area3D operator +(Area3D area, Size3D size) => new(area.Lower, area.Size + size);
-    public static Area3D operator -(Area3D area, Size3D size) => new(area.Lower, area.Size - size);
+    public static Rect3D operator +(Rect3D area, Size3D size) => new(area.Lower, area.Size + size);
+    public static Rect3D operator -(Rect3D area, Size3D size) => new(area.Lower, area.Size - size);
 
-    public static Area3D operator +(Area3D area, Point3D point) => new(area.Lower + point, area.Higher + point);
-    public static Area3D operator -(Area3D area, Point3D point) => new(area.Lower - point, area.Higher - point);
+    public static Rect3D operator +(Rect3D area, Point3D point) => new(area.Lower + point, area.Higher + point);
+    public static Rect3D operator -(Rect3D area, Point3D point) => new(area.Lower - point, area.Higher - point);
 
     public void Deconstruct(out Point3D a, out Point3D b) {
         a = Lower;

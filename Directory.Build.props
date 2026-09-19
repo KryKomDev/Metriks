@@ -1,9 +1,8 @@
-﻿<Project>
+<Project>
     <PropertyGroup>
-        <PolyArgumentExceptions>true</PolyArgumentExceptions>
 
         <!--    Enable JaggedList{N}D    -->
-<!--        <DefineConstants>$(DefineConstants);METRIKS_ENABLE_JAGGED_LIST</DefineConstants>-->
+        <!--        <DefineConstants>$(DefineConstants);METRIKS_ENABLE_JAGGED_LIST</DefineConstants>-->
 
         <DefineConstants>$(DefineConstants.Replace('%0A', '').Replace('%0D', '').Replace(' ', ''))</DefineConstants>
     </PropertyGroup>

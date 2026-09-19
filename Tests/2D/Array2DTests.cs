@@ -168,10 +168,10 @@ public class Array2DTests {
     }
 
     [Fact]
-    public void Fill_AreaOverload_FillsCorrectElements() {
+    public void Fill_RectOverload_FillsCorrectElements() {
         // Arrange
         var array = new int[3, 3];
-        var area  = new Area2D(new Point2D(1, 1), new Size2D(1, 1));
+        var area  = new Rect2D(new Point2D(1, 1), new Size2D(1, 1));
 
         // Act
         Array2D.Fill(array, 42, area);

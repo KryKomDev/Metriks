@@ -416,13 +416,13 @@ public class List3D<T> : IList3D<T>, ICollection3D, IReadOnlyList3D<T> {
         _xSize = 0;
         _ySize = 0;
         _zSize = 0;
-        int requiredLength = xCapacity * yCapacity * zCapacity;
-        if (_items == null || _items.Length < requiredLength) {
+        var requiredLength = xCapacity * yCapacity * zCapacity;
+
+        if (_items == null || _items.Length < requiredLength)
             _items = new T[requiredLength];
-        }
-        else {
+        else
             Array.Clear(_items, 0, _items.Length);
-        }
+
         _xCapacity = xCapacity;
         _yCapacity = yCapacity;
         _zCapacity = zCapacity;

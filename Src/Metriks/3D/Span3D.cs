@@ -203,7 +203,7 @@ public readonly ref struct Span3D<T> {
     /// <summary>
     ///     Slices the three-dimensional span.
     /// </summary>
-    public Span3D<T> Slice(Area3D area) => Slice(area.Lower, area.Size + Size3D.One);
+    public Span3D<T> Slice(Rect3D area) => Slice(area.Lower, area.Size + Size3D.One);
 
     /// <summary>
     ///     Gets a 2D span representing the plane at the specified X index.

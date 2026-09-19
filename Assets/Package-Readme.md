@@ -2,10 +2,9 @@
 
 ## About
 
-Metriks is a high-performance C# library providing dynamic multidimensional arrays (lists).
-It bridges the gap between fixed-size multidimensional arrays (`T[,]`, `T[,,]`) and the
-flexibility of `List<T>`, allowing you to grow, shrink, and resize your multidimensional
-data structures easily.
+Metriks is a high-performance C# library providing dynamic multidimensional arrays (lists). It bridges the gap between
+fixed-size multidimensional arrays (`T[,]`, `T[,,]`) and the flexibility of `List<T>`, allowing you to grow, shrink, and
+resize your multidimensional data structures easily.
 
 ## Features
 
@@ -108,8 +107,8 @@ int[] flat = Array2D.Flatten(array2D); // [1, 2, 3, 4]
 
 Metriks provides several ways to change the size of your collections:
 
-- **Expand:** Increases the size of the list. New elements are initialized with the default
-  value or a provided factory/default.
+- **Expand:** Increases the size of the list. New elements are initialized with the default value or a provided
+  factory/default.
 - **Shrink:** Decreases the size of the list, removing elements outside the new bounds.
 - **Resize:** A general-purpose method to set the exact size, either expanding or shrinking as needed.
 
@@ -125,8 +124,7 @@ Metriks is designed with performance in mind:
 - Uses jagged arrays internally for efficient memory management and access.
 - Aggressive inlining for hot paths.
 - Employs span-based memory copying (`Span<T>`) for bulk data transfers and resize operations.
-- Specialized classes for 2D, 3D, and 4D to avoid the overhead of generic N-dimensional
-  indexing where possible.
+- Specialized classes for 2D, 3D, and 4D to avoid the overhead of generic N-dimensional indexing where possible.
 
 ## License
 

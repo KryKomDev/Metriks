@@ -62,7 +62,7 @@ public class List4D<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
         YCapacity = YSize;
         ZCapacity = ZSize;
 
-        int totalElements = WSize * XSize * YSize * ZSize;
+        var totalElements = WSize * XSize * YSize * ZSize;
 
         if (totalElements == 0) {
             _items = Array.Empty<T>();
@@ -462,17 +462,17 @@ public class List4D<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
     ///     Clears all existing elements to default.
     /// </summary>
     public void Reset(int wCapacity, int xCapacity, int yCapacity, int zCapacity) {
-        WSize     = 0;
-        XSize     = 0;
-        YSize     = 0;
-        ZSize     = 0;
-        int requiredLength = wCapacity * xCapacity * yCapacity * zCapacity;
-        if (_items == null || _items.Length < requiredLength) {
+        WSize = 0;
+        XSize = 0;
+        YSize = 0;
+        ZSize = 0;
+        var requiredLength = wCapacity * xCapacity * yCapacity * zCapacity;
+
+        if (_items == null || _items.Length < requiredLength)
             _items = new T[requiredLength];
-        }
-        else {
+        else
             Array.Clear(_items, 0, _items.Length);
-        }
+
         WCapacity = wCapacity;
         XCapacity = xCapacity;
         YCapacity = yCapacity;
@@ -600,7 +600,7 @@ public class List4D<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
                 for (var w = 0; w < WSize; w++)
                 for (var x = 0; x < XSize; x++)
                 for (var y = 0; y < YSize; y++)
-                    _items.AsSpan(((w * XCapacity + x) * YCapacity + y) * ZCapacity, copyZ)
+                    _items.AsSpan(((w                                   * XCapacity    + x) * YCapacity + y) * ZCapacity, copyZ)
                         .CopyTo(newItems.AsSpan(((w * newXCapacity + x) * newYCapacity + y) * newZCapacity, copyZ));
             }
         }
@@ -763,8 +763,8 @@ public class List4D<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
             for (var w = 0; w < copyW; w++)
             for (var x = 0; x < copyX; x++)
             for (var y = 0; y < copyY; y++)
-                _items.AsSpan(((w * XCapacity + x) * YCapacity + y) * ZCapacity, copyZ)
-                    .CopyTo(newItems.AsSpan(((w * wSize + x) * ySize + y) * zSize, copyZ));
+                _items.AsSpan(((w                            * XCapacity + x) * YCapacity + y) * ZCapacity, copyZ)
+                    .CopyTo(newItems.AsSpan(((w * wSize + x) * ySize     + y) * zSize, copyZ));
 
         _items    = newItems;
         WSize     = wSize;
@@ -798,8 +798,8 @@ public class List4D<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
             for (var w = 0; w < copyW; w++)
             for (var x = 0; x < copyX; x++)
             for (var y = 0; y < copyY; y++)
-                _items.AsSpan(((w * XCapacity + x) * YCapacity + y) * ZCapacity, copyZ)
-                    .CopyTo(newItems.AsSpan(((w * wSize + x) * ySize + y) * zSize, copyZ));
+                _items.AsSpan(((w                            * XCapacity + x) * YCapacity + y) * ZCapacity, copyZ)
+                    .CopyTo(newItems.AsSpan(((w * wSize + x) * ySize     + y) * zSize, copyZ));
 
         _items    = newItems;
         WSize     = wSize;
@@ -823,8 +823,8 @@ public class List4D<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
             for (var w = 0; w < wSize; w++)
             for (var x = 0; x < xSize; x++)
             for (var y = 0; y < ySize; y++)
-                _items.AsSpan(((w * XCapacity + x) * YCapacity + y) * ZCapacity, zSize)
-                    .CopyTo(newItems.AsSpan(((w * wSize + x) * ySize + y) * zSize, zSize));
+                _items.AsSpan(((w                            * XCapacity + x) * YCapacity + y) * ZCapacity, zSize)
+                    .CopyTo(newItems.AsSpan(((w * wSize + x) * ySize     + y) * zSize, zSize));
 
         _items    = newItems;
         WSize     = wSize;
@@ -1025,7 +1025,7 @@ public class List4D<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
         var isBelow = offset.W < 0 || offset.X < 0 || offset.Y < 0 || offset.Z < 0;
 
         if (isBelow && resize) {
-            int newTotal = newSize.W * newSize.X * newSize.Y * newSize.Z;
+            var newTotal = newSize.W * newSize.X * newSize.Y * newSize.Z;
             var newItems = newTotal == 0 ? Array.Empty<T>() : ArrayPool<T>.Shared.Rent(newTotal);
 
             var newWOffset = Math.Max(0, offset.W);
@@ -1066,9 +1066,8 @@ public class List4D<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
             YCapacity = YSize;
             ZCapacity = ZSize;
 
-            if (oldItems != null && oldItems.Length > 0) {
-                ArrayPool<T>.Shared.Return(oldItems, clearArray: RuntimeHelpers.IsReferenceOrContainsReferences<T>());
-            }
+            if (oldItems != null && oldItems.Length > 0)
+                ArrayPool<T>.Shared.Return(oldItems, RuntimeHelpers.IsReferenceOrContainsReferences<T>());
         }
         else {
             if ((placedMax.W > WSize || placedMax.X > XSize || placedMax.Y > YSize || placedMax.Z > ZSize) && resize)
@@ -1121,7 +1120,7 @@ public class List4D<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
         var isBelow = offset.W < 0 || offset.X < 0 || offset.Y < 0 || offset.Z < 0;
 
         if (isBelow && resize) {
-            int newTotal = newSize.W * newSize.X * newSize.Y * newSize.Z;
+            var newTotal = newSize.W * newSize.X * newSize.Y * newSize.Z;
             var newItems = newTotal == 0 ? Array.Empty<T>() : ArrayPool<T>.Shared.Rent(newTotal);
 
             var newWOffset = Math.Max(0, offset.W);
@@ -1165,9 +1164,8 @@ public class List4D<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
             YCapacity = YSize;
             ZCapacity = ZSize;
 
-            if (oldItems != null && oldItems.Length > 0) {
-                ArrayPool<T>.Shared.Return(oldItems, clearArray: RuntimeHelpers.IsReferenceOrContainsReferences<T>());
-            }
+            if (oldItems != null && oldItems.Length > 0)
+                ArrayPool<T>.Shared.Return(oldItems, RuntimeHelpers.IsReferenceOrContainsReferences<T>());
         }
         else {
             if ((placedMax.W > WSize || placedMax.X > XSize || placedMax.Y > YSize || placedMax.Z > ZSize) && resize)

@@ -1,6 +1,10 @@
 // Metriks
 // Copyright (c) KryKom 2026
 
+#if !METRIKS_UNSAFE_MODE
+#define METRIKS_SAFE_MODE
+#endif
+
 using System.Collections;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -16,7 +20,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
 
     private const int   INITIAL_CAPACITY = 4;
     private const float GROWTH_FACTOR    = 2.0f;
-    
+
     #region Fields
 
     private T[] _items;
@@ -24,20 +28,20 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
     private int _ySize;
     private int _xCapacity;
     private int _yCapacity;
-    
+
     #endregion
 
     #region Properties
 
-    /// <summary>
-    ///     Represents the internal storage array for elements in the 2D list.
-    ///     The size of this array is determined by the product of the current x and y capacities.
-    ///     To access the elements, use the formula x * yCapacity + y.
-    /// </summary>
-    internal T[] Items {
-        get => _items;
-        private set => _items = value;
-    }
+    // /// <summary>
+    // ///     Represents the internal storage array for elements in the 2D list.
+    // ///     The size of this array is determined by the product of the current x and y capacities.
+    // ///     To access the elements, use the formula x * yCapacity + y.
+    // /// </summary>
+    // private T[] _items {
+    //     get => _items;
+    //     set => _items = value;
+    // }
 
     /// <summary>
     ///     Gets the size (number of elements) along the X-axis.
@@ -119,7 +123,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
     ///     Gets the total allocated storage capacity of the 2D list, representing the maximum
     ///     number of elements it can hold across all dimensions.
     /// </summary>
-    public int TotalCapacity => Items.Length;
+    public int TotalCapacity => _items.Length;
 
     public bool IsReadOnly => false;
 
@@ -131,11 +135,9 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get {
-            #if !METRIKS_UNSAFE_MODE
             ValidateIndexBounds(x, y);
-            #endif
 
-            ref var space  = ref MetriksHelpers.GetArrayData(Items);
+            ref var space  = ref MetriksHelpers.GetArrayData(_items);
             var     offset = x * (nint)YCapacity + y;
 
             return Unsafe.Add(ref space, offset);
@@ -143,19 +145,26 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         set {
-            #if !METRIKS_UNSAFE_MODE
             ValidateIndexBounds(x, y);
-            #endif
 
-            ref var space  = ref MetriksHelpers.GetArrayData(Items);
+            ref var space  = ref MetriksHelpers.GetArrayData(_items);
             var     offset = x * (nint)YCapacity + y;
 
             Unsafe.Add(ref space, offset) = value;
         }
     }
 
+    public ref T GetRef(int x, int y) {
+        ValidateIndexBounds(x, y);
+
+        ref var space  = ref MetriksHelpers.GetArrayData(_items);
+        var     offset = x * (nint)YCapacity + y;
+
+        return ref Unsafe.Add(ref space, offset);
+    }
+
     internal T GetUnsafe(int x, int y) {
-        ref var space  = ref MetriksHelpers.GetArrayData(Items);
+        ref var space  = ref MetriksHelpers.GetArrayData(_items);
         var     offset = x * (nint)YCapacity + y;
 
         return Unsafe.Add(ref space, offset);
@@ -182,9 +191,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
     public Span<T> this[Index x, Range y] {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get {
-            #if !METRIKS_UNSAFE_MODE
             ValidateIndexBounds(x, y);
-            #endif
 
             var xo = x.GetOffset(XSize);
 
@@ -192,15 +199,13 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
             var (yo, ys) = y.GetOffsetAndLength(YCapacity);
             var startIdx = xo * YCapacity + yo;
 
-            return Items.AsSpan(startIdx, ys);
+            return _items.AsSpan(startIdx, ys);
         }
     }
 
     public List2D<T> this[Range x, Range y] {
         get {
-            #if !METRIKS_UNSAFE_MODE
             ValidateIndexBounds(x, y);
-            #endif
 
             var (xo, xs) = x.GetOffsetAndLength(XSize);
             var (yo, ys) = y.GetOffsetAndLength(YSize);
@@ -213,8 +218,8 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
             for (var xi = 0; xi < xs; xi++) {
                 var sourceStartIdx = (xo + xi) * YCapacity + yo;
 
-                ReadOnlySpan<T> sourceRowSpan = Items.AsSpan(sourceStartIdx, ys);
-                var             destRowSpan   = slice.Items.AsSpan(xi * ys, ys);
+                ReadOnlySpan<T> sourceRowSpan = _items.AsSpan(sourceStartIdx, ys);
+                var             destRowSpan   = slice._items.AsSpan(xi * ys, ys);
 
                 sourceRowSpan.CopyTo(destRowSpan);
             }
@@ -255,7 +260,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
             var result = new T[length];
 
             if (length > 0)
-                Items.AsSpan(x * YCapacity + offset, length).CopyTo(result);
+                _items.AsSpan(x * YCapacity + offset, length).CopyTo(result);
 
             return result;
         }
@@ -332,19 +337,19 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
 
         if (XSize > 0) {
             if (YCapacity == newYCapacity) {
-                Items.AsSpan(0, XSize * YCapacity).CopyTo(newItems);
+                _items.AsSpan(0, XSize * YCapacity).CopyTo(newItems);
             }
             else {
                 var copyLength = Math.Min(YCapacity, newYCapacity);
 
                 for (var x = 0; x < XSize; x++)
-                    Items
+                    _items
                         .AsSpan(x * YCapacity, copyLength)
                         .CopyTo(newItems.AsSpan(x * newYCapacity, copyLength));
             }
         }
 
-        Items     = newItems;
+        _items     = newItems;
         XCapacity = newXCapacity;
         YCapacity = newYCapacity;
     }
@@ -352,6 +357,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
     [StackTraceHidden]
     [DebuggerStepThrough]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [Conditional("METRIKS_SAFE_MODE")]
     private void ValidateIndexBounds(int x, int y) {
         if (!InBounds(x, y))
             throw new IndexOutOfRangeException(
@@ -362,6 +368,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
     [StackTraceHidden]
     [DebuggerStepThrough]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [Conditional("METRIKS_SAFE_MODE")]
     private void ValidateIndexBounds(Range x, Index y) {
         if (
             !InBounds(
@@ -380,6 +387,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
     [StackTraceHidden]
     [DebuggerStepThrough]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [Conditional("METRIKS_SAFE_MODE")]
     private void ValidateIndexBounds(Index x, Range y) {
         if (
             !InBounds(
@@ -398,6 +406,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
     [StackTraceHidden]
     [DebuggerStepThrough]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [Conditional("METRIKS_SAFE_MODE")]
     private void ValidateIndexBounds(Range x, Range y) {
         if (
             !InBounds(
@@ -425,7 +434,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected void UnsafeSet(int x, int y, T value) {
-        ref var space  = ref MetriksHelpers.GetArrayData(Items);
+        ref var space  = ref MetriksHelpers.GetArrayData(_items);
         var     offset = x * (nint)YCapacity + y;
         Unsafe.Add(ref space, offset) = value;
     }
@@ -433,7 +442,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected T UnsafeGet(int x, int y) {
-        ref var space  = ref MetriksHelpers.GetArrayData(Items);
+        ref var space  = ref MetriksHelpers.GetArrayData(_items);
         var     offset = x * (nint)YCapacity + y;
 
         return Unsafe.Add(ref space, offset);
@@ -454,7 +463,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
         if (x < 0 || x >= XSize)
             throw new IndexOutOfRangeException("Index 'x' is out of range.");
 
-        return Items.AsSpan(x * YCapacity, YSize);
+        return _items.AsSpan(x * YCapacity, YSize);
     }
 
     /// <summary>
@@ -471,7 +480,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
         if (destination.Length < YSize)
             throw new ArgumentException("Destination span is not large enough.", nameof(destination));
 
-        Items.AsSpan(x * YCapacity, YSize).CopyTo(destination);
+        _items.AsSpan(x * YCapacity, YSize).CopyTo(destination);
     }
 
     /// <summary>
@@ -489,7 +498,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
             throw new ArgumentException("Destination span is not large enough.", nameof(destination));
 
         for (var x = 0; x < XSize; x++)
-            destination[x] = Items[x * YCapacity + y];
+            destination[x] = _items[x * YCapacity + y];
     }
 
     /// <summary>
@@ -518,7 +527,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
             return;
 
         for (var x = 0; x < xCount; x++) {
-            var srcSpan = Items.AsSpan((xStart + x) * YCapacity + yStart, yCount);
+            var srcSpan = _items.AsSpan((xStart + x) * YCapacity + yStart, yCount);
             var dstSpan = destination.Slice(x * yCount, yCount);
             srcSpan.CopyTo(dstSpan);
         }
@@ -568,7 +577,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
             var start = x * YCapacity;
 
             for (var y = 0; y < YSize; y++)
-                array.SetValue(Items[start + y]!, x + index.X, y + index.Y);
+                array.SetValue(_items[start + y]!, x + index.X, y + index.Y);
         }
     }
 
@@ -602,7 +611,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
             return;
 
         for (var x = 0; x < XSize; x++) {
-            var srcSpan = Items.AsSpan(x * YCapacity, YSize);
+            var srcSpan = _items.AsSpan(x * YCapacity, YSize);
             var dstSpan = MemoryMarshal.CreateSpan(ref array[x + index.X, index.Y], YSize);
             srcSpan.CopyTo(dstSpan);
         }
@@ -615,13 +624,13 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
     public void Reset(int xCapacity, int yCapacity) {
         _xSize = 0;
         _ySize = 0;
-        int requiredLength = xCapacity * yCapacity;
-        if (_items == null || _items.Length < requiredLength) {
+        var requiredLength = xCapacity * yCapacity;
+
+        if (_items == null || _items.Length < requiredLength)
             _items = new T[requiredLength];
-        }
-        else {
+        else
             Array.Clear(_items, 0, _items.Length);
-        }
+
         _xCapacity = xCapacity;
         _yCapacity = yCapacity;
     }
@@ -630,7 +639,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
     ///     Clears all elements from the list, resetting its size and capacity to initial defaults.
     /// </summary>
     public void Clear() {
-        Items     = new T[INITIAL_CAPACITY * INITIAL_CAPACITY];
+        _items     = new T[INITIAL_CAPACITY * INITIAL_CAPACITY];
         XSize     = 0;
         YSize     = 0;
         XCapacity = INITIAL_CAPACITY;
@@ -642,7 +651,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
     /// </summary>
     public void AddX() {
         EnsureXCapacity(XSize + 1);
-        Items.AsSpan(XSize * YCapacity, YCapacity).Clear();
+        _items.AsSpan(XSize * YCapacity, YCapacity).Clear();
         XSize++;
     }
 
@@ -663,7 +672,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
             throw new InvalidOperationException("Cannot remove from a List2D with x-size = 0.");
 
         XSize--;
-        Items.AsSpan(XSize * YCapacity, YCapacity).Clear();
+        _items.AsSpan(XSize * YCapacity, YCapacity).Clear();
     }
 
     /// <summary>
@@ -677,7 +686,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
         YSize--;
 
         for (var x = 0; x < XSize; x++)
-            Items[x * YCapacity + YSize] = default!;
+            _items[x * YCapacity + YSize] = default!;
     }
 
     /// <summary>
@@ -690,10 +699,10 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
             return false;
 
         if (YSize == YCapacity)
-            return Array.IndexOf(Items, value, 0, XSize * YCapacity) >= 0;
+            return Array.IndexOf(_items, value, 0, XSize * YCapacity) >= 0;
 
         for (var x = 0; x < XSize; x++)
-            if (Array.IndexOf(Items, value, x * YCapacity, YSize) >= 0)
+            if (Array.IndexOf(_items, value, x * YCapacity, YSize) >= 0)
                 return true;
 
         return false;
@@ -710,7 +719,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
         if (x < 0 || x >= XSize)
             throw new IndexOutOfRangeException("Index 'x' is out of range.");
 
-        return Array.IndexOf(Items, value, x * YCapacity, YSize) >= 0;
+        return Array.IndexOf(_items, value, x * YCapacity, YSize) >= 0;
     }
 
     /// <summary>
@@ -727,7 +736,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
         var comparer = EqualityComparer<T>.Default;
 
         for (var x = 0; x < XSize; x++)
-            if (comparer.Equals(Items[x * YCapacity + y], value))
+            if (comparer.Equals(_items[x * YCapacity + y], value))
                 return true;
 
         return false;
@@ -748,10 +757,10 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
             var srcStart = x           * YCapacity;
             var dstStart = (x     + 1) * YCapacity;
             var length   = (XSize - x) * YCapacity;
-            Array.Copy(Items, srcStart, Items, dstStart, length);
+            Array.Copy(_items, srcStart, _items, dstStart, length);
         }
 
-        Items.AsSpan(x * YCapacity, YCapacity).Clear();
+        _items.AsSpan(x * YCapacity, YCapacity).Clear();
         XSize++;
     }
 
@@ -771,12 +780,12 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
         if (shiftLength > 0)
             for (var x = 0; x < XSize; x++) {
                 var colStart = x * YCapacity;
-                Array.Copy(Items, colStart + y, Items, colStart + y + 1, shiftLength);
-                Items[colStart + y] = default!;
+                Array.Copy(_items, colStart + y, _items, colStart + y + 1, shiftLength);
+                _items[colStart + y] = default!;
             }
         else
             for (var x = 0; x < XSize; x++)
-                Items[x * YCapacity + y] = default!;
+                _items[x * YCapacity + y] = default!;
 
         YSize++;
     }
@@ -800,10 +809,10 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
             var srcStart = (x + 1)     * YCapacity;
             var dstStart = x           * YCapacity;
             var length   = (XSize - x) * YCapacity;
-            Array.Copy(Items, srcStart, Items, dstStart, length);
+            Array.Copy(_items, srcStart, _items, dstStart, length);
         }
 
-        Items.AsSpan(XSize * YCapacity, YCapacity).Clear();
+        _items.AsSpan(XSize * YCapacity, YCapacity).Clear();
     }
 
     /// <summary>
@@ -826,12 +835,12 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
         if (shiftLength > 0)
             for (var x = 0; x < XSize; x++) {
                 var colStart = x * YCapacity;
-                Array.Copy(Items, colStart + y + 1, Items, colStart + y, shiftLength);
-                Items[colStart + YSize] = default!;
+                Array.Copy(_items, colStart + y + 1, _items, colStart + y, shiftLength);
+                _items[colStart + YSize] = default!;
             }
         else
             for (var x = 0; x < XSize; x++)
-                Items[x * YCapacity + YSize] = default!;
+                _items[x * YCapacity + YSize] = default!;
     }
 
     /// <summary>
@@ -877,11 +886,11 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
             var fillCount = ySize - YSize;
 
             for (var x = 0; x < XSize; x++)
-                Items.AsSpan(x * YCapacity + YSize, fillCount).Fill(defaultValue!);
+                _items.AsSpan(x * YCapacity + YSize, fillCount).Fill(defaultValue!);
         }
 
         for (var x = XSize; x < xSize; x++)
-            Items.AsSpan(x * YCapacity, ySize).Fill(defaultValue!);
+            _items.AsSpan(x * YCapacity, ySize).Fill(defaultValue!);
 
         XSize = xSize;
         YSize = ySize;
@@ -934,14 +943,14 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
                 var start = x * YCapacity;
 
                 for (var y = YSize; y < ySize; y++)
-                    Items[start + y] = defaultValueFactory();
+                    _items[start + y] = defaultValueFactory();
             }
 
         for (var x = XSize; x < xSize; x++) {
             var start = x * YCapacity;
 
             for (var y = 0; y < ySize; y++)
-                Items[start + y] = defaultValueFactory();
+                _items[start + y] = defaultValueFactory();
         }
 
         XSize = xSize;
@@ -982,9 +991,9 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
 
         if (copyX > 0 && copyY > 0)
             for (var x = 0; x < copyX; x++)
-                Items.AsSpan(x * YCapacity, copyY).CopyTo(newItems.AsSpan(x * ySize, copyY));
+                _items.AsSpan(x * YCapacity, copyY).CopyTo(newItems.AsSpan(x * ySize, copyY));
 
-        Items     = newItems;
+        _items     = newItems;
         XSize     = xSize;
         YSize     = ySize;
         XCapacity = xSize;
@@ -1028,9 +1037,9 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
 
         if (copyX > 0 && copyY > 0)
             for (var x = 0; x < copyX; x++)
-                Items.AsSpan(x * YCapacity, copyY).CopyTo(newItems.AsSpan(x * ySize, copyY));
+                _items.AsSpan(x * YCapacity, copyY).CopyTo(newItems.AsSpan(x * ySize, copyY));
 
-        Items     = newItems;
+        _items     = newItems;
         XSize     = xSize;
         YSize     = ySize;
         XCapacity = xSize;
@@ -1063,9 +1072,9 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
 
         if (xSize > 0 && ySize > 0)
             for (var x = 0; x < xSize; x++)
-                Items.AsSpan(x * YCapacity, ySize).CopyTo(newItems.AsSpan(x * ySize, ySize));
+                _items.AsSpan(x * YCapacity, ySize).CopyTo(newItems.AsSpan(x * ySize, ySize));
 
-        Items     = newItems;
+        _items     = newItems;
         XSize     = xSize;
         YSize     = ySize;
         XCapacity = xSize;
@@ -1115,7 +1124,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
 
             if (XSize > 0 && YSize > 0)
                 for (var x = 0; x < XSize; x++)
-                    Items.AsSpan(x * YCapacity, YSize)
+                    _items.AsSpan(x * YCapacity, YSize)
                         .CopyTo(newItems.AsSpan((x + oldXOffset) * newSize.Y + oldYOffset, YSize));
 
             if (matrixX > 0 && matrixY > 0)
@@ -1125,7 +1134,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
                     srcSpan.CopyTo(dstSpan);
                 }
 
-            Items     = newItems;
+            _items     = newItems;
             XSize     = newSize.X;
             YSize     = newSize.Y;
             XCapacity = XSize;
@@ -1150,7 +1159,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
                     yCount
                 );
 
-                var dstSpan = Items.AsSpan(x * YCapacity + startY, yCount);
+                var dstSpan = _items.AsSpan(x * YCapacity + startY, yCount);
                 srcSpan.CopyTo(dstSpan);
             }
         }
@@ -1199,17 +1208,17 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
 
             if (XSize > 0 && YSize > 0)
                 for (var x = 0; x < XSize; x++)
-                    Items
+                    _items
                         .AsSpan(x * YCapacity, YSize)
                         .CopyTo(newItems.AsSpan((x + oldXOffset) * newSize.Y + oldYOffset, YSize));
 
             if (matrixX > 0 && matrixY > 0)
                 for (var x = 0; x < matrixX; x++)
-                    matrix.Items
+                    matrix._items
                         .AsSpan(x * matrix.YCapacity, matrixY)
                         .CopyTo(newItems.AsSpan((x + newXOffset) * newSize.Y + newYOffset, matrixY));
 
-            Items     = newItems;
+            _items     = newItems;
             XSize     = newSize.X;
             YSize     = newSize.Y;
             XCapacity = XSize;
@@ -1229,12 +1238,12 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
                 return;
 
             for (var x = startX; x < endX; x++)
-                matrix.Items
+                matrix._items
                     .AsSpan(
                         (x - offset.X) * matrix.YCapacity + (startY - offset.Y),
                         yCount
                     )
-                    .CopyTo(Items.AsSpan(x * YCapacity + startY, yCount));
+                    .CopyTo(_items.AsSpan(x * YCapacity + startY, yCount));
         }
     }
 
@@ -1291,7 +1300,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
 
             if (XSize > 0 && YSize > 0)
                 for (var x = 0; x < XSize; x++)
-                    Items.AsSpan(x * YCapacity, YSize)
+                    _items.AsSpan(x * YCapacity, YSize)
                         .CopyTo(newItems.AsSpan((x + oldXOffset) * newSize.Y + oldYOffset, YSize));
 
             for (var x = 0; x < matrixX; x++)
@@ -1303,7 +1312,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
                     newItems[targetIdx] = srcVal;
             }
 
-            Items     = newItems;
+            _items     = newItems;
             XSize     = newSize.X;
             YSize     = newSize.Y;
             XCapacity = XSize;
@@ -1326,8 +1335,8 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
                     var targetIdx = targetColStart + y;
                     var srcVal    = matrix[srcColIndex, y - offset.Y];
 
-                    if (predicate(Items[targetIdx], srcVal))
-                        Items[targetIdx] = srcVal;
+                    if (predicate(_items[targetIdx], srcVal))
+                        _items[targetIdx] = srcVal;
                 }
             }
         }
@@ -1386,7 +1395,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
 
             if (XSize > 0 && YSize > 0)
                 for (var x = 0; x < XSize; x++)
-                    Items.AsSpan(x * YCapacity, YSize)
+                    _items.AsSpan(x * YCapacity, YSize)
                         .CopyTo(newItems.AsSpan((x + oldXOffset) * newSize.Y + oldYOffset, YSize));
 
             for (var x = 0; x < matrixX; x++) {
@@ -1395,14 +1404,14 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
 
                 for (var y = 0; y < matrixY; y++) {
                     var targetIdx = targetColStart + y;
-                    var srcVal    = matrix.Items[srcColStart + y];
+                    var srcVal    = matrix._items[srcColStart + y];
 
                     if (predicate(newItems[targetIdx], srcVal))
                         newItems[targetIdx] = srcVal;
                 }
             }
 
-            Items     = newItems;
+            _items     = newItems;
             XSize     = newSize.X;
             YSize     = newSize.Y;
             XCapacity = XSize;
@@ -1424,10 +1433,10 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
 
                 for (var y = startY; y < endY; y++) {
                     var targetIdx = targetColStart + y;
-                    var srcVal    = matrix.Items[srcColStart + y + yOffset];
+                    var srcVal    = matrix._items[srcColStart + y + yOffset];
 
-                    if (predicate(Items[targetIdx], srcVal))
-                        Items[targetIdx] = srcVal;
+                    if (predicate(_items[targetIdx], srcVal))
+                        _items[targetIdx] = srcVal;
                 }
             }
         }
@@ -1442,10 +1451,10 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
             return;
 
         if (YSize == YCapacity)
-            Items.AsSpan(0, XSize * YCapacity).Fill(item);
+            _items.AsSpan(0, XSize * YCapacity).Fill(item);
         else
             for (var x = 0; x < XSize; x++)
-                Items.AsSpan(x * YCapacity, YSize).Fill(item);
+                _items.AsSpan(x * YCapacity, YSize).Fill(item);
     }
 
     /// <summary>
@@ -1468,7 +1477,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
             return;
 
         for (var x = xStart; x < xEnd; x++)
-            Items.AsSpan(x * YCapacity + yStart, yCount).Fill(item);
+            _items.AsSpan(x * YCapacity + yStart, yCount).Fill(item);
     }
 
     /// <summary>
@@ -1492,7 +1501,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
             var start = x * YCapacity;
 
             for (var y = 0; y < YSize; y++)
-                Items[start + y] = factory();
+                _items[start + y] = factory();
         }
     }
 
@@ -1522,7 +1531,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
             var start = x * YCapacity;
 
             for (var y = yStart; y < yEnd; y++)
-                Items[start + y] = factory();
+                _items[start + y] = factory();
         }
     }
 
@@ -1548,7 +1557,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
             return arr;
 
         for (var x = 0; x < XSize; x++) {
-            var srcSpan = Items.AsSpan(x * YCapacity, YSize);
+            var srcSpan = _items.AsSpan(x * YCapacity, YSize);
             var dstSpan = MemoryMarshal.CreateSpan(ref arr[x, 0], YSize);
             srcSpan.CopyTo(dstSpan);
         }
@@ -1566,12 +1575,12 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
 
         for (var x = 0; x < XSize; x++) {
             arr[x] = new T[YSize];
-            Items.AsSpan(x * YCapacity, YSize).CopyTo(arr[x]);
+            _items.AsSpan(x * YCapacity, YSize).CopyTo(arr[x]);
         }
 
         return arr;
     }
-    
+
     #region IEnumerable
 
     /// <summary>
@@ -1599,7 +1608,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
 
     private IEnumerable<T> GetAtXIterator(int x) {
         for (var y = 0; y < YSize; y++)
-            yield return Items[x * YCapacity + y];
+            yield return _items[x * YCapacity + y];
     }
 
     /// <summary>
@@ -1617,7 +1626,7 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
 
     private IEnumerable<T> GetAtYIterator(int y) {
         for (var x = 0; x < XSize; x++)
-            yield return Items[x * YCapacity + y];
+            yield return _items[x * YCapacity + y];
     }
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
