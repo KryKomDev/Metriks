@@ -1,29 +1,28 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 
 namespace Metriks;
 
 /// <summary>
 ///     Represents a two-dimensional bounding area defined by lower and higher X and Y bounds.
 /// </summary>
-[Obsolete("Use <see cref=\"Rect2D\" />")]
-public readonly record struct Area2D : IFormattable {
+public readonly record struct Rect2D : IFormattable {
     private readonly int _hx;
     private readonly int _hy;
 
     private readonly int _lx;
     private readonly int _ly;
 
-    public Area2D(int lowerX, int lowerY, int higherX, int higherY) {
+    public Rect2D(int lowerX, int lowerY, int higherX, int higherY) {
         (_lx, _hx) = lowerX < higherX ? (lowerX, higherX) : (higherX, lowerX);
         (_ly, _hy) = lowerY < higherY ? (lowerY, higherY) : (higherY, lowerY);
     }
 
-    public Area2D(Point2D lower, Point2D higher) {
+    public Rect2D(Point2D lower, Point2D higher) {
         (_lx, _hx) = lower.X < higher.X ? (lower.X, higher.X) : (higher.X, lower.X);
         (_ly, _hy) = lower.Y < higher.Y ? (lower.Y, higher.Y) : (higher.Y, lower.Y);
     }
 
-    public Area2D(Point2D lower, Size2D s) {
+    public Rect2D(Point2D lower, Size2D s) {
         (_lx, _ly) = lower;
         _hx        = lower.X + s.X;
         _hy        = lower.Y + s.Y;
@@ -164,9 +163,9 @@ public readonly record struct Area2D : IFormattable {
     /// Calculates the intersection of the current 2D area with another specified 2D area.
     /// </summary>
     /// <param name="other">The other 2D area to intersect with the current area.</param>
-    /// <returns>An <see cref="Area2D"/> representing the intersecting area if an intersection
+    /// <returns>An <see cref="Rect2D"/> representing the intersecting area if an intersection
     /// exists; otherwise, null.</returns>
-    public Area2D? Intersect(Area2D other) {
+    public Rect2D? Intersect(Rect2D other) {
         var lx = Math.Max(_lx, other.LowerX);
         var ly = Math.Max(_ly, other.LowerY);
         var hx = Math.Min(_hx, other.HigherX);
@@ -174,18 +173,18 @@ public readonly record struct Area2D : IFormattable {
 
         return hx < lx || hy < ly
             ? null
-            : new Area2D(lx, ly, hx, hy);
+            : new Rect2D(lx, ly, hx, hy);
     }
 
     public override string ToString() => ToString(null, null);
 
-    public static Area2D operator +(Area2D area, Size2D size) => new(area.Lower, area.Size + size);
-    public static Area2D operator -(Area2D area, Size2D size) => new(area.Lower, area.Size - size);
+    public static Rect2D operator +(Rect2D area, Size2D size) => new(area.Lower, area.Size + size);
+    public static Rect2D operator -(Rect2D area, Size2D size) => new(area.Lower, area.Size - size);
 
-    public static Area2D operator +(Area2D area, Point2D point) => new(area.Lower + point, area.Higher + point);
-    public static Area2D operator -(Area2D area, Point2D point) => new(area.Lower - point, area.Higher - point);
+    public static Rect2D operator +(Rect2D area, Point2D point) => new(area.Lower + point, area.Higher + point);
+    public static Rect2D operator -(Rect2D area, Point2D point) => new(area.Lower - point, area.Higher - point);
 
-    public static Area2D? operator &(Area2D left, Area2D right) => left.Intersect(right);
+    public static Rect2D? operator &(Rect2D left, Rect2D right) => left.Intersect(right);
 
     public void Deconstruct(out Point2D a, out Point2D b) {
         a = Lower;

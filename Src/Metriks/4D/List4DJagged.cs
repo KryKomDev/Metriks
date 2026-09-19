@@ -2,7 +2,6 @@
 // Copyright (c) KryKom & ZlomenyMesic 2026
 
 #if METRIKS_ENABLE_JAGGED_LIST
-
 using System.Collections;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -17,7 +16,7 @@ namespace Metriks;
 public class List4DJagged<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
 
     private const int   INITIAL_CAPACITY = 4;
-    private const float GROWTH_FACTOR    = 2f;
+    private const float GROWTH_FACTOR = 2f;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="List4DJagged{T}" /> class with the specified initial capacity for each
@@ -33,11 +32,11 @@ public class List4DJagged<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
         int yCapacity = INITIAL_CAPACITY,
         int zCapacity = INITIAL_CAPACITY
     ) {
-        Items     = new T[wCapacity][][][];
-        WSize     = 0;
-        XSize     = 0;
-        YSize     = 0;
-        ZSize     = 0;
+        Items = new T[wCapacity][][][];
+        WSize = 0;
+        XSize = 0;
+        YSize = 0;
+        ZSize = 0;
         WCapacity = wCapacity;
         XCapacity = xCapacity;
         YCapacity = yCapacity;
@@ -523,15 +522,15 @@ public class List4DJagged<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
     }
 
     public void Clear() {
-        WSize     = 0;
-        XSize     = 0;
-        YSize     = 0;
-        ZSize     = 0;
+        WSize = 0;
+        XSize = 0;
+        YSize = 0;
+        ZSize = 0;
         WCapacity = INITIAL_CAPACITY;
         XCapacity = INITIAL_CAPACITY;
         YCapacity = INITIAL_CAPACITY;
         ZCapacity = INITIAL_CAPACITY;
-        Items     = new T[INITIAL_CAPACITY][][][];
+        Items = new T[INITIAL_CAPACITY][][][];
     }
 
     /// <summary>
@@ -639,7 +638,7 @@ public class List4DJagged<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
             if (xSize > existingW.Length) {
                 var newX = new T[xSize][][];
                 Array.Copy(existingW, newX, XSize);
-                Items[w]  = newX;
+                Items[w] = newX;
                 existingW = newX;
             }
 
@@ -663,7 +662,7 @@ public class List4DJagged<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
                     var newY = new T[ySize][];
                     Array.Copy(existingWX, newY, YSize);
                     existingW[x] = newY;
-                    existingWX   = newY;
+                    existingWX = newY;
                 }
 
                 for (var y = 0; y < ySize; y++) {
@@ -697,10 +696,10 @@ public class List4DJagged<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
             }
         }
 
-        WSize     = wSize;
-        XSize     = xSize;
-        YSize     = ySize;
-        ZSize     = zSize;
+        WSize = wSize;
+        XSize = xSize;
+        YSize = ySize;
+        ZSize = zSize;
         WCapacity = Math.Max(WCapacity, wSize);
         XCapacity = Math.Max(XCapacity, xSize);
         YCapacity = Math.Max(YCapacity, ySize);
@@ -757,7 +756,7 @@ public class List4DJagged<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
             if (xSize > existingW.Length) {
                 var newX = new T[xSize][][];
                 Array.Copy(existingW, newX, XSize);
-                Items[w]  = newX;
+                Items[w] = newX;
                 existingW = newX;
             }
 
@@ -784,7 +783,7 @@ public class List4DJagged<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
                     var newY = new T[ySize][];
                     Array.Copy(existingWX, newY, YSize);
                     existingW[x] = newY;
-                    existingWX   = newY;
+                    existingWX = newY;
                 }
 
                 for (var y = 0; y < ySize; y++) {
@@ -815,10 +814,10 @@ public class List4DJagged<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
             }
         }
 
-        WSize     = wSize;
-        XSize     = xSize;
-        YSize     = ySize;
-        ZSize     = zSize;
+        WSize = wSize;
+        XSize = xSize;
+        YSize = ySize;
+        ZSize = zSize;
         WCapacity = Math.Max(WCapacity, wSize);
         XCapacity = Math.Max(XCapacity, xSize);
         YCapacity = Math.Max(YCapacity, ySize);
@@ -850,11 +849,11 @@ public class List4DJagged<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
         for (var y = 0; y < minY; y++)
             Array.Copy(Items[w][x][y], newItems[w][x][y], minZ);
 
-        Items     = newItems;
-        WSize     = wSize;
-        XSize     = xSize;
-        YSize     = ySize;
-        ZSize     = zSize;
+        Items = newItems;
+        WSize = wSize;
+        XSize = xSize;
+        YSize = ySize;
+        ZSize = zSize;
         WCapacity = wSize;
         XCapacity = xSize;
         YCapacity = ySize;
@@ -886,11 +885,11 @@ public class List4DJagged<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
         for (var y = 0; y < minY; y++)
             Array.Copy(Items[w][x][y], newItems[w][x][y], minZ);
 
-        Items     = newItems;
-        WSize     = wSize;
-        XSize     = xSize;
-        YSize     = ySize;
-        ZSize     = zSize;
+        Items = newItems;
+        WSize = wSize;
+        XSize = xSize;
+        YSize = ySize;
+        ZSize = zSize;
         WCapacity = wSize;
         XCapacity = xSize;
         YCapacity = ySize;
@@ -986,11 +985,11 @@ public class List4DJagged<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
                 }
             }
 
-            Items     = newItems;
-            WSize     = newSize.W;
-            XSize     = newSize.X;
-            YSize     = newSize.Y;
-            ZSize     = newSize.Z;
+            Items = newItems;
+            WSize = newSize.W;
+            XSize = newSize.X;
+            YSize = newSize.Y;
+            ZSize = newSize.Z;
             WCapacity = WSize;
             XCapacity = XSize;
             YCapacity = YSize;
@@ -1001,13 +1000,13 @@ public class List4DJagged<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
                 Expand(newSize.W, newSize.X, newSize.Y, newSize.Z);
 
             var startW = Math.Clamp(offset.W, 0, WSize);
-            var endW   = Math.Min(WSize, offset.W + matrix.GetLength(0));
+            var endW = Math.Min(WSize, offset.W + matrix.GetLength(0));
             var startX = Math.Clamp(offset.X, 0, XSize);
-            var endX   = Math.Min(XSize, offset.X + matrix.GetLength(1));
+            var endX = Math.Min(XSize, offset.X + matrix.GetLength(1));
             var startY = Math.Clamp(offset.Y, 0, YSize);
-            var endY   = Math.Min(YSize, offset.Y + matrix.GetLength(2));
+            var endY = Math.Min(YSize, offset.Y + matrix.GetLength(2));
             var startZ = Math.Clamp(offset.Z, 0, ZSize);
-            var endZ   = Math.Min(ZSize, offset.Z + matrix.GetLength(3));
+            var endZ = Math.Min(ZSize, offset.Z + matrix.GetLength(3));
             var zCount = endZ - startZ;
 
             if (zCount > 0)
@@ -1017,7 +1016,7 @@ public class List4DJagged<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
 
                     for (var x = startX; x < endX; x++) {
                         var rowWX = rowW[x];
-                        var srcX  = x - offset.X;
+                        var srcX = x - offset.X;
 
                         for (var y = startY; y < endY; y++) {
                             var srcSpan = MemoryMarshal.CreateReadOnlySpan(ref matrix[srcW, srcX, y - offset.Y, startZ - offset.Z], zCount);
@@ -1109,11 +1108,11 @@ public class List4DJagged<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
                 }
             }
 
-            Items     = newItems;
-            WSize     = newSize.W;
-            XSize     = newSize.X;
-            YSize     = newSize.Y;
-            ZSize     = newSize.Z;
+            Items = newItems;
+            WSize = newSize.W;
+            XSize = newSize.X;
+            YSize = newSize.Y;
+            ZSize = newSize.Z;
             WCapacity = WSize;
             XCapacity = XSize;
             YCapacity = YSize;
@@ -1124,13 +1123,13 @@ public class List4DJagged<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
                 Expand(newSize.W, newSize.X, newSize.Y, newSize.Z);
 
             var startW = Math.Clamp(offset.W, 0, WSize);
-            var endW   = Math.Min(WSize, offset.W + matrix.WSize);
+            var endW = Math.Min(WSize, offset.W + matrix.WSize);
             var startX = Math.Clamp(offset.X, 0, XSize);
-            var endX   = Math.Min(XSize, offset.X + matrix.XSize);
+            var endX = Math.Min(XSize, offset.X + matrix.XSize);
             var startY = Math.Clamp(offset.Y, 0, YSize);
-            var endY   = Math.Min(YSize, offset.Y + matrix.YSize);
+            var endY = Math.Min(YSize, offset.Y + matrix.YSize);
             var startZ = Math.Clamp(offset.Z, 0, ZSize);
-            var endZ   = Math.Min(ZSize, offset.Z + matrix.ZSize);
+            var endZ = Math.Min(ZSize, offset.Z + matrix.ZSize);
             var zCount = endZ - startZ;
 
             if (zCount > 0)
@@ -1244,11 +1243,11 @@ public class List4DJagged<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
                 }
             }
 
-            Items     = newItems;
-            WSize     = newSize.W;
-            XSize     = newSize.X;
-            YSize     = newSize.Y;
-            ZSize     = newSize.Z;
+            Items = newItems;
+            WSize = newSize.W;
+            XSize = newSize.X;
+            YSize = newSize.Y;
+            ZSize = newSize.Z;
             WCapacity = WSize;
             XCapacity = XSize;
             YCapacity = YSize;
@@ -1259,13 +1258,13 @@ public class List4DJagged<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
                 Expand(newSize.W, newSize.X, newSize.Y, newSize.Z);
 
             var startW = Math.Clamp(offset.W, 0, WSize);
-            var endW   = Math.Min(WSize, offset.W + matrix.GetLength(0));
+            var endW = Math.Min(WSize, offset.W + matrix.GetLength(0));
             var startX = Math.Clamp(offset.X, 0, XSize);
-            var endX   = Math.Min(XSize, offset.X + matrix.GetLength(1));
+            var endX = Math.Min(XSize, offset.X + matrix.GetLength(1));
             var startY = Math.Clamp(offset.Y, 0, YSize);
-            var endY   = Math.Min(YSize, offset.Y + matrix.GetLength(2));
+            var endY = Math.Min(YSize, offset.Y + matrix.GetLength(2));
             var startZ = Math.Clamp(offset.Z, 0, ZSize);
-            var endZ   = Math.Min(ZSize, offset.Z + matrix.GetLength(3));
+            var endZ = Math.Min(ZSize, offset.Z + matrix.GetLength(3));
 
             for (var w = startW; w < endW; w++) {
                 var rowW = Items[w];
@@ -1273,11 +1272,11 @@ public class List4DJagged<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
 
                 for (var x = startX; x < endX; x++) {
                     var rowWX = rowW[x];
-                    var srcX  = x - offset.X;
+                    var srcX = x - offset.X;
 
                     for (var y = startY; y < endY; y++) {
                         var rowWXY = rowWX[y];
-                        var srcY   = y - offset.Y;
+                        var srcY = y - offset.Y;
 
                         for (var z = startZ; z < endZ; z++) {
                             var val = matrix[srcW, srcX, srcY, z - offset.Z];
@@ -1384,11 +1383,11 @@ public class List4DJagged<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
                 }
             }
 
-            Items     = newItems;
-            WSize     = newSize.W;
-            XSize     = newSize.X;
-            YSize     = newSize.Y;
-            ZSize     = newSize.Z;
+            Items = newItems;
+            WSize = newSize.W;
+            XSize = newSize.X;
+            YSize = newSize.Y;
+            ZSize = newSize.Z;
             WCapacity = WSize;
             XCapacity = XSize;
             YCapacity = YSize;
@@ -1399,13 +1398,13 @@ public class List4DJagged<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
                 Expand(newSize.W, newSize.X, newSize.Y, newSize.Z);
 
             var startW = Math.Clamp(offset.W, 0, WSize);
-            var endW   = Math.Min(WSize, offset.W + matrix.WSize);
+            var endW = Math.Min(WSize, offset.W + matrix.WSize);
             var startX = Math.Clamp(offset.X, 0, XSize);
-            var endX   = Math.Min(XSize, offset.X + matrix.XSize);
+            var endX = Math.Min(XSize, offset.X + matrix.XSize);
             var startY = Math.Clamp(offset.Y, 0, YSize);
-            var endY   = Math.Min(YSize, offset.Y + matrix.YSize);
+            var endY = Math.Min(YSize, offset.Y + matrix.YSize);
             var startZ = Math.Clamp(offset.Z, 0, ZSize);
-            var endZ   = Math.Min(ZSize, offset.Z + matrix.ZSize);
+            var endZ = Math.Min(ZSize, offset.Z + matrix.ZSize);
 
             for (var w = startW; w < endW; w++) {
                 var dstW = Items[w];
@@ -1629,7 +1628,7 @@ public class List4DJagged<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
 
         public SliceW(List4DJagged<T> parent, int w) {
             _parent = parent;
-            _w      = w;
+            _w = w;
         }
 
         public IEnumerator<IEnumerable2D<T>> GetEnumerator() {
@@ -1655,7 +1654,7 @@ public class List4DJagged<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
 
         public SliceX(List4DJagged<T> parent, int x) {
             _parent = parent;
-            _x      = x;
+            _x = x;
         }
 
         public IEnumerator<IEnumerable2D<T>> GetEnumerator() {
@@ -1681,7 +1680,7 @@ public class List4DJagged<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
 
         public SliceY(List4DJagged<T> parent, int y) {
             _parent = parent;
-            _y      = y;
+            _y = y;
         }
 
         public IEnumerator<IEnumerable2D<T>> GetEnumerator() {
@@ -1705,7 +1704,7 @@ public class List4DJagged<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
 
         public SliceZ(List4DJagged<T> parent, int z) {
             _parent = parent;
-            _z      = z;
+            _z = z;
         }
 
         public IEnumerator<IEnumerable2D<T>> GetEnumerator() {
@@ -1729,8 +1728,8 @@ public class List4DJagged<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
 
         public SliceWX(List4DJagged<T> parent, int w, int x) {
             _parent = parent;
-            _w      = w;
-            _x      = x;
+            _w = w;
+            _x = x;
         }
 
         public IEnumerator<IEnumerable<T>> GetEnumerator() {
@@ -1757,8 +1756,8 @@ public class List4DJagged<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
 
         public SliceWY(List4DJagged<T> parent, int w, int y) {
             _parent = parent;
-            _w      = w;
-            _y      = y;
+            _w = w;
+            _y = y;
         }
 
         public IEnumerator<IEnumerable<T>> GetEnumerator() {
@@ -1785,8 +1784,8 @@ public class List4DJagged<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
 
         public SliceWZ(List4DJagged<T> parent, int w, int z) {
             _parent = parent;
-            _w      = w;
-            _z      = z;
+            _w = w;
+            _z = z;
         }
 
         public IEnumerator<IEnumerable<T>> GetEnumerator() {
@@ -1813,8 +1812,8 @@ public class List4DJagged<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
 
         public SliceXY(List4DJagged<T> parent, int x, int y) {
             _parent = parent;
-            _x      = x;
-            _y      = y;
+            _x = x;
+            _y = y;
         }
 
         public IEnumerator<IEnumerable<T>> GetEnumerator() {
@@ -1841,8 +1840,8 @@ public class List4DJagged<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
 
         public SliceXZ(List4DJagged<T> parent, int x, int z) {
             _parent = parent;
-            _x      = x;
-            _z      = z;
+            _x = x;
+            _z = z;
         }
 
         public IEnumerator<IEnumerable<T>> GetEnumerator() {
@@ -1869,8 +1868,8 @@ public class List4DJagged<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
 
         public SliceYZ(List4DJagged<T> parent, int y, int z) {
             _parent = parent;
-            _y      = y;
-            _z      = z;
+            _y = y;
+            _z = z;
         }
 
         public IEnumerator<IEnumerable<T>> GetEnumerator() {

@@ -26,8 +26,8 @@ public static class ListPool2D<T> {
             return new List2D<T>(xCapacity, yCapacity);
 
         list.Reset(xCapacity, yCapacity);
-        return list;
 
+        return list;
     }
 
     /// <summary>
@@ -35,7 +35,8 @@ public static class ListPool2D<T> {
     /// </summary>
     /// <param name="list">The list to return.</param>
     public static void Return(List2D<T> list) {
-        if (list == null) return;
+        if (list == null)
+            return;
 
         list.Reset(0, 0);
         POOL.Enqueue(list);
@@ -65,8 +66,8 @@ public static class ListPool3D<T> {
             return new List3D<T>(xCapacity, yCapacity, zCapacity);
 
         list.Reset(xCapacity, yCapacity, zCapacity);
-        return list;
 
+        return list;
     }
 
     /// <summary>
@@ -74,7 +75,8 @@ public static class ListPool3D<T> {
     /// </summary>
     /// <param name="list">The list to return.</param>
     public static void Return(List3D<T> list) {
-        if (list == null) return;
+        if (list == null)
+            return;
 
         list.Reset(0, 0, 0);
         POOL.Enqueue(list);
@@ -106,8 +108,8 @@ public static class ListPool4D<T> {
             return new List4D<T>(wCapacity, xCapacity, yCapacity, zCapacity);
 
         list.Reset(wCapacity, xCapacity, yCapacity, zCapacity);
-        return list;
 
+        return list;
     }
 
     /// <summary>
@@ -115,7 +117,8 @@ public static class ListPool4D<T> {
     /// </summary>
     /// <param name="list">The list to return.</param>
     public static void Return(List4D<T> list) {
-        if (list == null) return;
+        if (list == null)
+            return;
 
         list.Reset(0, 0, 0, 0);
         POOL.Enqueue(list);

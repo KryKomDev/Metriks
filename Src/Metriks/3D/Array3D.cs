@@ -151,10 +151,10 @@ public static class Array3D {
     /// <param name="item">The value to fill the specified region with.</param>
     /// <param name="area">
     ///     The rectangular area within the array to be filled excluding the
-    ///     <see cref="Area3D.Higher" /> point and the corresponding row and column.
+    ///     <see cref="Rect3D.Higher" /> point and the corresponding row and column.
     /// </param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Fill<T>(T[,,] array, T item, Area3D area) => Fill(array, item, area.Lower, area.Size + Size3D.One);
+    public static void Fill<T>(T[,,] array, T item, Rect3D area) => Fill(array, item, area.Lower, area.Size + Size3D.One);
 
     /// <summary>
     ///     Fills a specified rectangular region of a three-dimensional array with a given value.
@@ -204,10 +204,10 @@ public static class Array3D {
     /// <param name="itemFactory">A factory function producing the value to fill the specified region with.</param>
     /// <param name="area">
     ///     The rectangular area within the array to be filled excluding the
-    ///     <see cref="Area3D.Higher" /> point and the corresponding row and column.
+    ///     <see cref="Rect3D.Higher" /> point and the corresponding row and column.
     /// </param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Fill<T>(T[,,] array, Func<T> itemFactory, Area3D area) => Fill(array, itemFactory, area.Lower, area.Size + Size3D.One);
+    public static void Fill<T>(T[,,] array, Func<T> itemFactory, Rect3D area) => Fill(array, itemFactory, area.Lower, area.Size + Size3D.One);
 
     /// <summary>
     ///     Clears a rectangular region in the specified three-dimensional array by setting its elements to the default
@@ -256,11 +256,11 @@ public static class Array3D {
     /// <typeparam name="T">The type of the elements in the array.</typeparam>
     /// <param name="array">The three-dimensional array to clear.</param>
     /// <param name="area">
-    ///     The area to be cleared excluding the <see cref="Area3D.Higher" /> point and the corresponding
+    ///     The area to be cleared excluding the <see cref="Rect3D.Higher" /> point and the corresponding
     ///     row and column.
     /// </param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Clear<T>(T[,,] array, Area3D area) => Clear(array, area.Lower, area.Size + Size3D.One);
+    public static void Clear<T>(T[,,] array, Rect3D area) => Clear(array, area.Lower, area.Size + Size3D.One);
 
     /// <summary>
     ///     Extracts a two-dimensional array slice from a three-dimensional array at a specific X coordinate.

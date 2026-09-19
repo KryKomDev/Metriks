@@ -167,10 +167,10 @@ public static class Array4D {
     /// <param name="item">The value to fill the specified region with.</param>
     /// <param name="area">
     ///     The rectangular area within the array to be filled excluding the
-    ///     <see cref="Area4D.Higher" /> point and the corresponding row and column.
+    ///     <see cref="Rect4D.Higher" /> point and the corresponding row and column.
     /// </param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Fill<T>(T[,,,] array, T item, Area4D area) => Fill(array, item, area.Lower, area.Size + Size4D.One);
+    public static void Fill<T>(T[,,,] array, T item, Rect4D area) => Fill(array, item, area.Lower, area.Size + Size4D.One);
 
     /// <summary>
     ///     Fills a specified rectangular region of a four-dimensional array with a given value.
@@ -224,10 +224,10 @@ public static class Array4D {
     /// <param name="itemFactory">A factory function producing the value to fill the specified region with.</param>
     /// <param name="area">
     ///     The rectangular area within the array to be filled excluding the
-    ///     <see cref="Area4D.Higher" /> point and the corresponding row and column.
+    ///     <see cref="Rect4D.Higher" /> point and the corresponding row and column.
     /// </param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Fill<T>(T[,,,] array, Func<T> itemFactory, Area4D area) => Fill(array, itemFactory, area.Lower, area.Size + Size4D.One);
+    public static void Fill<T>(T[,,,] array, Func<T> itemFactory, Rect4D area) => Fill(array, itemFactory, area.Lower, area.Size + Size4D.One);
 
     /// <summary>
     ///     Clears a rectangular region in the specified four-dimensional array by setting its elements to the default
@@ -280,11 +280,11 @@ public static class Array4D {
     /// <typeparam name="T">The type of the elements in the array.</typeparam>
     /// <param name="array">The four-dimensional array to clear.</param>
     /// <param name="area">
-    ///     The area to be cleared excluding the <see cref="Area4D.Higher" /> point and the corresponding
+    ///     The area to be cleared excluding the <see cref="Rect4D.Higher" /> point and the corresponding
     ///     row and column.
     /// </param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Clear<T>(T[,,,] array, Area4D area) => Clear(array, area.Lower, area.Size + Size4D.One);
+    public static void Clear<T>(T[,,,] array, Rect4D area) => Clear(array, area.Lower, area.Size + Size4D.One);
 
     /// <summary>
     ///     Extracts a three-dimensional array slice from a four-dimensional array at a specific W coordinate.

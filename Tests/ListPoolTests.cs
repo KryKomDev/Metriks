@@ -20,8 +20,10 @@ public class ListPoolTests {
         ListPool2D<int>.Return(list1);
 
         var list2 = ListPool2D<int>.Rent(3, 4);
+
         // Verify same instance is returned
         Assert.Same(list1, list2);
+
         // Verify size is reset to 0
         Assert.Equal(0, list2.XSize);
         Assert.Equal(0, list2.YSize);

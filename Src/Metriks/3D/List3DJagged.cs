@@ -2,7 +2,6 @@
 // Copyright (c) KryKom & ZlomenyMesic 2026
 
 #if METRIKS_ENABLE_JAGGED_LIST
-
 using System.Collections;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -16,7 +15,7 @@ namespace Metriks;
 /// <typeparam name="T">The type of elements in the three-dimensional list.</typeparam>
 public class List3DJagged<T> : IList3D<T>, ICollection3D, IReadOnlyList3D<T> {
     private const int   INITIAL_CAPACITY = 4;
-    private const float GROWTH_FACTOR    = 2f;
+    private const float GROWTH_FACTOR = 2f;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="List3DJagged{T}" /> class with the specified initial capacity for each
@@ -30,10 +29,10 @@ public class List3DJagged<T> : IList3D<T>, ICollection3D, IReadOnlyList3D<T> {
         int yCapacity = INITIAL_CAPACITY,
         int zCapacity = INITIAL_CAPACITY
     ) {
-        Items     = new T[xCapacity][][];
-        XSize     = 0;
-        YSize     = 0;
-        ZSize     = 0;
+        Items = new T[xCapacity][][];
+        XSize = 0;
+        YSize = 0;
+        ZSize = 0;
         XCapacity = xCapacity;
         YCapacity = yCapacity;
         ZCapacity = zCapacity;
@@ -631,10 +630,10 @@ public class List3DJagged<T> : IList3D<T>, ICollection3D, IReadOnlyList3D<T> {
         for (var y = 0; y < minY; y++)
             Array.Copy(Items[x][y], newItems[x][y], minZ);
 
-        Items     = newItems;
-        XSize     = xSize;
-        YSize     = ySize;
-        ZSize     = zSize;
+        Items = newItems;
+        XSize = xSize;
+        YSize = ySize;
+        ZSize = zSize;
         XCapacity = xSize;
         YCapacity = ySize;
         ZCapacity = zSize;
@@ -665,10 +664,10 @@ public class List3DJagged<T> : IList3D<T>, ICollection3D, IReadOnlyList3D<T> {
         for (var y = 0; y < minY; y++)
             Array.Copy(Items[x][y], newItems[x][y], minZ);
 
-        Items     = newItems;
-        XSize     = xSize;
-        YSize     = ySize;
-        ZSize     = zSize;
+        Items = newItems;
+        XSize = xSize;
+        YSize = ySize;
+        ZSize = zSize;
         XCapacity = xSize;
         YCapacity = ySize;
         ZCapacity = zSize;
@@ -750,10 +749,10 @@ public class List3DJagged<T> : IList3D<T>, ICollection3D, IReadOnlyList3D<T> {
                 }
             }
 
-            Items     = newItems;
-            XSize     = newSize.X;
-            YSize     = newSize.Y;
-            ZSize     = newSize.Z;
+            Items = newItems;
+            XSize = newSize.X;
+            YSize = newSize.Y;
+            ZSize = newSize.Z;
             XCapacity = XSize;
             YCapacity = YSize;
             ZCapacity = ZSize;
@@ -763,11 +762,11 @@ public class List3DJagged<T> : IList3D<T>, ICollection3D, IReadOnlyList3D<T> {
                 Expand(newSize.X, newSize.Y, newSize.Z);
 
             var startX = Math.Clamp(offset.X, 0, XSize);
-            var endX   = Math.Min(XSize, offset.X + matrix.GetLength(0));
+            var endX = Math.Min(XSize, offset.X + matrix.GetLength(0));
             var startY = Math.Clamp(offset.Y, 0, YSize);
-            var endY   = Math.Min(YSize, offset.Y + matrix.GetLength(1));
+            var endY = Math.Min(YSize, offset.Y + matrix.GetLength(1));
             var startZ = Math.Clamp(offset.Z, 0, ZSize);
-            var endZ   = Math.Min(ZSize, offset.Z + matrix.GetLength(2));
+            var endZ = Math.Min(ZSize, offset.Z + matrix.GetLength(2));
             var zCount = endZ - startZ;
 
             if (zCount > 0)
@@ -844,10 +843,10 @@ public class List3DJagged<T> : IList3D<T>, ICollection3D, IReadOnlyList3D<T> {
                     Array.Copy(srcRowX[y], 0, dstRowX[y + newYOffset], newZOffset, matrix.ZSize);
             }
 
-            Items     = newItems;
-            XSize     = newSize.X;
-            YSize     = newSize.Y;
-            ZSize     = newSize.Z;
+            Items = newItems;
+            XSize = newSize.X;
+            YSize = newSize.Y;
+            ZSize = newSize.Z;
             XCapacity = XSize;
             YCapacity = YSize;
             ZCapacity = ZSize;
@@ -857,11 +856,11 @@ public class List3DJagged<T> : IList3D<T>, ICollection3D, IReadOnlyList3D<T> {
                 Expand(newSize.X, newSize.Y, newSize.Z);
 
             var startX = Math.Clamp(offset.X, 0, XSize);
-            var endX   = Math.Min(XSize, offset.X + matrix.XSize);
+            var endX = Math.Min(XSize, offset.X + matrix.XSize);
             var startY = Math.Clamp(offset.Y, 0, YSize);
-            var endY   = Math.Min(YSize, offset.Y + matrix.YSize);
+            var endY = Math.Min(YSize, offset.Y + matrix.YSize);
             var startZ = Math.Clamp(offset.Z, 0, ZSize);
-            var endZ   = Math.Min(ZSize, offset.Z + matrix.ZSize);
+            var endZ = Math.Min(ZSize, offset.Z + matrix.ZSize);
             var zCount = endZ - startZ;
 
             if (zCount > 0)
@@ -950,10 +949,10 @@ public class List3DJagged<T> : IList3D<T>, ICollection3D, IReadOnlyList3D<T> {
                 }
             }
 
-            Items     = newItems;
-            XSize     = newSize.X;
-            YSize     = newSize.Y;
-            ZSize     = newSize.Z;
+            Items = newItems;
+            XSize = newSize.X;
+            YSize = newSize.Y;
+            ZSize = newSize.Z;
             XCapacity = XSize;
             YCapacity = YSize;
             ZCapacity = ZSize;
@@ -963,11 +962,11 @@ public class List3DJagged<T> : IList3D<T>, ICollection3D, IReadOnlyList3D<T> {
                 Expand(newSize.X, newSize.Y, newSize.Z);
 
             var startX = Math.Clamp(offset.X, 0, XSize);
-            var endX   = Math.Min(XSize, offset.X + matrix.GetLength(0));
+            var endX = Math.Min(XSize, offset.X + matrix.GetLength(0));
             var startY = Math.Clamp(offset.Y, 0, YSize);
-            var endY   = Math.Min(YSize, offset.Y + matrix.GetLength(1));
+            var endY = Math.Min(YSize, offset.Y + matrix.GetLength(1));
             var startZ = Math.Clamp(offset.Z, 0, ZSize);
-            var endZ   = Math.Min(ZSize, offset.Z + matrix.GetLength(2));
+            var endZ = Math.Min(ZSize, offset.Z + matrix.GetLength(2));
 
             for (var x = startX; x < endX; x++) {
                 var rowX = Items[x];
@@ -975,7 +974,7 @@ public class List3DJagged<T> : IList3D<T>, ICollection3D, IReadOnlyList3D<T> {
 
                 for (var y = startY; y < endY; y++) {
                     var rowXY = rowX[y];
-                    var srcY  = y - offset.Y;
+                    var srcY = y - offset.Y;
 
                     for (var z = startZ; z < endZ; z++) {
                         var val = matrix[srcX, srcY, z - offset.Z];
@@ -1061,10 +1060,10 @@ public class List3DJagged<T> : IList3D<T>, ICollection3D, IReadOnlyList3D<T> {
                 }
             }
 
-            Items     = newItems;
-            XSize     = newSize.X;
-            YSize     = newSize.Y;
-            ZSize     = newSize.Z;
+            Items = newItems;
+            XSize = newSize.X;
+            YSize = newSize.Y;
+            ZSize = newSize.Z;
             XCapacity = XSize;
             YCapacity = YSize;
             ZCapacity = ZSize;
@@ -1074,11 +1073,11 @@ public class List3DJagged<T> : IList3D<T>, ICollection3D, IReadOnlyList3D<T> {
                 Expand(newSize.X, newSize.Y, newSize.Z);
 
             var startX = Math.Clamp(offset.X, 0, XSize);
-            var endX   = Math.Min(XSize, offset.X + matrix.XSize);
+            var endX = Math.Min(XSize, offset.X + matrix.XSize);
             var startY = Math.Clamp(offset.Y, 0, YSize);
-            var endY   = Math.Min(YSize, offset.Y + matrix.YSize);
+            var endY = Math.Min(YSize, offset.Y + matrix.YSize);
             var startZ = Math.Clamp(offset.Z, 0, ZSize);
-            var endZ   = Math.Min(ZSize, offset.Z + matrix.ZSize);
+            var endZ = Math.Min(ZSize, offset.Z + matrix.ZSize);
 
             for (var x = startX; x < endX; x++) {
                 var dstRowX = Items[x];
@@ -1250,7 +1249,7 @@ public class List3DJagged<T> : IList3D<T>, ICollection3D, IReadOnlyList3D<T> {
 
         public SliceX(List3DJagged<T> parent, int x) {
             _parent = parent;
-            _x      = x;
+            _x = x;
         }
 
         public IEnumerator<IEnumerable<T>> GetEnumerator() {
@@ -1277,7 +1276,7 @@ public class List3DJagged<T> : IList3D<T>, ICollection3D, IReadOnlyList3D<T> {
 
         public SliceY(List3DJagged<T> parent, int y) {
             _parent = parent;
-            _y      = y;
+            _y = y;
         }
 
         public IEnumerator<IEnumerable<T>> GetEnumerator() {
@@ -1304,7 +1303,7 @@ public class List3DJagged<T> : IList3D<T>, ICollection3D, IReadOnlyList3D<T> {
 
         public SliceZ(List3DJagged<T> parent, int z) {
             _parent = parent;
-            _z      = z;
+            _z = z;
         }
 
         public IEnumerator<IEnumerable<T>> GetEnumerator() {

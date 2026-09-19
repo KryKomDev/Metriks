@@ -257,10 +257,12 @@ public class List3DTests {
 
     [Fact]
     public void SpanMethods_ShouldWork() {
-        var list3D = new List3D<int>(new int[,,] {
-            { { 1, 2 }, { 3, 4 } },
-            { { 5, 6 }, { 7, 8 } }
-        });
+        var list3D = new List3D<int>(
+            new int[,,] {
+                { { 1, 2 }, { 3, 4 } },
+                { { 5, 6 }, { 7, 8 } }
+            }
+        );
 
         // 1. GetSpanAtXY
         var zSpan = list3D.GetSpanAtXY(0, 1);

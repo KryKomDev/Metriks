@@ -6,12 +6,23 @@ name: Test Metriks
 on:
   push:
     branches:
-      - '**'
-    tags-ignore:
-      - 'v*'
+      - master
+      - main
     paths:
       - 'Src/**'
       - 'Tests/**'
+      - 'Directory.Build.props'
+      - 'Metriks.slnx'
+      - '.github/workflows/test.yml'
+  pull_request:
+    branches:
+      - master
+      - main
+    paths:
+      - 'Src/**'
+      - 'Tests/**'
+      - 'Directory.Build.props'
+      - 'Metriks.slnx'
       - '.github/workflows/test.yml'
   workflow_dispatch:
 
@@ -20,39 +31,33 @@ jobs:
     strategy:
       matrix:
         configuration: [Debug, Release]
-    
+
     runs-on: ubuntu-latest
     
     env:
-      SolutionName: ./Metriks.sln
+      SolutionName: ./Metriks.slnx
       ProjectPath: ./Src/Metriks/Metriks.csproj
       TestProjectPath: ./Tests/Metriks.Tests.csproj
-            
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
-            fetch-depth: 0
-      
+          fetch-depth: 0
+
       - name: Install .NET Core
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
-            dotnet-version: 10.0.x
-            
+          dotnet-version: 10.0.x
+
       - name: Restore dependencies
-        run: dotnet restore ${{ env.ProjectPath }}
+        run: dotnet restore ${{ env.SolutionName }} --ignore-failed-sources
 
       - name: Build project
         run: dotnet build ${{ env.ProjectPath }} --configuration ${{ matrix.configuration }} --no-restore
-      
-      - name: Restore Test dependencies
-        run: dotnet restore ${{ env.TestProjectPath }}
-      
-      - name: Build Test project
+
+      - name: Build test project
         run: dotnet build ${{ env.TestProjectPath }} --configuration ${{ matrix.configuration }} --no-restore
-      
+
       - name: Execute unit tests
         run: dotnet test ${{ env.TestProjectPath }} --configuration ${{ matrix.configuration }} --no-build
-      
-      - name: Restore the application
-        run: dotnet restore ${{ env.TestProjectPath }}

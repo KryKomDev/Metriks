@@ -43,10 +43,10 @@ public class Struct3DTests {
     }
 
     [Fact]
-    public void Area3D_Constructor_ShouldNormalizePoints() {
+    public void Rect3D_Constructor_ShouldNormalizePoints() {
         var p1   = new Point3D(10, 10, 10);
         var p2   = new Point3D(0,  20, 5);
-        var area = new Area3D(p1, p2);
+        var area = new Rect3D(p1, p2);
 
         Assert.Equal(0,  area.Lower.X);
         Assert.Equal(10, area.Higher.X);
@@ -57,16 +57,16 @@ public class Struct3DTests {
     }
 
     [Fact]
-    public void Area3D_Size_ShouldBeCorrect() {
-        var area = new Area3D(new Point3D(0, 0, 0), new Size3D(10, 20, 30));
+    public void Rect3D_Size_ShouldBeCorrect() {
+        var area = new Rect3D(new Point3D(0, 0, 0), new Size3D(10, 20, 30));
         Assert.Equal(10, area.Size.X);
         Assert.Equal(20, area.Size.Y);
         Assert.Equal(30, area.Size.Z);
     }
 
     [Fact]
-    public void Area3D_Operations_ShouldWork() {
-        var area  = new Area3D(new Point3D(0, 0, 0), new Point3D(10, 10, 10));
+    public void Rect3D_Operations_ShouldWork() {
+        var area  = new Rect3D(new Point3D(0, 0, 0), new Point3D(10, 10, 10));
         var size  = new Size3D(5, 5, 5);
         var point = new Point3D(2, 2, 2);
 
@@ -88,8 +88,8 @@ public class Struct3DTests {
     }
 
     [Fact]
-    public void Area3D_Deconstruct_ShouldWork() {
-        var area = new Area3D(new Point3D(1, 2, 3), new Point3D(4, 5, 6));
+    public void Rect3D_Deconstruct_ShouldWork() {
+        var area = new Rect3D(new Point3D(1, 2, 3), new Point3D(4, 5, 6));
 
         {
             area.Deconstruct(out var p1, out Point3D p2);
@@ -105,15 +105,15 @@ public class Struct3DTests {
     }
 
     [Fact]
-    public void Area3D_ToString_ShouldReturnExpectedFormat() {
-        var area = new Area3D(new Point3D(0, 0, 0), new Point3D(10, 20, 30));
+    public void Rect3D_ToString_ShouldReturnExpectedFormat() {
+        var area = new Rect3D(new Point3D(0, 0, 0), new Point3D(10, 20, 30));
         Assert.Equal("[(0, 0, 0):(10, 20, 30) | 10x20x30]", area.ToString(null, CultureInfo.InvariantCulture));
         Assert.Equal("[[0; 0; 0]:[10; 20; 30] | 10x20x30]", area.ToString(null, CultureInfo.GetCultureInfo("cs-CZ")));
     }
 
     [Fact]
-    public void Area3D_CoordinateProperties_ShouldWork() {
-        var area = new Area3D(new Point3D(1, 2, 3), new Point3D(4, 6, 8));
+    public void Rect3D_CoordinateProperties_ShouldWork() {
+        var area = new Rect3D(new Point3D(1, 2, 3), new Point3D(4, 6, 8));
         Assert.Equal(1, area.LowerX);
         Assert.Equal(2, area.LowerY);
         Assert.Equal(3, area.LowerZ);
@@ -131,8 +131,8 @@ public class Struct3DTests {
     }
 
     [Fact]
-    public void Area3D_ComponentWiseConstructor_ShouldNormalizeCoordinates() {
-        var area = new Area3D(10, 20, 30, 0, 5, 15);
+    public void Rect3D_ComponentWiseConstructor_ShouldNormalizeCoordinates() {
+        var area = new Rect3D(10, 20, 30, 0, 5, 15);
         Assert.Equal(0,  area.LowerX);
         Assert.Equal(10, area.HigherX);
         Assert.Equal(5,  area.LowerY);
@@ -142,8 +142,8 @@ public class Struct3DTests {
     }
 
     [Fact]
-    public void Area3D_RangeProperties_ShouldBeCorrect() {
-        var area = new Area3D(new Point3D(1, 2, 3), new Point3D(10, 20, 30));
+    public void Rect3D_RangeProperties_ShouldBeCorrect() {
+        var area = new Rect3D(new Point3D(1, 2, 3), new Point3D(10, 20, 30));
         Assert.Equal(new Range(1, 10), area.RangeX);
         Assert.Equal(new Range(2, 20), area.RangeY);
         Assert.Equal(new Range(3, 30), area.RangeZ);

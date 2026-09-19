@@ -1,6 +1,8 @@
 // Metriks
 // Copyright (c) KryKom 2026
 
+using System.Runtime.CompilerServices;
+
 namespace Metriks;
 
 /// <summary>
@@ -46,7 +48,45 @@ public readonly record struct Size2D {
     public override string ToString() => $"{X}x{Y}";
 
     public Point2D ToPoint() => new(X, Y);
+    
+    /// <summary>
+    ///     Determines whether the specified 2D point is contained within the current 2D area.
+    /// </summary>
+    /// <param name="point">The 2D point to check for containment within the area.</param>
+    /// <returns>True if the point is contained within the area; otherwise, false.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool ContainsIn(Point2D point) => ContainsIn(point.X, point.Y);
 
+    /// <summary>
+    ///     Determines whether the specified 2D point is contained within the current 2D area.
+    /// </summary>
+    /// <param name="x">The X-coordinate of the 2D point to check.</param>
+    /// <param name="y">The Y-coordinate of the 2D point to check.</param>
+    /// <returns>True if the 2D point is contained within the area; otherwise, false.</returns>
+    public bool ContainsIn(int x, int y) =>
+        x >= 0 && x <= X &&
+        y >= 0 && y <= Y;
+
+    /// <summary>
+    ///     Determines whether the specified 2D point is strictly within the bounds of the current 2D area,
+    ///     excluding the border positions.
+    /// </summary>
+    /// <param name="point">The 2D point to check for containment within the extended area.</param>
+    /// <returns>True if the point is contained within the extended area; otherwise, false.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool ContainsEx(Point2D point) => ContainsEx(point.X, point.Y);
+
+    /// <summary>
+    ///     Determines whether the specified 2D coordinates are strictly within the bounds of the current 2D area,
+    ///     excluding the border positions.
+    /// </summary>
+    /// <param name="x">The X-coordinate of the point to check.</param>
+    /// <param name="y">The Y-coordinate of the point to check.</param>
+    /// <returns>True if the coordinates are strictly within the bounds of the area; otherwise, false.</returns>
+    public bool ContainsEx(int x, int y) =>
+        x > 0 && x < X &&
+        y > 0 && y < Y;
+    
     public static Size2D operator +(Size2D p) => p;
     public static Size2D operator -(Size2D p) => new(-p.X, -p.Y);
 

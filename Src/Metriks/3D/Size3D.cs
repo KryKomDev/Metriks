@@ -1,6 +1,8 @@
 // Metriks
 // Copyright (c) KryKom & ZlomenyMesic 2026
 
+using System.Runtime.CompilerServices;
+
 namespace Metriks;
 
 /// <summary>
@@ -17,17 +19,17 @@ public readonly record struct Size3D {
     /// <summary>
     ///     Gets the horizontal component (width) of the size.
     /// </summary>
-    public int X { get; }
+    public int X { get; init; }
 
     /// <summary>
     ///     Gets the vertical component (height) of the size.
     /// </summary>
-    public int Y { get; }
+    public int Y { get; init; }
 
     /// <summary>
     ///     Gets the depth component of the size.
     /// </summary>
-    public int Z { get; }
+    public int Z { get; init; }
 
     /// <summary>
     ///     Gets a <see cref="Size3D" /> with X, Y, and Z values set to 0.
@@ -79,4 +81,47 @@ public readonly record struct Size3D {
     ///     from the two input sizes.
     /// </returns>
     public static Size3D Min(Size3D a, Size3D b) => new(Math.Min(a.X, b.X), Math.Min(a.Y, b.Y), Math.Min(a.Z, b.Z));
+    
+    /// <summary>
+    ///     Determines whether the specified 3D point is contained within the current 3D area.
+    /// </summary>
+    /// <param name="point">The 3D point to check for containment within the area.</param>
+    /// <returns>True if the point is contained within the area; otherwise, false.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool ContainsIn(Point3D point) => ContainsIn(point.X, point.Y, point.Z);
+
+    /// <summary>
+    ///     Determines whether the specified 3D point is contained within the current 3D area.
+    /// </summary>
+    /// <param name="x">The X-coordinate of the point to check.</param>
+    /// <param name="y">The Y-coordinate of the point to check.</param>
+    /// <param name="z">The Z-coordinate of the point to check.</param>
+    /// <returns>True if the 3D point is contained within the area; otherwise, false.</returns>
+    public bool ContainsIn(int x, int y, int z) =>
+        x >= 0 && x <= X &&
+        y >= 0 && y <= Y &&
+        z >= 0 && z <= Z;
+
+    /// <summary>
+    ///     Determines whether the specified 3D point is strictly within the bounds of the current 3D area,
+    ///     excluding the border positions.
+    /// </summary>
+    /// <param name="point">The 3D point to check for containment within the extended area.</param>
+    /// <returns>True if the point is contained within the extended area; otherwise, false.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool ContainsEx(Point3D point) => ContainsEx(point.X, point.Y, point.Z);
+
+    /// <summary>
+    ///     Determines whether the specified 3D coordinates are strictly within the bounds of the
+    ///     current 3D area, excluding the border positions.
+    /// </summary>
+    /// <param name="x">The X-coordinate of the point to check.</param>
+    /// <param name="y">The Y-coordinate of the point to check.</param>
+    /// <param name="z">The Z-coordinate of the point to check.</param>
+    /// <returns>True if the coordinates are strictly within the bounds of the area; otherwise, false.</returns>
+    public bool ContainsEx(int x, int y, int z) =>
+        x > 0 && x < X &&
+        y > 0 && y < Y &&
+        z > 0 && z < Z;
+
 }

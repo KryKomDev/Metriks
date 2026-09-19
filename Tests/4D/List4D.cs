@@ -231,12 +231,14 @@ public class List4DTests {
 
     [Fact]
     public void SpanMethods_ShouldWork() {
-        var list4D = new List4D<int>(new int[,,,] {
-            {
-                { { 1, 2 }, { 3, 4 } },
-                { { 5, 6 }, { 7, 8 } }
+        var list4D = new List4D<int>(
+            new int[,,,] {
+                {
+                    { { 1, 2 }, { 3, 4 } },
+                    { { 5, 6 }, { 7, 8 } }
+                }
             }
-        });
+        );
 
         // 1. GetSpanAtWXY
         var zSpan = list4D.GetSpanAtWXY(0, 0, 1);

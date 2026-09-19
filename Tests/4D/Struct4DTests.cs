@@ -45,25 +45,25 @@ public class Struct4DTests {
     }
 
     [Fact]
-    public void Area4D_Constructors_ShouldInitializeCorrectly() {
+    public void Rect4D_Constructors_ShouldInitializeCorrectly() {
         var p1    = new Point4D(0,  0,  0,  0);
         var p2    = new Point4D(10, 10, 10, 10);
-        var area1 = new Area4D(p1, p2);
+        var area1 = new Rect4D(p1, p2);
         Assert.Equal(p1,                         area1.Lower);
         Assert.Equal(p2,                         area1.Higher);
         Assert.Equal(new Size4D(10, 10, 10, 10), area1.Size);
 
-        var area2 = new Area4D(p2, p1);
+        var area2 = new Rect4D(p2, p1);
         Assert.Equal(p1, area2.Lower);
         Assert.Equal(p2, area2.Higher);
 
         var size  = new Size4D(5, 5, 5, 5);
-        var area3 = new Area4D(p1, size);
+        var area3 = new Rect4D(p1, size);
         Assert.Equal(p1,                      area3.Lower);
         Assert.Equal(new Point4D(5, 5, 5, 5), area3.Higher);
         Assert.Equal(size,                    area3.Size);
 
-        var area4 = new Area4D(10, 20, 30, 40, 0, 5, 15, 25);
+        var area4 = new Rect4D(10, 20, 30, 40, 0, 5, 15, 25);
         Assert.Equal(0,  area4.LowerW);
         Assert.Equal(10, area4.HigherW);
         Assert.Equal(5,  area4.LowerX);
@@ -75,8 +75,8 @@ public class Struct4DTests {
     }
 
     [Fact]
-    public void Area4D_CoordinateProperties_ShouldWork() {
-        var area = new Area4D(new Point4D(1, 2, 3, 4), new Point4D(5, 6, 7, 8));
+    public void Rect4D_CoordinateProperties_ShouldWork() {
+        var area = new Rect4D(new Point4D(1, 2, 3, 4), new Point4D(5, 6, 7, 8));
         Assert.Equal(1, area.LowerW);
         Assert.Equal(2, area.LowerX);
         Assert.Equal(3, area.LowerY);
@@ -96,8 +96,8 @@ public class Struct4DTests {
     }
 
     [Fact]
-    public void Area4D_RangeProperties_ShouldBeCorrect() {
-        var area = new Area4D(new Point4D(1, 2, 3, 4), new Point4D(10, 20, 30, 40));
+    public void Rect4D_RangeProperties_ShouldBeCorrect() {
+        var area = new Rect4D(new Point4D(1, 2, 3, 4), new Point4D(10, 20, 30, 40));
         Assert.Equal(new Range(1, 10), area.RangeW);
         Assert.Equal(new Range(2, 20), area.RangeX);
         Assert.Equal(new Range(3, 30), area.RangeY);
@@ -105,8 +105,8 @@ public class Struct4DTests {
     }
 
     [Fact]
-    public void Area4D_Operations_ShouldWork() {
-        var area  = new Area4D(new Point4D(0, 0, 0, 0), new Point4D(10, 10, 10, 10));
+    public void Rect4D_Operations_ShouldWork() {
+        var area  = new Rect4D(new Point4D(0, 0, 0, 0), new Point4D(10, 10, 10, 10));
         var size  = new Size4D(5, 5, 5, 5);
         var point = new Point4D(2, 2, 2, 2);
 
@@ -128,8 +128,8 @@ public class Struct4DTests {
     }
 
     [Fact]
-    public void Area4D_Deconstruct_ShouldWork() {
-        var area = new Area4D(new Point4D(1, 2, 3, 4), new Point4D(5, 6, 7, 8));
+    public void Rect4D_Deconstruct_ShouldWork() {
+        var area = new Rect4D(new Point4D(1, 2, 3, 4), new Point4D(5, 6, 7, 8));
 
         {
             area.Deconstruct(out var p1, out Point4D p2);
@@ -145,8 +145,8 @@ public class Struct4DTests {
     }
 
     [Fact]
-    public void Area4D_ToString_ShouldReturnExpectedFormat() {
-        var area = new Area4D(new Point4D(0, 0, 0, 0), new Point4D(10, 20, 30, 40));
+    public void Rect4D_ToString_ShouldReturnExpectedFormat() {
+        var area = new Rect4D(new Point4D(0, 0, 0, 0), new Point4D(10, 20, 30, 40));
         Assert.Equal("[(0, 0, 0, 0):(10, 20, 30, 40) | 10x20x30x40]", area.ToString(null, CultureInfo.InvariantCulture));
         Assert.Equal("[[0; 0; 0; 0]:[10; 20; 30; 40] | 10x20x30x40]", area.ToString(null, CultureInfo.GetCultureInfo("cs-CZ")));
     }

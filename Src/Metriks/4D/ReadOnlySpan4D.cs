@@ -239,7 +239,7 @@ public readonly ref struct ReadOnlySpan4D<T> {
     /// <summary>
     ///     Slices the four-dimensional read-only span.
     /// </summary>
-    public ReadOnlySpan4D<T> Slice(Area4D area) => Slice(area.Lower, area.Size + Size4D.One);
+    public ReadOnlySpan4D<T> Slice(Rect4D area) => Slice(area.Lower, area.Size + Size4D.One);
 
     /// <summary>
     ///     Gets a 3D read-only span representing the cube at the specified W index.

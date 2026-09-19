@@ -204,7 +204,7 @@ public readonly ref struct ReadOnlySpan3D<T> {
     /// <summary>
     ///     Slices the three-dimensional read-only span.
     /// </summary>
-    public ReadOnlySpan3D<T> Slice(Area3D area) => Slice(area.Lower, area.Size + Size3D.One);
+    public ReadOnlySpan3D<T> Slice(Rect3D area) => Slice(area.Lower, area.Size + Size3D.One);
 
     /// <summary>
     ///     Gets a 2D read-only span representing the plane at the specified X index.

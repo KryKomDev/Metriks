@@ -83,31 +83,31 @@ public class Array3DTests {
     }
 
     [Fact]
-    public void Fill_AreaOverload_FillsCorrectElements() {
+    public void Fill_RectOverload_FillsCorrectElements() {
         // Arrange
         var array = new int[3, 3, 3];
-        var area  = new Area3D(new Point3D(1, 1, 1), new Size3D(1, 1, 1));
+        var area  = new Rect3D(new Point3D(1, 1, 1), new Size3D(1, 1, 1));
 
         // Act
         Array3D.Fill(array, 42, area);
 
         // Assert
-        // Area3D(lower, size) => lower to lower + size
+        // Rect3D(lower, size) => lower to lower + size
         // Array2D.Fill(array, item, area) calls Fill(array, item, area.Lower, area.Size + Size2D.One)
-        // Wait, let me check Area2D.Fill implementation in Array2D.cs again.
+        // Wait, let me check Rect2D.Fill implementation in Array2D.cs again.
         // [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        // public static void Fill<T>(T[,] array, T item, Area2D area) =>
+        // public static void Fill<T>(T[,] array, T item, Rect2D area) =>
         //     Fill(array, item, area.Lower, area.Size + Size2D.One);
-        // If Area3D(lower, size) has Lower=(1,1,1) and Size=(1,1,1), then area.Size + One is (2,2,2).
+        // If Rect3D(lower, size) has Lower=(1,1,1) and Size=(1,1,1), then area.Size + One is (2,2,2).
         // So it fills 2x2x2 region from (1,1,1) to (2,2,2) inclusive?
-        // Let's check Area3D definition.
-        // Area3D(Point3D lower, Size3D s) { (_lx, _ly, _lz) = lower; _hx = lower.X + s.X; ... }
+        // Let's check Rect3D definition.
+        // Rect3D(Point3D lower, Size3D s) { (_lx, _ly, _lz) = lower; _hx = lower.X + s.X; ... }
         // Size => Math.Abs(_lx - _hx) => s.X.
-        // So Area3D.Size IS the size passed in constructor.
+        // So Rect3D.Size IS the size passed in constructor.
         // If Array2D.Fill(array, item, area) uses area.Size + One, it means it includes the 'Higher' point.
         // My implementation in Array3D.cs:
-        // public static void Fill<T>(T[,,] array, T item, Area3D area) => Fill(array, item, area.Lower, area.Size + Size3D.One);
-        // So for Area3D((1,1,1), (1,1,1)), size to fill is (2,2,2).
+        // public static void Fill<T>(T[,,] array, T item, Rect3D area) => Fill(array, item, area.Lower, area.Size + Size3D.One);
+        // So for Rect3D((1,1,1), (1,1,1)), size to fill is (2,2,2).
         // Elements filled: (1,1,1), (1,1,2), (1,2,1), (1,2,2), (2,1,1), (2,1,2), (2,2,1), (2,2,2).
 
         Assert.Equal(42, array[1, 1, 1]);
