@@ -12,6 +12,17 @@ public class Space2D<T> : List2D<T>, IEnumerable2D {
     public Space2D(int  capacity) : base(capacity) { }
     public Space2D(T[,] arr) : base(arr) { }
     public Space2D() { }
+    public Space2D(List2D<T> other) : base(other) { }
+    public Space2D(IReadOnlyList2D<T> other) : base(other) { }
+    public Space2D(Space2D<T> other) : base(other) {
+        ArgumentNullException.ThrowIfNull(other);
+        XOriginOffset = other.XOriginOffset;
+        YOriginOffset = other.YOriginOffset;
+    }
+
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public new Space2D<T> Clone() => new(this);
 
     public int XStart => -XOriginOffset;
     public int YStart => -YOriginOffset;

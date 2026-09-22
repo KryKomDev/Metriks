@@ -10,6 +10,18 @@ public class Space3D<T> : List3D<T> {
     public Space3D(int   xCapacity, int yCapacity, int zCapacity) : base(xCapacity, yCapacity, zCapacity) { }
     public Space3D(T[,,] arr) : base(arr) { }
     public Space3D() { }
+    public Space3D(List3D<T> other) : base(other) { }
+    public Space3D(IReadOnlyList3D<T> other) : base(other) { }
+    public Space3D(Space3D<T> other) : base(other) {
+        ArgumentNullException.ThrowIfNull(other);
+        XOriginOffset = other.XOriginOffset;
+        YOriginOffset = other.YOriginOffset;
+        ZOriginOffset = other.ZOriginOffset;
+    }
+
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public new Space3D<T> Clone() => new(this);
 
     public int XStart => -XOriginOffset;
     public int YStart => -YOriginOffset;

@@ -76,6 +76,99 @@ public class List4D<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
     }
 
     /// <summary>
+    ///     Initializes a new instance of the <see cref="List4D{T}" /> class that contains elements copied
+    ///     from the specified <see cref="List4D{T}" />.
+    /// </summary>
+    /// <param name="other">The <see cref="List4D{T}" /> whose elements are copied to the new list.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="other" /> is null.</exception>
+    public List4D(List4D<T> other) {
+        ArgumentNullException.ThrowIfNull(other);
+
+        WSize     = other.WSize;
+        XSize     = other.XSize;
+        YSize     = other.YSize;
+        ZSize     = other.ZSize;
+        WCapacity = other.WCapacity;
+        XCapacity = other.XCapacity;
+        YCapacity = other.YCapacity;
+        ZCapacity = other.ZCapacity;
+
+        var totalCapacity = WCapacity * XCapacity * YCapacity * ZCapacity;
+        if (totalCapacity == 0 || other._items.Length == 0) {
+            _items = Array.Empty<T>();
+            return;
+        }
+
+        _items = new T[totalCapacity];
+        other._items.CopyTo(_items, 0);
+    }
+
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="List4D{T}" /> class that contains elements copied
+    ///     from the specified four-dimensional list.
+    /// </summary>
+    /// <param name="other">The four-dimensional list whose elements are copied to the new list.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="other" /> is null.</exception>
+    public List4D(IReadOnlyList4D<T> other) {
+        ArgumentNullException.ThrowIfNull(other);
+
+        if (other is List4D<T> otherList) {
+            WSize     = otherList.WSize;
+            XSize     = otherList.XSize;
+            YSize     = otherList.YSize;
+            ZSize     = otherList.ZSize;
+            WCapacity = otherList.WCapacity;
+            XCapacity = otherList.XCapacity;
+            YCapacity = otherList.YCapacity;
+            ZCapacity = otherList.ZCapacity;
+
+            var totalCapacity = WCapacity * XCapacity * YCapacity * ZCapacity;
+            if (totalCapacity == 0 || otherList._items.Length == 0) {
+                _items = Array.Empty<T>();
+                return;
+            }
+
+            _items = new T[totalCapacity];
+            otherList._items.CopyTo(_items, 0);
+            return;
+        }
+
+        WSize     = other.WCount;
+        XSize     = other.XCount;
+        YSize     = other.YCount;
+        ZSize     = other.ZCount;
+        WCapacity = Math.Max(WSize, INITIAL_CAPACITY);
+        XCapacity = Math.Max(XSize, INITIAL_CAPACITY);
+        YCapacity = Math.Max(YSize, INITIAL_CAPACITY);
+        ZCapacity = Math.Max(ZSize, INITIAL_CAPACITY);
+
+        var count = WCapacity * XCapacity * YCapacity * ZCapacity;
+        if (count == 0) {
+            _items = Array.Empty<T>();
+            return;
+        }
+
+        _items = new T[count];
+        for (var w = 0; w < WSize; w++) {
+            for (var x = 0; x < XSize; x++) {
+                for (var y = 0; y < YSize; y++) {
+                    for (var z = 0; z < ZSize; z++) {
+                        _items[GetOffset(w, x, y, z)] = other[w, x, y, z];
+                    }
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Creates a shallow copy of the current <see cref="List4D{T}" />.
+    /// </summary>
+    /// <returns>A new <see cref="List4D{T}" /> containing a copy of the elements.</returns>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public List4D<T> Clone() => new(this);
+
+    /// <summary>
     ///     Gets the underlying flat array used to store the elements of the <see cref="List4D{T}" /> instance.
     ///     PROVIDED FOR INTERNAL USE ONLY. DO NOT USE. <b>!!!DO NOT MODIFY THE ARRAY IN ANY WAY!!!</b>
     /// </summary>
@@ -504,6 +597,287 @@ public class List4D<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
             var srcSpan = _items.AsSpan(w * wStride + x * sliceStride + y * ZCapacity, ZSize);
             var dstSpan = MemoryMarshal.CreateSpan(ref array[w + index.W, x + index.X, y + index.Y, index.Z], ZSize);
             srcSpan.CopyTo(dstSpan);
+        }
+    }
+
+    /// <summary>Copies elements to the specified multidimensional array starting at (0, 0, 0, 0).</summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void CopyTo(T[,,,] array) => CopyTo(array, Point4D.Zero);
+
+    /// <summary>
+    ///     Copies the elements of the <see cref="List4D{T}" /> to the specified destination <see cref="List4D{T}" />.
+    ///     If the destination list is empty, it is resized to match this list; otherwise, elements are copied starting at (0, 0, 0, 0).
+    /// </summary>
+    /// <param name="destination">The destination list.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="destination" /> is null.</exception>
+    public void CopyTo(List4D<T> destination) {
+        ArgumentNullException.ThrowIfNull(destination);
+
+        if (destination.WSize == 0 && destination.XSize == 0 && destination.YSize == 0 && destination.ZSize == 0)
+            destination.CopyFrom(this);
+        else
+            destination.CopyFrom(this, Point4D.Zero);
+    }
+
+    /// <summary>
+    ///     Copies all elements of the <see cref="List4D{T}" /> to the specified destination <see cref="List4D{T}" />
+    ///     starting at the given destination coordinates.
+    /// </summary>
+    /// <param name="destination">The destination list.</param>
+    /// <param name="destinationIndex">The coordinates in the destination list at which copying begins.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="destination" /> is null.</exception>
+    public void CopyTo(List4D<T> destination, Point4D destinationIndex) {
+        ArgumentNullException.ThrowIfNull(destination);
+
+        destination.CopyFrom(this, destinationIndex);
+    }
+
+    /// <summary>
+    ///     Copies a rectangular region of elements from this list to the specified destination <see cref="List4D{T}" />.
+    /// </summary>
+    /// <param name="destination">The destination list.</param>
+    /// <param name="sourceOffset">The starting coordinate in this list.</param>
+    /// <param name="destinationOffset">The starting coordinate in the destination list.</param>
+    /// <param name="size">The size of the region to copy.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="destination" /> is null.</exception>
+    public void CopyTo(List4D<T> destination, Point4D sourceOffset, Point4D destinationOffset, Size4D size) {
+        ArgumentNullException.ThrowIfNull(destination);
+
+        destination.CopyFrom(this, sourceOffset, destinationOffset, size);
+    }
+
+    /// <summary>
+    ///     Copies all elements from the specified <see cref="List4D{T}" /> into this list,
+    ///     resizing this list to match the dimensions of the source list.
+    /// </summary>
+    /// <param name="source">The source list to copy from.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="source" /> is null.</exception>
+    public void CopyFrom(List4D<T> source) {
+        ArgumentNullException.ThrowIfNull(source);
+
+        if (ReferenceEquals(this, source))
+            return;
+
+        EnsureWCapacity(source.WSize);
+        EnsureXCapacity(source.XSize);
+        EnsureYCapacity(source.YSize);
+        EnsureZCapacity(source.ZSize);
+
+        WSize = source.WSize;
+        XSize = source.XSize;
+        YSize = source.YSize;
+        ZSize = source.ZSize;
+
+        if (WSize == 0 || XSize == 0 || YSize == 0 || ZSize == 0)
+            return;
+
+        if (XCapacity == source.XCapacity && YCapacity == source.YCapacity && ZCapacity == source.ZCapacity) {
+            source._items.AsSpan(0, WSize * XCapacity * YCapacity * ZCapacity).CopyTo(_items);
+        }
+        else {
+            for (var w = 0; w < WSize; w++) {
+                for (var x = 0; x < XSize; x++) {
+                    for (var y = 0; y < YSize; y++) {
+                        source._items.AsSpan(source.GetOffset(w, x, y, 0), ZSize)
+                            .CopyTo(_items.AsSpan(GetOffset(w, x, y, 0), ZSize));
+                    }
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Copies all elements from the specified four-dimensional list into this list,
+    ///     resizing this list to match the dimensions of the source list.
+    /// </summary>
+    /// <param name="source">The source list to copy from.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="source" /> is null.</exception>
+    public void CopyFrom(IReadOnlyList4D<T> source) {
+        ArgumentNullException.ThrowIfNull(source);
+
+        if (source is List4D<T> list4D) {
+            CopyFrom(list4D);
+            return;
+        }
+
+        EnsureWCapacity(source.WCount);
+        EnsureXCapacity(source.XCount);
+        EnsureYCapacity(source.YCount);
+        EnsureZCapacity(source.ZCount);
+
+        WSize = source.WCount;
+        XSize = source.XCount;
+        YSize = source.YCount;
+        ZSize = source.ZCount;
+
+        for (var w = 0; w < WSize; w++) {
+            for (var x = 0; x < XSize; x++) {
+                for (var y = 0; y < YSize; y++) {
+                    for (var z = 0; z < ZSize; z++) {
+                        _items[GetOffset(w, x, y, z)] = source[w, x, y, z];
+                    }
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Copies all elements from the specified <see cref="List4D{T}" /> into this list starting at
+    ///     the specified destination offset without modifying this list's dimensions.
+    /// </summary>
+    /// <param name="source">The source list to copy from.</param>
+    /// <param name="destinationOffset">The zero-based coordinate in this list at which copying begins.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="source" /> is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="destinationOffset" /> has negative coordinates.</exception>
+    /// <exception cref="ArgumentException">Thrown when this list is not large enough to hold the source elements at the specified offset.</exception>
+    public void CopyFrom(List4D<T> source, Point4D destinationOffset) {
+        ArgumentNullException.ThrowIfNull(source);
+
+        CopyFrom(source, Point4D.Zero, destinationOffset, source.Size);
+    }
+
+    /// <summary>
+    ///     Copies all elements from the specified four-dimensional list into this list starting at
+    ///     the specified destination offset without modifying this list's dimensions.
+    /// </summary>
+    /// <param name="source">The source list to copy from.</param>
+    /// <param name="destinationOffset">The zero-based coordinate in this list at which copying begins.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="source" /> is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="destinationOffset" /> has negative coordinates.</exception>
+    /// <exception cref="ArgumentException">Thrown when this list is not large enough to hold the source elements at the specified offset.</exception>
+    public void CopyFrom(IReadOnlyList4D<T> source, Point4D destinationOffset) {
+        ArgumentNullException.ThrowIfNull(source);
+
+        CopyFrom(source, Point4D.Zero, destinationOffset, new Size4D(source.WCount, source.XCount, source.YCount, source.ZCount));
+    }
+
+    /// <summary>
+    ///     Copies a rectangular region from the specified <see cref="List4D{T}" /> into this list.
+    /// </summary>
+    /// <param name="source">The source list to copy from.</param>
+    /// <param name="sourceOffset">The starting coordinate in the source list.</param>
+    /// <param name="destinationOffset">The starting coordinate in this list.</param>
+    /// <param name="size">The size of the rectangular region to copy.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="source" /> is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when coordinates or sizes are negative.</exception>
+    /// <exception cref="ArgumentException">Thrown when region exceeds source or destination bounds.</exception>
+    public void CopyFrom(List4D<T> source, Point4D sourceOffset, Point4D destinationOffset, Size4D size) {
+        ArgumentNullException.ThrowIfNull(source);
+
+        if (sourceOffset.W < 0 || sourceOffset.X < 0 || sourceOffset.Y < 0 || sourceOffset.Z < 0)
+            throw new ArgumentOutOfRangeException(nameof(sourceOffset), "Source offset must not be negative.");
+        if (size.W < 0 || size.X < 0 || size.Y < 0 || size.Z < 0)
+            throw new ArgumentOutOfRangeException(nameof(size), "Size must not be negative.");
+        if (sourceOffset.W + size.W > source.WSize || sourceOffset.X + size.X > source.XSize || sourceOffset.Y + size.Y > source.YSize || sourceOffset.Z + size.Z > source.ZSize)
+            throw new ArgumentException("Source region exceeds source list bounds.");
+
+        if (destinationOffset.W < 0 || destinationOffset.X < 0 || destinationOffset.Y < 0 || destinationOffset.Z < 0)
+            throw new ArgumentOutOfRangeException(nameof(destinationOffset), "Destination offset must not be negative.");
+        if (destinationOffset.W + size.W > WSize)
+            throw new ArgumentException("Destination list is not large enough in W dimension to accommodate the copied region.", nameof(destinationOffset));
+        if (destinationOffset.X + size.X > XSize)
+            throw new ArgumentException("Destination list is not large enough in X dimension to accommodate the copied region.", nameof(destinationOffset));
+        if (destinationOffset.Y + size.Y > YSize)
+            throw new ArgumentException("Destination list is not large enough in Y dimension to accommodate the copied region.", nameof(destinationOffset));
+        if (destinationOffset.Z + size.Z > ZSize)
+            throw new ArgumentException("Destination list is not large enough in Z dimension to accommodate the copied region.", nameof(destinationOffset));
+
+        if (size.W == 0 || size.X == 0 || size.Y == 0 || size.Z == 0)
+            return;
+
+        var isSame = ReferenceEquals(this, source);
+        var wReverse = isSame && destinationOffset.W > sourceOffset.W;
+        var xReverse = isSame && destinationOffset.W == sourceOffset.W && destinationOffset.X > sourceOffset.X;
+        var yReverse = isSame && destinationOffset.W == sourceOffset.W && destinationOffset.X == sourceOffset.X && destinationOffset.Y > sourceOffset.Y;
+
+        var wStart = wReverse ? size.W - 1 : 0;
+        var wEnd   = wReverse ? -1 : size.W;
+        var wStep  = wReverse ? -1 : 1;
+
+        var xStart = xReverse ? size.X - 1 : 0;
+        var xEnd   = xReverse ? -1 : size.X;
+        var xStep  = xReverse ? -1 : 1;
+
+        var yStart = yReverse ? size.Y - 1 : 0;
+        var yEnd   = yReverse ? -1 : size.Y;
+        var yStep  = yReverse ? -1 : 1;
+
+        for (var w = wStart; w != wEnd; w += wStep) {
+            for (var x = xStart; x != xEnd; x += xStep) {
+                for (var y = yStart; y != yEnd; y += yStep) {
+                    var srcSpan = source._items.AsSpan(source.GetOffset(sourceOffset.W + w, sourceOffset.X + x, sourceOffset.Y + y, sourceOffset.Z), size.Z);
+                    var dstSpan = _items.AsSpan(GetOffset(destinationOffset.W + w, destinationOffset.X + x, destinationOffset.Y + y, destinationOffset.Z), size.Z);
+                    srcSpan.CopyTo(dstSpan);
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Copies a rectangular region from the specified four-dimensional list into this list.
+    /// </summary>
+    /// <param name="source">The source list to copy from.</param>
+    /// <param name="sourceOffset">The starting coordinate in the source list.</param>
+    /// <param name="destinationOffset">The starting coordinate in this list.</param>
+    /// <param name="size">The size of the rectangular region to copy.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="source" /> is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when coordinates or sizes are negative.</exception>
+    /// <exception cref="ArgumentException">Thrown when region exceeds source or destination bounds.</exception>
+    public void CopyFrom(IReadOnlyList4D<T> source, Point4D sourceOffset, Point4D destinationOffset, Size4D size) {
+        ArgumentNullException.ThrowIfNull(source);
+
+        if (source is List4D<T> list4D) {
+            CopyFrom(list4D, sourceOffset, destinationOffset, size);
+            return;
+        }
+
+        if (sourceOffset.W < 0 || sourceOffset.X < 0 || sourceOffset.Y < 0 || sourceOffset.Z < 0)
+            throw new ArgumentOutOfRangeException(nameof(sourceOffset), "Source offset must not be negative.");
+        if (size.W < 0 || size.X < 0 || size.Y < 0 || size.Z < 0)
+            throw new ArgumentOutOfRangeException(nameof(size), "Size must not be negative.");
+        if (sourceOffset.W + size.W > source.WCount || sourceOffset.X + size.X > source.XCount || sourceOffset.Y + size.Y > source.YCount || sourceOffset.Z + size.Z > source.ZCount)
+            throw new ArgumentException("Source region exceeds source list bounds.");
+
+        if (destinationOffset.W < 0 || destinationOffset.X < 0 || destinationOffset.Y < 0 || destinationOffset.Z < 0)
+            throw new ArgumentOutOfRangeException(nameof(destinationOffset), "Destination offset must not be negative.");
+        if (destinationOffset.W + size.W > WSize)
+            throw new ArgumentException("Destination list is not large enough in W dimension to accommodate the copied region.", nameof(destinationOffset));
+        if (destinationOffset.X + size.X > XSize)
+            throw new ArgumentException("Destination list is not large enough in X dimension to accommodate the copied region.", nameof(destinationOffset));
+        if (destinationOffset.Y + size.Y > YSize)
+            throw new ArgumentException("Destination list is not large enough in Y dimension to accommodate the copied region.", nameof(destinationOffset));
+        if (destinationOffset.Z + size.Z > ZSize)
+            throw new ArgumentException("Destination list is not large enough in Z dimension to accommodate the copied region.", nameof(destinationOffset));
+
+        if (size.W == 0 || size.X == 0 || size.Y == 0 || size.Z == 0)
+            return;
+
+        var isSame = ReferenceEquals(this, source);
+        var wReverse = isSame && destinationOffset.W > sourceOffset.W;
+        var xReverse = isSame && destinationOffset.W == sourceOffset.W && destinationOffset.X > sourceOffset.X;
+        var yReverse = isSame && destinationOffset.W == sourceOffset.W && destinationOffset.X == sourceOffset.X && destinationOffset.Y > sourceOffset.Y;
+
+        var wStart = wReverse ? size.W - 1 : 0;
+        var wEnd   = wReverse ? -1 : size.W;
+        var wStep  = wReverse ? -1 : 1;
+
+        var xStart = xReverse ? size.X - 1 : 0;
+        var xEnd   = xReverse ? -1 : size.X;
+        var xStep  = xReverse ? -1 : 1;
+
+        var yStart = yReverse ? size.Y - 1 : 0;
+        var yEnd   = yReverse ? -1 : size.Y;
+        var yStep  = yReverse ? -1 : 1;
+
+        for (var w = wStart; w != wEnd; w += wStep) {
+            for (var x = xStart; x != xEnd; x += xStep) {
+                for (var y = yStart; y != yEnd; y += yStep) {
+                    for (var z = 0; z < size.Z; z++) {
+                        _items[GetOffset(destinationOffset.W + w, destinationOffset.X + x, destinationOffset.Y + y, destinationOffset.Z + z)] =
+                            source[sourceOffset.W + w, sourceOffset.X + x, sourceOffset.Y + y, sourceOffset.Z + z];
+                    }
+                }
+            }
         }
     }
 

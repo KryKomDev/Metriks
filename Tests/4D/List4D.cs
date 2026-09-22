@@ -277,4 +277,287 @@ public class List4DTests {
         Assert.Equal(5, sliceDest[2]);
         Assert.Equal(6, sliceDest[3]);
     }
+
+    [Fact]
+    public void Constructor_FromOtherList4D_ShouldCopyDataAndSizes() {
+        var original = new List4D<int>(2, 2, 2, 2);
+        original.Expand(2, 2, 2, 2);
+        int counter = 1;
+        for (int w = 0; w < 2; w++) {
+            for (int x = 0; x < 2; x++) {
+                for (int y = 0; y < 2; y++) {
+                    for (int z = 0; z < 2; z++) {
+                        original[w, x, y, z] = counter++;
+                    }
+                }
+            }
+        }
+
+        var copy = new List4D<int>(original);
+
+        Assert.Equal(2, copy.WSize);
+        Assert.Equal(2, copy.XSize);
+        Assert.Equal(2, copy.YSize);
+        Assert.Equal(2, copy.ZSize);
+        Assert.Equal(original.Size, copy.Size);
+
+        for (int w = 0; w < 2; w++) {
+            for (int x = 0; x < 2; x++) {
+                for (int y = 0; y < 2; y++) {
+                    for (int z = 0; z < 2; z++) {
+                        Assert.Equal(original[w, x, y, z], copy[w, x, y, z]);
+                    }
+                }
+            }
+        }
+
+        original[0, 0, 0, 0] = 999;
+        Assert.Equal(1, copy[0, 0, 0, 0]);
+    }
+
+    [Fact]
+    public void Constructor_FromOtherList4D_Null_ShouldThrow() {
+        Assert.Throws<ArgumentNullException>(() => new List4D<int>((List4D<int>)null!));
+    }
+
+    [Fact]
+    public void Constructor_FromReadOnlyList4D_ShouldCopyCorrectly() {
+        var orig = new List4D<int>(2, 2, 2, 2);
+        orig.Expand(2, 2, 2, 2);
+        orig[0, 0, 0, 0] = 10;
+        orig[1, 1, 1, 1] = 80;
+
+        IReadOnlyList4D<int> original = orig;
+        var copy = new List4D<int>(original);
+
+        Assert.Equal(2, copy.WSize);
+        Assert.Equal(2, copy.XSize);
+        Assert.Equal(2, copy.YSize);
+        Assert.Equal(2, copy.ZSize);
+        Assert.Equal(10, copy[0, 0, 0, 0]);
+        Assert.Equal(80, copy[1, 1, 1, 1]);
+    }
+
+    [Fact]
+    public void Constructor_FromReadOnlyList4D_Null_ShouldThrow() {
+        Assert.Throws<ArgumentNullException>(() => new List4D<int>((IReadOnlyList4D<int>)null!));
+    }
+
+    [Fact]
+    public void Clone_ShouldCreateIndependentCopy() {
+        var original = new List4D<int>(2, 2, 2, 2);
+        original.Expand(2, 2, 2, 2);
+        original[0, 0, 0, 0] = 7;
+        original[1, 1, 1, 1] = 42;
+
+        var clone = original.Clone();
+
+        Assert.Equal(original.Size, clone.Size);
+        Assert.Equal(7, clone[0, 0, 0, 0]);
+        Assert.Equal(42, clone[1, 1, 1, 1]);
+
+        clone[0, 0, 0, 0] = 123;
+        Assert.Equal(7, original[0, 0, 0, 0]);
+    }
+
+    [Fact]
+    public void CopyFrom_List4D_ShouldResizeAndCopyAllData() {
+        var source = new List4D<int>(2, 2, 2, 2);
+        source.Expand(2, 2, 2, 2);
+        source[0, 0, 0, 0] = 1;
+        source[1, 1, 1, 1] = 99;
+
+        var dest = new List4D<int>();
+        dest.CopyFrom(source);
+
+        Assert.Equal(source.WSize, dest.WSize);
+        Assert.Equal(source.XSize, dest.XSize);
+        Assert.Equal(source.YSize, dest.YSize);
+        Assert.Equal(source.ZSize, dest.ZSize);
+        Assert.Equal(1, dest[0, 0, 0, 0]);
+        Assert.Equal(99, dest[1, 1, 1, 1]);
+
+        source[0, 0, 0, 0] = 555;
+        Assert.Equal(1, dest[0, 0, 0, 0]);
+    }
+
+    [Fact]
+    public void CopyFrom_IReadOnlyList4D_ShouldCopyData() {
+        var src = new List4D<int>(2, 2, 2, 2);
+        src.Expand(2, 2, 2, 2);
+        src[0, 0, 0, 0] = 5;
+        src[1, 1, 1, 1] = 25;
+
+        IReadOnlyList4D<int> source = src;
+        var dest = new List4D<int>();
+
+        dest.CopyFrom(source);
+
+        Assert.Equal(2, dest.WSize);
+        Assert.Equal(2, dest.XSize);
+        Assert.Equal(2, dest.YSize);
+        Assert.Equal(2, dest.ZSize);
+        Assert.Equal(5, dest[0, 0, 0, 0]);
+        Assert.Equal(25, dest[1, 1, 1, 1]);
+    }
+
+    [Fact]
+    public void CopyFrom_WithOffset_ShouldPlaceElementsCorrectly() {
+        var dest = new List4D<int>(3, 3, 3, 3);
+        dest.Expand(3, 3, 3, 3);
+
+        var source = new List4D<int>(2, 2, 2, 2);
+        source.Expand(2, 2, 2, 2);
+        source[0, 0, 0, 0] = 1;
+        source[1, 1, 1, 1] = 8;
+
+        dest.CopyFrom(source, new Point4D(1, 1, 1, 1));
+
+        Assert.Equal(0, dest[0, 0, 0, 0]);
+        Assert.Equal(1, dest[1, 1, 1, 1]);
+        Assert.Equal(8, dest[2, 2, 2, 2]);
+    }
+
+    [Fact]
+    public void CopyFrom_SubRegion_ShouldCopyExactSlice() {
+        var source = new List4D<int>(3, 3, 3, 3);
+        source.Expand(3, 3, 3, 3);
+        int counter = 1;
+        for (int w = 0; w < 3; w++) {
+            for (int x = 0; x < 3; x++) {
+                for (int y = 0; y < 3; y++) {
+                    for (int z = 0; z < 3; z++) {
+                        source[w, x, y, z] = counter++;
+                    }
+                }
+            }
+        }
+
+        var dest = new List4D<int>(2, 2, 2, 2);
+        dest.Expand(2, 2, 2, 2);
+
+        dest.CopyFrom(source, new Point4D(1, 1, 1, 1), new Point4D(0, 0, 0, 0), new Size4D(2, 2, 2, 2));
+
+        for (int w = 0; w < 2; w++) {
+            for (int x = 0; x < 2; x++) {
+                for (int y = 0; y < 2; y++) {
+                    for (int z = 0; z < 2; z++) {
+                        Assert.Equal(source[w + 1, x + 1, y + 1, z + 1], dest[w, x, y, z]);
+                    }
+                }
+            }
+        }
+    }
+
+    [Fact]
+    public void CopyFrom_Self_OverlappingRegion_ShouldNotCorruptData() {
+        var list = new List4D<int>(4, 4, 4, 4);
+        list.Expand(4, 4, 4, 4);
+        int counter = 1;
+        for (int w = 0; w < 4; w++) {
+            for (int x = 0; x < 4; x++) {
+                for (int y = 0; y < 4; y++) {
+                    for (int z = 0; z < 4; z++) {
+                        list[w, x, y, z] = counter++;
+                    }
+                }
+            }
+        }
+
+        var expected = new int[2, 2, 2, 2];
+        for (int w = 0; w < 2; w++) {
+            for (int x = 0; x < 2; x++) {
+                for (int y = 0; y < 2; y++) {
+                    for (int z = 0; z < 2; z++) {
+                        expected[w, x, y, z] = list[w, x, y, z];
+                    }
+                }
+            }
+        }
+
+        // dest > src
+        list.CopyFrom(list, new Point4D(0, 0, 0, 0), new Point4D(1, 1, 1, 1), new Size4D(2, 2, 2, 2));
+
+        for (int w = 0; w < 2; w++) {
+            for (int x = 0; x < 2; x++) {
+                for (int y = 0; y < 2; y++) {
+                    for (int z = 0; z < 2; z++) {
+                        Assert.Equal(expected[w, x, y, z], list[w + 1, x + 1, y + 1, z + 1]);
+                    }
+                }
+            }
+        }
+
+        // dest < src
+        list.CopyFrom(list, new Point4D(1, 1, 1, 1), new Point4D(0, 0, 0, 0), new Size4D(2, 2, 2, 2));
+
+        for (int w = 0; w < 2; w++) {
+            for (int x = 0; x < 2; x++) {
+                for (int y = 0; y < 2; y++) {
+                    for (int z = 0; z < 2; z++) {
+                        Assert.Equal(expected[w, x, y, z], list[w, x, y, z]);
+                    }
+                }
+            }
+        }
+    }
+
+    [Fact]
+    public void CopyTo_List4D_EmptyDestination_ShouldPopulate() {
+        var source = new List4D<int>(2, 2, 2, 2);
+        source.Expand(2, 2, 2, 2);
+        source[0, 0, 0, 0] = 10;
+        source[1, 1, 1, 1] = 40;
+
+        var dest = new List4D<int>();
+        source.CopyTo(dest);
+
+        Assert.Equal(2, dest.WSize);
+        Assert.Equal(2, dest.XSize);
+        Assert.Equal(2, dest.YSize);
+        Assert.Equal(2, dest.ZSize);
+        Assert.Equal(10, dest[0, 0, 0, 0]);
+        Assert.Equal(40, dest[1, 1, 1, 1]);
+    }
+
+    [Fact]
+    public void CopyTo_List4D_ExistingDestination_ShouldCopy() {
+        var source = new List4D<int>(2, 2, 2, 2);
+        source.Expand(2, 2, 2, 2);
+        source[0, 0, 0, 0] = 1;
+        source[1, 1, 1, 1] = 2;
+
+        var dest = new List4D<int>(3, 3, 3, 3);
+        dest.Expand(3, 3, 3, 3);
+
+        source.CopyTo(dest, new Point4D(1, 1, 1, 1));
+
+        Assert.Equal(1, dest[1, 1, 1, 1]);
+        Assert.Equal(2, dest[2, 2, 2, 2]);
+    }
+
+    [Fact]
+    public void CopyTo_List4D_SubRegion_ShouldCopy() {
+        var source = new List4D<int>(3, 3, 3, 3);
+        source.Expand(3, 3, 3, 3);
+        source[1, 1, 1, 1] = 99;
+
+        var dest = new List4D<int>(2, 2, 2, 2);
+        dest.Expand(2, 2, 2, 2);
+
+        source.CopyTo(dest, new Point4D(1, 1, 1, 1), new Point4D(0, 0, 0, 0), new Size4D(1, 1, 1, 1));
+
+        Assert.Equal(99, dest[0, 0, 0, 0]);
+    }
+
+    [Fact]
+    public void CopyTo_List4D_TooSmall_ShouldThrow() {
+        var source = new List4D<int>(2, 2, 2, 2);
+        source.Expand(2, 2, 2, 2);
+
+        var dest = new List4D<int>(1, 1, 1, 1);
+        dest.Expand(1, 1, 1, 1);
+
+        Assert.Throws<ArgumentException>(() => source.CopyTo(dest));
+    }
 }

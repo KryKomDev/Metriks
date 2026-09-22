@@ -296,4 +296,267 @@ public class List3DTests {
         Assert.Equal(5, sliceDest[2]);
         Assert.Equal(6, sliceDest[3]);
     }
+
+    [Fact]
+    public void Constructor_FromOtherList3D_ShouldCopyDataAndSizes() {
+        var original = new List3D<int>(2, 3, 4);
+        original.Expand(2, 3, 4);
+        int counter = 1;
+        for (int x = 0; x < 2; x++) {
+            for (int y = 0; y < 3; y++) {
+                for (int z = 0; z < 4; z++) {
+                    original[x, y, z] = counter++;
+                }
+            }
+        }
+
+        var copy = new List3D<int>(original);
+
+        Assert.Equal(2, copy.XSize);
+        Assert.Equal(3, copy.YSize);
+        Assert.Equal(4, copy.ZSize);
+        Assert.Equal(original.Size, copy.Size);
+
+        for (int x = 0; x < 2; x++) {
+            for (int y = 0; y < 3; y++) {
+                for (int z = 0; z < 4; z++) {
+                    Assert.Equal(original[x, y, z], copy[x, y, z]);
+                }
+            }
+        }
+
+        original[0, 0, 0] = 999;
+        Assert.Equal(1, copy[0, 0, 0]);
+    }
+
+    [Fact]
+    public void Constructor_FromOtherList3D_Null_ShouldThrow() {
+        Assert.Throws<ArgumentNullException>(() => new List3D<int>((List3D<int>)null!));
+    }
+
+    [Fact]
+    public void Constructor_FromReadOnlyList3D_ShouldCopyCorrectly() {
+        var orig = new List3D<int>(2, 2, 2);
+        orig.Expand(2, 2, 2);
+        orig[0, 0, 0] = 10;
+        orig[1, 1, 1] = 80;
+
+        IReadOnlyList3D<int> original = orig;
+        var copy = new List3D<int>(original);
+
+        Assert.Equal(2, copy.XSize);
+        Assert.Equal(2, copy.YSize);
+        Assert.Equal(2, copy.ZSize);
+        Assert.Equal(10, copy[0, 0, 0]);
+        Assert.Equal(80, copy[1, 1, 1]);
+    }
+
+    [Fact]
+    public void Constructor_FromReadOnlyList3D_Null_ShouldThrow() {
+        Assert.Throws<ArgumentNullException>(() => new List3D<int>((IReadOnlyList3D<int>)null!));
+    }
+
+    [Fact]
+    public void Clone_ShouldCreateIndependentCopy() {
+        var original = new List3D<int>(2, 2, 2);
+        original.Expand(2, 2, 2);
+        original[0, 0, 0] = 7;
+        original[1, 1, 1] = 42;
+
+        var clone = original.Clone();
+
+        Assert.Equal(original.Size, clone.Size);
+        Assert.Equal(7, clone[0, 0, 0]);
+        Assert.Equal(42, clone[1, 1, 1]);
+
+        clone[0, 0, 0] = 123;
+        Assert.Equal(7, original[0, 0, 0]);
+    }
+
+    [Fact]
+    public void CopyFrom_List3D_ShouldResizeAndCopyAllData() {
+        var source = new List3D<int>(2, 3, 2);
+        source.Expand(2, 3, 2);
+        source[0, 0, 0] = 1;
+        source[1, 2, 1] = 99;
+
+        var dest = new List3D<int>();
+        dest.CopyFrom(source);
+
+        Assert.Equal(source.XSize, dest.XSize);
+        Assert.Equal(source.YSize, dest.YSize);
+        Assert.Equal(source.ZSize, dest.ZSize);
+        Assert.Equal(1, dest[0, 0, 0]);
+        Assert.Equal(99, dest[1, 2, 1]);
+
+        source[0, 0, 0] = 555;
+        Assert.Equal(1, dest[0, 0, 0]);
+    }
+
+    [Fact]
+    public void CopyFrom_IReadOnlyList3D_ShouldCopyData() {
+        var src = new List3D<int>(2, 2, 2);
+        src.Expand(2, 2, 2);
+        src[0, 0, 0] = 5;
+        src[1, 1, 1] = 25;
+
+        IReadOnlyList3D<int> source = src;
+        var dest = new List3D<int>();
+
+        dest.CopyFrom(source);
+
+        Assert.Equal(2, dest.XSize);
+        Assert.Equal(2, dest.YSize);
+        Assert.Equal(2, dest.ZSize);
+        Assert.Equal(5, dest[0, 0, 0]);
+        Assert.Equal(25, dest[1, 1, 1]);
+    }
+
+    [Fact]
+    public void CopyFrom_WithOffset_ShouldPlaceElementsCorrectly() {
+        var dest = new List3D<int>(4, 4, 4);
+        dest.Expand(4, 4, 4);
+
+        var source = new List3D<int>(2, 2, 2);
+        source.Expand(2, 2, 2);
+        source[0, 0, 0] = 1;
+        source[1, 1, 1] = 8;
+
+        dest.CopyFrom(source, new Point3D(1, 1, 1));
+
+        Assert.Equal(0, dest[0, 0, 0]);
+        Assert.Equal(1, dest[1, 1, 1]);
+        Assert.Equal(8, dest[2, 2, 2]);
+        Assert.Equal(0, dest[3, 3, 3]);
+    }
+
+    [Fact]
+    public void CopyFrom_SubRegion_ShouldCopyExactSlice() {
+        var source = new List3D<int>(3, 3, 3);
+        source.Expand(3, 3, 3);
+        int counter = 1;
+        for (int x = 0; x < 3; x++) {
+            for (int y = 0; y < 3; y++) {
+                for (int z = 0; z < 3; z++) {
+                    source[x, y, z] = counter++;
+                }
+            }
+        }
+
+        var dest = new List3D<int>(2, 2, 2);
+        dest.Expand(2, 2, 2);
+
+        dest.CopyFrom(source, new Point3D(1, 1, 1), new Point3D(0, 0, 0), new Size3D(2, 2, 2));
+
+        for (int x = 0; x < 2; x++) {
+            for (int y = 0; y < 2; y++) {
+                for (int z = 0; z < 2; z++) {
+                    Assert.Equal(source[x + 1, y + 1, z + 1], dest[x, y, z]);
+                }
+            }
+        }
+    }
+
+    [Fact]
+    public void CopyFrom_Self_OverlappingRegion_ShouldNotCorruptData() {
+        var list = new List3D<int>(4, 4, 4);
+        list.Expand(4, 4, 4);
+        int counter = 1;
+        for (int x = 0; x < 4; x++) {
+            for (int y = 0; y < 4; y++) {
+                for (int z = 0; z < 4; z++) {
+                    list[x, y, z] = counter++;
+                }
+            }
+        }
+
+        // Copy region (0,0,0)-(2,2,2) to (1,1,1) -> dest > src
+        var expected = new int[2, 2, 2];
+        for (int x = 0; x < 2; x++) {
+            for (int y = 0; y < 2; y++) {
+                for (int z = 0; z < 2; z++) {
+                    expected[x, y, z] = list[x, y, z];
+                }
+            }
+        }
+
+        list.CopyFrom(list, new Point3D(0, 0, 0), new Point3D(1, 1, 1), new Size3D(2, 2, 2));
+
+        for (int x = 0; x < 2; x++) {
+            for (int y = 0; y < 2; y++) {
+                for (int z = 0; z < 2; z++) {
+                    Assert.Equal(expected[x, y, z], list[x + 1, y + 1, z + 1]);
+                }
+            }
+        }
+
+        // Now reverse: dest < src
+        list.CopyFrom(list, new Point3D(1, 1, 1), new Point3D(0, 0, 0), new Size3D(2, 2, 2));
+
+        for (int x = 0; x < 2; x++) {
+            for (int y = 0; y < 2; y++) {
+                for (int z = 0; z < 2; z++) {
+                    Assert.Equal(expected[x, y, z], list[x, y, z]);
+                }
+            }
+        }
+    }
+
+    [Fact]
+    public void CopyTo_List3D_EmptyDestination_ShouldPopulate() {
+        var source = new List3D<int>(2, 2, 2);
+        source.Expand(2, 2, 2);
+        source[0, 0, 0] = 10;
+        source[1, 1, 1] = 40;
+
+        var dest = new List3D<int>();
+        source.CopyTo(dest);
+
+        Assert.Equal(2, dest.XSize);
+        Assert.Equal(2, dest.YSize);
+        Assert.Equal(2, dest.ZSize);
+        Assert.Equal(10, dest[0, 0, 0]);
+        Assert.Equal(40, dest[1, 1, 1]);
+    }
+
+    [Fact]
+    public void CopyTo_List3D_ExistingDestination_ShouldCopy() {
+        var source = new List3D<int>(2, 2, 2);
+        source.Expand(2, 2, 2);
+        source[0, 0, 0] = 1;
+        source[1, 1, 1] = 2;
+
+        var dest = new List3D<int>(3, 3, 3);
+        dest.Expand(3, 3, 3);
+
+        source.CopyTo(dest, new Point3D(1, 1, 1));
+
+        Assert.Equal(1, dest[1, 1, 1]);
+        Assert.Equal(2, dest[2, 2, 2]);
+    }
+
+    [Fact]
+    public void CopyTo_List3D_SubRegion_ShouldCopy() {
+        var source = new List3D<int>(3, 3, 3);
+        source.Expand(3, 3, 3);
+        source[1, 1, 1] = 99;
+
+        var dest = new List3D<int>(2, 2, 2);
+        dest.Expand(2, 2, 2);
+
+        source.CopyTo(dest, new Point3D(1, 1, 1), new Point3D(0, 0, 0), new Size3D(1, 1, 1));
+
+        Assert.Equal(99, dest[0, 0, 0]);
+    }
+
+    [Fact]
+    public void CopyTo_List3D_TooSmall_ShouldThrow() {
+        var source = new List3D<int>(2, 2, 2);
+        source.Expand(2, 2, 2);
+
+        var dest = new List3D<int>(1, 1, 1);
+        dest.Expand(1, 1, 1);
+
+        Assert.Throws<ArgumentException>(() => source.CopyTo(dest));
+    }
 }

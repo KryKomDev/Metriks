@@ -97,6 +97,86 @@ public class List4DJagged<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
         ZSize = len3;
     }
 
+    public List4DJagged(List4DJagged<T> other) {
+        ArgumentNullException.ThrowIfNull(other);
+
+        WSize     = other.WSize;
+        XSize     = other.XSize;
+        YSize     = other.YSize;
+        ZSize     = other.ZSize;
+        WCapacity = other.WCapacity;
+        XCapacity = other.XCapacity;
+        YCapacity = other.YCapacity;
+        ZCapacity = other.ZCapacity;
+
+        Items = new T[WCapacity][][][];
+        for (var w = 0; w < WSize; w++) {
+            Items[w] = new T[XCapacity][][];
+            for (var x = 0; x < XSize; x++) {
+                Items[w][x] = new T[YCapacity][];
+                for (var y = 0; y < YSize; y++) {
+                    Items[w][x][y] = new T[ZCapacity];
+                    Array.Copy(other.Items[w][x][y], Items[w][x][y], ZSize);
+                }
+            }
+        }
+    }
+
+    public List4DJagged(IReadOnlyList4D<T> other) {
+        ArgumentNullException.ThrowIfNull(other);
+
+        if (other is List4DJagged<T> jagged) {
+            WSize     = jagged.WSize;
+            XSize     = jagged.XSize;
+            YSize     = jagged.YSize;
+            ZSize     = jagged.ZSize;
+            WCapacity = jagged.WCapacity;
+            XCapacity = jagged.XCapacity;
+            YCapacity = jagged.YCapacity;
+            ZCapacity = jagged.ZCapacity;
+
+            Items = new T[WCapacity][][][];
+            for (var w = 0; w < WSize; w++) {
+                Items[w] = new T[XCapacity][][];
+                for (var x = 0; x < XSize; x++) {
+                    Items[w][x] = new T[YCapacity][];
+                    for (var y = 0; y < YSize; y++) {
+                        Items[w][x][y] = new T[ZCapacity];
+                        Array.Copy(jagged.Items[w][x][y], Items[w][x][y], ZSize);
+                    }
+                }
+            }
+            return;
+        }
+
+        WSize     = other.WCount;
+        XSize     = other.XCount;
+        YSize     = other.YCount;
+        ZSize     = other.ZCount;
+        WCapacity = Math.Max(WSize, INITIAL_CAPACITY);
+        XCapacity = Math.Max(XSize, INITIAL_CAPACITY);
+        YCapacity = Math.Max(YSize, INITIAL_CAPACITY);
+        ZCapacity = Math.Max(ZSize, INITIAL_CAPACITY);
+
+        Items = new T[WCapacity][][][];
+        for (var w = 0; w < WSize; w++) {
+            Items[w] = new T[XCapacity][][];
+            for (var x = 0; x < XSize; x++) {
+                Items[w][x] = new T[YCapacity][];
+                for (var y = 0; y < YSize; y++) {
+                    Items[w][x][y] = new T[ZCapacity];
+                    for (var z = 0; z < ZSize; z++) {
+                        Items[w][x][y][z] = other[w, x, y, z];
+                    }
+                }
+            }
+        }
+    }
+
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public List4DJagged<T> Clone() => new(this);
+
     /// <summary>
     ///     Gets the underlying four-dimensional array used to store the elements of the <see cref="List4DJagged{T}" /> instance.
     ///     PROVIDED FOR INTERNAL USE ONLY. DO NOT USE. <b>!!!DO NOT MODIFY THE ARRAY IN ANY WAY!!!</b>
@@ -565,6 +645,203 @@ public class List4DJagged<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
                     var srcSpan = MemoryMarshal.CreateReadOnlySpan(ref rowWX[y][0], ZSize);
                     var dstSpan = MemoryMarshal.CreateSpan(ref array[w + index.W, x + index.X, y + index.Y, index.Z], ZSize);
                     srcSpan.CopyTo(dstSpan);
+                }
+            }
+        }
+    }
+
+    public void CopyTo(T[,,,] array) => CopyTo(array, Point4D.Zero);
+
+    public void CopyTo(List4DJagged<T> destination) {
+        ArgumentNullException.ThrowIfNull(destination);
+
+        if (destination.WSize == 0 && destination.XSize == 0 && destination.YSize == 0 && destination.ZSize == 0)
+            destination.CopyFrom(this);
+        else
+            destination.CopyFrom(this, Point4D.Zero);
+    }
+
+    public void CopyTo(List4DJagged<T> destination, Point4D destinationIndex) {
+        ArgumentNullException.ThrowIfNull(destination);
+        destination.CopyFrom(this, destinationIndex);
+    }
+
+    public void CopyTo(List4DJagged<T> destination, Point4D sourceOffset, Point4D destinationOffset, Size4D size) {
+        ArgumentNullException.ThrowIfNull(destination);
+        destination.CopyFrom(this, sourceOffset, destinationOffset, size);
+    }
+
+    public void CopyFrom(List4DJagged<T> source) {
+        ArgumentNullException.ThrowIfNull(source);
+
+        if (ReferenceEquals(this, source))
+            return;
+
+        Resize(source.WSize, source.XSize, source.YSize, source.ZSize);
+
+        for (var w = 0; w < WSize; w++) {
+            for (var x = 0; x < XSize; x++) {
+                for (var y = 0; y < YSize; y++) {
+                    Array.Copy(source.Items[w][x][y], Items[w][x][y], ZSize);
+                }
+            }
+        }
+    }
+
+    public void CopyFrom(IReadOnlyList4D<T> source) {
+        ArgumentNullException.ThrowIfNull(source);
+
+        if (source is List4DJagged<T> jagged) {
+            CopyFrom(jagged);
+            return;
+        }
+
+        Resize(source.WCount, source.XCount, source.YCount, source.ZCount);
+
+        for (var w = 0; w < WSize; w++) {
+            for (var x = 0; x < XSize; x++) {
+                for (var y = 0; y < YSize; y++) {
+                    for (var z = 0; z < ZSize; z++) {
+                        Items[w][x][y][z] = source[w, x, y, z];
+                    }
+                }
+            }
+        }
+    }
+
+    public void CopyFrom(List4DJagged<T> source, Point4D destinationOffset) {
+        ArgumentNullException.ThrowIfNull(source);
+
+        if (destinationOffset.W < 0 || destinationOffset.X < 0 || destinationOffset.Y < 0 || destinationOffset.Z < 0)
+            throw new ArgumentOutOfRangeException(nameof(destinationOffset), "Destination offset must not be negative.");
+        if (destinationOffset.W + source.WSize > WSize)
+            throw new ArgumentException("Destination list is not large enough in W dimension to accommodate the source.", nameof(destinationOffset));
+        if (destinationOffset.X + source.XSize > XSize)
+            throw new ArgumentException("Destination list is not large enough in X dimension to accommodate the source.", nameof(destinationOffset));
+        if (destinationOffset.Y + source.YSize > YSize)
+            throw new ArgumentException("Destination list is not large enough in Y dimension to accommodate the source.", nameof(destinationOffset));
+        if (destinationOffset.Z + source.ZSize > ZSize)
+            throw new ArgumentException("Destination list is not large enough in Z dimension to accommodate the source.", nameof(destinationOffset));
+
+        for (var w = 0; w < source.WSize; w++) {
+            for (var x = 0; x < source.XSize; x++) {
+                for (var y = 0; y < source.YSize; y++) {
+                    Array.Copy(source.Items[w][x][y], 0, Items[destinationOffset.W + w][destinationOffset.X + x][destinationOffset.Y + y], destinationOffset.Z, source.ZSize);
+                }
+            }
+        }
+    }
+
+    public void CopyFrom(IReadOnlyList4D<T> source, Point4D destinationOffset) {
+        ArgumentNullException.ThrowIfNull(source);
+
+        if (source is List4DJagged<T> jagged) {
+            CopyFrom(jagged, destinationOffset);
+            return;
+        }
+
+        if (destinationOffset.W < 0 || destinationOffset.X < 0 || destinationOffset.Y < 0 || destinationOffset.Z < 0)
+            throw new ArgumentOutOfRangeException(nameof(destinationOffset), "Destination offset must not be negative.");
+        if (destinationOffset.W + source.WCount > WSize)
+            throw new ArgumentException("Destination list is not large enough in W dimension to accommodate the source.", nameof(destinationOffset));
+        if (destinationOffset.X + source.XCount > XSize)
+            throw new ArgumentException("Destination list is not large enough in X dimension to accommodate the source.", nameof(destinationOffset));
+        if (destinationOffset.Y + source.YCount > YSize)
+            throw new ArgumentException("Destination list is not large enough in Y dimension to accommodate the source.", nameof(destinationOffset));
+        if (destinationOffset.Z + source.ZCount > ZSize)
+            throw new ArgumentException("Destination list is not large enough in Z dimension to accommodate the source.", nameof(destinationOffset));
+
+        for (var w = 0; w < source.WCount; w++) {
+            for (var x = 0; x < source.XCount; x++) {
+                for (var y = 0; y < source.YCount; y++) {
+                    for (var z = 0; z < source.ZCount; z++) {
+                        Items[destinationOffset.W + w][destinationOffset.X + x][destinationOffset.Y + y][destinationOffset.Z + z] = source[w, x, y, z];
+                    }
+                }
+            }
+        }
+    }
+
+    public void CopyFrom(List4DJagged<T> source, Point4D sourceOffset, Point4D destinationOffset, Size4D size) {
+        ArgumentNullException.ThrowIfNull(source);
+        if (size.W < 0 || size.X < 0 || size.Y < 0 || size.Z < 0)
+            throw new ArgumentOutOfRangeException(nameof(size), "Size dimensions must not be negative.");
+        if (sourceOffset.W < 0 || sourceOffset.X < 0 || sourceOffset.Y < 0 || sourceOffset.Z < 0)
+            throw new ArgumentOutOfRangeException(nameof(sourceOffset), "Source offset must not be negative.");
+        if (destinationOffset.W < 0 || destinationOffset.X < 0 || destinationOffset.Y < 0 || destinationOffset.Z < 0)
+            throw new ArgumentOutOfRangeException(nameof(destinationOffset), "Destination offset must not be negative.");
+        if (sourceOffset.W + size.W > source.WSize || sourceOffset.X + size.X > source.XSize || sourceOffset.Y + size.Y > source.YSize || sourceOffset.Z + size.Z > source.ZSize)
+            throw new ArgumentException("Source region is out of bounds of the source list.", nameof(sourceOffset));
+        if (destinationOffset.W + size.W > WSize || destinationOffset.X + size.X > XSize || destinationOffset.Y + size.Y > YSize || destinationOffset.Z + size.Z > ZSize)
+            throw new ArgumentException("Destination region is out of bounds of the destination list.", nameof(destinationOffset));
+
+        if (size.W == 0 || size.X == 0 || size.Y == 0 || size.Z == 0)
+            return;
+
+        if (ReferenceEquals(this, source)) {
+            var stepW = destinationOffset.W > sourceOffset.W ? -1 : 1;
+            var startW = destinationOffset.W > sourceOffset.W ? size.W - 1 : 0;
+            var endW = destinationOffset.W > sourceOffset.W ? -1 : size.W;
+
+            var stepX = destinationOffset.X > sourceOffset.X ? -1 : 1;
+            var startX = destinationOffset.X > sourceOffset.X ? size.X - 1 : 0;
+            var endX = destinationOffset.X > sourceOffset.X ? -1 : size.X;
+
+            var stepY = destinationOffset.Y > sourceOffset.Y ? -1 : 1;
+            var startY = destinationOffset.Y > sourceOffset.Y ? size.Y - 1 : 0;
+            var endY = destinationOffset.Y > sourceOffset.Y ? -1 : size.Y;
+
+            for (var dw = startW; dw != endW; dw += stepW) {
+                var srcW = sourceOffset.W + dw;
+                var dstW = destinationOffset.W + dw;
+                for (var dx = startX; dx != endX; dx += stepX) {
+                    var srcX = sourceOffset.X + dx;
+                    var dstX = destinationOffset.X + dx;
+                    for (var dy = startY; dy != endY; dy += stepY) {
+                        var srcY = sourceOffset.Y + dy;
+                        var dstY = destinationOffset.Y + dy;
+                        Array.Copy(Items[srcW][srcX][srcY], sourceOffset.Z, Items[dstW][dstX][dstY], destinationOffset.Z, size.Z);
+                    }
+                }
+            }
+            return;
+        }
+
+        for (var w = 0; w < size.W; w++) {
+            for (var x = 0; x < size.X; x++) {
+                for (var y = 0; y < size.Y; y++) {
+                    Array.Copy(source.Items[sourceOffset.W + w][sourceOffset.X + x][sourceOffset.Y + y], sourceOffset.Z,
+                               Items[destinationOffset.W + w][destinationOffset.X + x][destinationOffset.Y + y], destinationOffset.Z,
+                               size.Z);
+                }
+            }
+        }
+    }
+
+    public void CopyFrom(IReadOnlyList4D<T> source, Point4D sourceOffset, Point4D destinationOffset, Size4D size) {
+        ArgumentNullException.ThrowIfNull(source);
+        if (source is List4DJagged<T> jagged) {
+            CopyFrom(jagged, sourceOffset, destinationOffset, size);
+            return;
+        }
+
+        if (size.W < 0 || size.X < 0 || size.Y < 0 || size.Z < 0)
+            throw new ArgumentOutOfRangeException(nameof(size), "Size dimensions must not be negative.");
+        if (sourceOffset.W < 0 || sourceOffset.X < 0 || sourceOffset.Y < 0 || sourceOffset.Z < 0)
+            throw new ArgumentOutOfRangeException(nameof(sourceOffset), "Source offset must not be negative.");
+        if (destinationOffset.W < 0 || destinationOffset.X < 0 || destinationOffset.Y < 0 || destinationOffset.Z < 0)
+            throw new ArgumentOutOfRangeException(nameof(destinationOffset), "Destination offset must not be negative.");
+        if (sourceOffset.W + size.W > source.WCount || sourceOffset.X + size.X > source.XCount || sourceOffset.Y + size.Y > source.YCount || sourceOffset.Z + size.Z > source.ZCount)
+            throw new ArgumentException("Source region is out of bounds of the source list.", nameof(sourceOffset));
+        if (destinationOffset.W + size.W > WSize || destinationOffset.X + size.X > XSize || destinationOffset.Y + size.Y > YSize || destinationOffset.Z + size.Z > ZSize)
+            throw new ArgumentException("Destination region is out of bounds of the destination list.", nameof(destinationOffset));
+
+        for (var w = 0; w < size.W; w++) {
+            for (var x = 0; x < size.X; x++) {
+                for (var y = 0; y < size.Y; y++) {
+                    for (var z = 0; z < size.Z; z++) {
+                        Items[destinationOffset.W + w][destinationOffset.X + x][destinationOffset.Y + y][destinationOffset.Z + z] = source[sourceOffset.W + w, sourceOffset.X + x, sourceOffset.Y + y, sourceOffset.Z + z];
+                    }
                 }
             }
         }

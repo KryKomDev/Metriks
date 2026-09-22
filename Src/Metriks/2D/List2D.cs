@@ -305,6 +305,83 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
         var sourceSpan = MemoryMarshal.CreateReadOnlySpan(ref collection[0, 0], totalElements);
         sourceSpan.CopyTo(_items);
     }
+    
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="List2D{T}" /> class that contains elements copied
+    ///     from the specified <see cref="List2D{T}" />.
+    /// </summary>
+    /// <param name="other">The <see cref="List2D{T}" /> whose elements are copied to the new list.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="other" /> is null.</exception>
+    public List2D(List2D<T> other) {
+        ArgumentNullException.ThrowIfNull(other);
+
+        XSize     = other.XSize;
+        YSize     = other.YSize;
+        XCapacity = other.XCapacity;
+        YCapacity = other.YCapacity;
+
+        var totalCapacity = XCapacity * YCapacity;
+        if (totalCapacity == 0 || other._items.Length == 0) {
+            _items = Array.Empty<T>();
+            return;
+        }
+
+        _items = new T[totalCapacity];
+        other._items.CopyTo(_items, 0);
+    }
+
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="List2D{T}" /> class that contains elements copied
+    ///     from the specified two-dimensional list.
+    /// </summary>
+    /// <param name="other">The two-dimensional list whose elements are copied to the new list.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="other" /> is null.</exception>
+    public List2D(IReadOnlyList2D<T> other) {
+        ArgumentNullException.ThrowIfNull(other);
+
+        if (other is List2D<T> otherList) {
+            XSize     = otherList.XSize;
+            YSize     = otherList.YSize;
+            XCapacity = otherList.XCapacity;
+            YCapacity = otherList.YCapacity;
+
+            var totalCapacity = XCapacity * YCapacity;
+            if (totalCapacity == 0 || otherList._items.Length == 0) {
+                _items = Array.Empty<T>();
+                return;
+            }
+
+            _items = new T[totalCapacity];
+            otherList._items.CopyTo(_items, 0);
+            return;
+        }
+
+        XSize     = other.XCount;
+        YSize     = other.YCount;
+        XCapacity = Math.Max(XSize, INITIAL_CAPACITY);
+        YCapacity = Math.Max(YSize, INITIAL_CAPACITY);
+
+        var count = XCapacity * YCapacity;
+        if (count == 0) {
+            _items = Array.Empty<T>();
+            return;
+        }
+
+        _items = new T[count];
+        for (var x = 0; x < XSize; x++) {
+            for (var y = 0; y < YSize; y++) {
+                _items[x * YCapacity + y] = other[x, y];
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Creates a shallow copy of the current <see cref="List2D{T}" />.
+    /// </summary>
+    /// <returns>A new <see cref="List2D{T}" /> containing a copy of the elements.</returns>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public List2D<T> Clone() => new(this);
 
     #endregion
 
@@ -614,6 +691,242 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
             var srcSpan = _items.AsSpan(x * YCapacity, YSize);
             var dstSpan = MemoryMarshal.CreateSpan(ref array[x + index.X, index.Y], YSize);
             srcSpan.CopyTo(dstSpan);
+        }
+    }
+
+    /// <summary>
+    ///     Copies all elements of the <see cref="List2D{T}" /> to the specified generic two-dimensional array
+    ///     starting at (0, 0).
+    /// </summary>
+    /// <param name="array">The destination generic two-dimensional array.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void CopyTo(T[,] array) => CopyTo(array, Point2D.Zero);
+
+    /// <summary>
+    ///     Copies the elements of the <see cref="List2D{T}" /> to the specified destination <see cref="List2D{T}" />.
+    ///     If the destination list is empty, it is resized to match this list; otherwise, elements are copied starting at (0, 0).
+    /// </summary>
+    /// <param name="destination">The destination list.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="destination" /> is null.</exception>
+    public void CopyTo(List2D<T> destination) {
+        ArgumentNullException.ThrowIfNull(destination);
+
+        if (destination.XSize == 0 && destination.YSize == 0)
+            destination.CopyFrom(this);
+        else
+            destination.CopyFrom(this, Point2D.Zero);
+    }
+
+    /// <summary>
+    ///     Copies all elements of the <see cref="List2D{T}" /> to the specified destination <see cref="List2D{T}" />
+    ///     starting at the given destination coordinates.
+    /// </summary>
+    /// <param name="destination">The destination list.</param>
+    /// <param name="destinationIndex">The coordinates in the destination list at which copying begins.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="destination" /> is null.</exception>
+    public void CopyTo(List2D<T> destination, Point2D destinationIndex) {
+        ArgumentNullException.ThrowIfNull(destination);
+
+        destination.CopyFrom(this, destinationIndex);
+    }
+
+    /// <summary>
+    ///     Copies a rectangular region of elements from this list to the specified destination <see cref="List2D{T}" />.
+    /// </summary>
+    /// <param name="destination">The destination list.</param>
+    /// <param name="sourceOffset">The starting coordinate in this list.</param>
+    /// <param name="destinationOffset">The starting coordinate in the destination list.</param>
+    /// <param name="size">The size of the region to copy.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="destination" /> is null.</exception>
+    public void CopyTo(List2D<T> destination, Point2D sourceOffset, Point2D destinationOffset, Size2D size) {
+        ArgumentNullException.ThrowIfNull(destination);
+
+        destination.CopyFrom(this, sourceOffset, destinationOffset, size);
+    }
+
+    /// <summary>
+    ///     Copies all elements from the specified <see cref="List2D{T}" /> into this list,
+    ///     resizing this list to match the dimensions of the source list.
+    /// </summary>
+    /// <param name="source">The source list to copy from.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="source" /> is null.</exception>
+    public void CopyFrom(List2D<T> source) {
+        ArgumentNullException.ThrowIfNull(source);
+
+        if (ReferenceEquals(this, source))
+            return;
+
+        EnsureXCapacity(source.XSize);
+        EnsureYCapacity(source.YSize);
+
+        XSize = source.XSize;
+        YSize = source.YSize;
+
+        if (XSize == 0 || YSize == 0)
+            return;
+
+        if (YCapacity == source.YCapacity) {
+            source._items.AsSpan(0, XSize * YCapacity).CopyTo(_items);
+        }
+        else {
+            for (var x = 0; x < XSize; x++) {
+                source._items.AsSpan(x * source.YCapacity, YSize)
+                    .CopyTo(_items.AsSpan(x * YCapacity, YSize));
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Copies all elements from the specified two-dimensional list into this list,
+    ///     resizing this list to match the dimensions of the source list.
+    /// </summary>
+    /// <param name="source">The source list to copy from.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="source" /> is null.</exception>
+    public void CopyFrom(IReadOnlyList2D<T> source) {
+        ArgumentNullException.ThrowIfNull(source);
+
+        if (source is List2D<T> list2D) {
+            CopyFrom(list2D);
+            return;
+        }
+
+        EnsureXCapacity(source.XCount);
+        EnsureYCapacity(source.YCount);
+
+        XSize = source.XCount;
+        YSize = source.YCount;
+
+        for (var x = 0; x < XSize; x++) {
+            for (var y = 0; y < YSize; y++) {
+                _items[x * YCapacity + y] = source[x, y];
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Copies all elements from the specified <see cref="List2D{T}" /> into this list starting at
+    ///     the specified destination offset without modifying this list's dimensions.
+    /// </summary>
+    /// <param name="source">The source list to copy from.</param>
+    /// <param name="destinationOffset">The zero-based coordinate in this list at which copying begins.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="source" /> is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="destinationOffset" /> has negative coordinates.</exception>
+    /// <exception cref="ArgumentException">Thrown when this list is not large enough to hold the source elements at the specified offset.</exception>
+    public void CopyFrom(List2D<T> source, Point2D destinationOffset) {
+        ArgumentNullException.ThrowIfNull(source);
+
+        CopyFrom(source, Point2D.Zero, destinationOffset, source.Size);
+    }
+
+    /// <summary>
+    ///     Copies all elements from the specified two-dimensional list into this list starting at
+    ///     the specified destination offset without modifying this list's dimensions.
+    /// </summary>
+    /// <param name="source">The source list to copy from.</param>
+    /// <param name="destinationOffset">The zero-based coordinate in this list at which copying begins.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="source" /> is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="destinationOffset" /> has negative coordinates.</exception>
+    /// <exception cref="ArgumentException">Thrown when this list is not large enough to hold the source elements at the specified offset.</exception>
+    public void CopyFrom(IReadOnlyList2D<T> source, Point2D destinationOffset) {
+        ArgumentNullException.ThrowIfNull(source);
+
+        CopyFrom(source, Point2D.Zero, destinationOffset, new Size2D(source.XCount, source.YCount));
+    }
+
+    /// <summary>
+    ///     Copies a rectangular region from the specified <see cref="List2D{T}" /> into this list.
+    /// </summary>
+    /// <param name="source">The source list to copy from.</param>
+    /// <param name="sourceOffset">The starting coordinate in the source list.</param>
+    /// <param name="destinationOffset">The starting coordinate in this list.</param>
+    /// <param name="size">The size of the rectangular region to copy.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="source" /> is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when coordinates or sizes are negative.</exception>
+    /// <exception cref="ArgumentException">Thrown when region exceeds source or destination bounds.</exception>
+    public void CopyFrom(List2D<T> source, Point2D sourceOffset, Point2D destinationOffset, Size2D size) {
+        ArgumentNullException.ThrowIfNull(source);
+
+        if (sourceOffset.X < 0 || sourceOffset.Y < 0)
+            throw new ArgumentOutOfRangeException(nameof(sourceOffset), "Source offset must not be negative.");
+        if (size.X < 0 || size.Y < 0)
+            throw new ArgumentOutOfRangeException(nameof(size), "Size must not be negative.");
+        if (sourceOffset.X + size.X > source.XSize || sourceOffset.Y + size.Y > source.YSize)
+            throw new ArgumentException("Source region exceeds source list bounds.");
+
+        if (destinationOffset.X < 0 || destinationOffset.Y < 0)
+            throw new ArgumentOutOfRangeException(nameof(destinationOffset), "Destination offset must not be negative.");
+        if (destinationOffset.X + size.X > XSize)
+            throw new ArgumentException("Destination list is not large enough in X dimension to accommodate the copied region.", nameof(destinationOffset));
+        if (destinationOffset.Y + size.Y > YSize)
+            throw new ArgumentException("Destination list is not large enough in Y dimension to accommodate the copied region.", nameof(destinationOffset));
+
+        if (size.X == 0 || size.Y == 0)
+            return;
+
+        if (ReferenceEquals(this, source) && destinationOffset.X > sourceOffset.X) {
+            for (var x = size.X - 1; x >= 0; x--) {
+                var srcSpan = source._items.AsSpan((sourceOffset.X + x) * source.YCapacity + sourceOffset.Y, size.Y);
+                var dstSpan = _items.AsSpan((destinationOffset.X + x) * YCapacity + destinationOffset.Y, size.Y);
+                srcSpan.CopyTo(dstSpan);
+            }
+        }
+        else {
+            for (var x = 0; x < size.X; x++) {
+                var srcSpan = source._items.AsSpan((sourceOffset.X + x) * source.YCapacity + sourceOffset.Y, size.Y);
+                var dstSpan = _items.AsSpan((destinationOffset.X + x) * YCapacity + destinationOffset.Y, size.Y);
+                srcSpan.CopyTo(dstSpan);
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Copies a rectangular region from the specified two-dimensional list into this list.
+    /// </summary>
+    /// <param name="source">The source list to copy from.</param>
+    /// <param name="sourceOffset">The starting coordinate in the source list.</param>
+    /// <param name="destinationOffset">The starting coordinate in this list.</param>
+    /// <param name="size">The size of the rectangular region to copy.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="source" /> is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when coordinates or sizes are negative.</exception>
+    /// <exception cref="ArgumentException">Thrown when region exceeds source or destination bounds.</exception>
+    public void CopyFrom(IReadOnlyList2D<T> source, Point2D sourceOffset, Point2D destinationOffset, Size2D size) {
+        ArgumentNullException.ThrowIfNull(source);
+
+        if (source is List2D<T> list2D) {
+            CopyFrom(list2D, sourceOffset, destinationOffset, size);
+            return;
+        }
+
+        if (sourceOffset.X < 0 || sourceOffset.Y < 0)
+            throw new ArgumentOutOfRangeException(nameof(sourceOffset), "Source offset must not be negative.");
+        if (size.X < 0 || size.Y < 0)
+            throw new ArgumentOutOfRangeException(nameof(size), "Size must not be negative.");
+        if (sourceOffset.X + size.X > source.XCount || sourceOffset.Y + size.Y > source.YCount)
+            throw new ArgumentException("Source region exceeds source list bounds.");
+
+        if (destinationOffset.X < 0 || destinationOffset.Y < 0)
+            throw new ArgumentOutOfRangeException(nameof(destinationOffset), "Destination offset must not be negative.");
+        if (destinationOffset.X + size.X > XSize)
+            throw new ArgumentException("Destination list is not large enough in X dimension to accommodate the copied region.", nameof(destinationOffset));
+        if (destinationOffset.Y + size.Y > YSize)
+            throw new ArgumentException("Destination list is not large enough in Y dimension to accommodate the copied region.", nameof(destinationOffset));
+
+        if (size.X == 0 || size.Y == 0)
+            return;
+
+        if (ReferenceEquals(this, source) && destinationOffset.X > sourceOffset.X) {
+            for (var x = size.X - 1; x >= 0; x--) {
+                for (var y = 0; y < size.Y; y++) {
+                    _items[(destinationOffset.X + x) * YCapacity + destinationOffset.Y + y] = source[sourceOffset.X + x, sourceOffset.Y + y];
+                }
+            }
+        }
+        else {
+            for (var x = 0; x < size.X; x++) {
+                for (var y = 0; y < size.Y; y++) {
+                    _items[(destinationOffset.X + x) * YCapacity + destinationOffset.Y + y] = source[sourceOffset.X + x, sourceOffset.Y + y];
+                }
+            }
         }
     }
 
