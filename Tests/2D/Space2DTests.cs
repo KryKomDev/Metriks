@@ -1,4 +1,4 @@
-﻿namespace Metriks.Tests;
+namespace Metriks.Tests;
 
 public class Space2DTests {
 
@@ -424,5 +424,54 @@ public class Space2DTests {
         Assert.Equal(1,  list2D.YOriginOffset);
         Assert.Equal(-1, list2D.XStart);
         Assert.Equal(-1, list2D.YStart);
+    }
+
+    [Fact]
+    public void Constructor_FromOtherSpace2D_ShouldCopyDataAndOffsets() {
+        var original = new Space2D<int>();
+        original.Expand(4, 4);
+        original.MoveOrigin(2, 1);
+        original[-2, -1] = 100;
+        original[0, 0] = 200;
+        original[1, 2] = 300;
+
+        var copy = new Space2D<int>(original);
+
+        Assert.Equal(original.XOriginOffset, copy.XOriginOffset);
+        Assert.Equal(original.YOriginOffset, copy.YOriginOffset);
+        Assert.Equal(original.XStart, copy.XStart);
+        Assert.Equal(original.YStart, copy.YStart);
+        Assert.Equal(original.XEnd, copy.XEnd);
+        Assert.Equal(original.YEnd, copy.YEnd);
+        Assert.Equal(original.Size, copy.Size);
+
+        Assert.Equal(100, copy[-2, -1]);
+        Assert.Equal(200, copy[0, 0]);
+        Assert.Equal(300, copy[1, 2]);
+
+        original[-2, -1] = 999;
+        Assert.Equal(100, copy[-2, -1]);
+    }
+
+    [Fact]
+    public void Constructor_FromOtherSpace2D_Null_ShouldThrow() {
+        Assert.Throws<ArgumentNullException>(() => new Space2D<int>((Space2D<int>)null!));
+    }
+
+    [Fact]
+    public void Clone_ShouldPreserveOriginOffsetsAndData() {
+        var original = new Space2D<int>();
+        original.Expand(3, 3);
+        original.MoveOrigin(1, 2);
+        original[-1, -2] = 42;
+
+        Space2D<int> clone = original.Clone();
+
+        Assert.Equal(original.XOriginOffset, clone.XOriginOffset);
+        Assert.Equal(original.YOriginOffset, clone.YOriginOffset);
+        Assert.Equal(42, clone[-1, -2]);
+
+        clone[-1, -2] = 99;
+        Assert.Equal(42, original[-1, -2]);
     }
 }

@@ -1,4 +1,4 @@
-﻿#if METRIKS_ENABLE_JAGGED_LIST
+#if METRIKS_ENABLE_JAGGED_LIST
 namespace Metriks.Tests;
 
 public class List2DJaggedTests {
@@ -901,6 +901,149 @@ public class List2DJaggedTests {
         list.CopyTo(target, Point2D.Zero);
         Assert.Equal(1, target[0, 0]);
         Assert.Equal(4, target[1, 1]);
+    }
+
+    [Fact]
+    public void Constructor_FromOtherList2DJagged_ShouldCopyDataAndSizes() {
+        var original = new List2DJagged<int>(new[,] { { 1, 2, 3 }, { 4, 5, 6 } });
+        var copy = new List2DJagged<int>(original);
+
+        Assert.Equal(original.XSize, copy.XSize);
+        Assert.Equal(original.YSize, copy.YSize);
+        Assert.Equal(original.Size, copy.Size);
+
+        for (int x = 0; x < 2; x++) {
+            for (int y = 0; y < 3; y++) {
+                Assert.Equal(original[x, y], copy[x, y]);
+            }
+        }
+
+        original[0, 0] = 999;
+        Assert.Equal(1, copy[0, 0]);
+    }
+
+    [Fact]
+    public void Constructor_FromOtherList2DJagged_Null_ShouldThrow() {
+        Assert.Throws<ArgumentNullException>(() => new List2DJagged<int>((List2DJagged<int>)null!));
+    }
+
+    [Fact]
+    public void Constructor_FromReadOnlyList2D_ShouldCopyCorrectly() {
+        IReadOnlyList2D<int> original = new List2D<int>(new[,] { { 10, 20 }, { 30, 40 } });
+        var copy = new List2DJagged<int>(original);
+
+        Assert.Equal(2, copy.XSize);
+        Assert.Equal(2, copy.YSize);
+        Assert.Equal(10, copy[0, 0]);
+        Assert.Equal(40, copy[1, 1]);
+    }
+
+    [Fact]
+    public void Clone_ShouldCreateIndependentCopy() {
+        var original = new List2DJagged<int>(new[,] { { 7, 8 }, { 9, 10 } });
+        var clone = original.Clone();
+
+        Assert.Equal(original.Size, clone.Size);
+        Assert.Equal(7, clone[0, 0]);
+        Assert.Equal(10, clone[1, 1]);
+
+        clone[0, 0] = 42;
+        Assert.Equal(7, original[0, 0]);
+    }
+
+    [Fact]
+    public void CopyFrom_List2DJagged_ShouldResizeAndCopyAllData() {
+        var source = new List2DJagged<int>(new[,] { { 1, 2 }, { 3, 4 }, { 5, 6 } });
+        var dest = new List2DJagged<int>();
+
+        dest.CopyFrom(source);
+
+        Assert.Equal(source.XSize, dest.XSize);
+        Assert.Equal(source.YSize, dest.YSize);
+        Assert.Equal(1, dest[0, 0]);
+        Assert.Equal(4, dest[1, 1]);
+        Assert.Equal(6, dest[2, 1]);
+
+        source[0, 0] = 100;
+        Assert.Equal(1, dest[0, 0]);
+    }
+
+    [Fact]
+    public void CopyFrom_IReadOnlyList2D_ShouldCopyData() {
+        IReadOnlyList2D<int> source = new List2D<int>(new[,] { { 5, 6 }, { 7, 8 } });
+        var dest = new List2DJagged<int>();
+
+        dest.CopyFrom(source);
+
+        Assert.Equal(2, dest.XSize);
+        Assert.Equal(2, dest.YSize);
+        Assert.Equal(5, dest[0, 0]);
+        Assert.Equal(8, dest[1, 1]);
+    }
+
+    [Fact]
+    public void CopyFrom_WithOffset_ShouldPlaceElementsCorrectly() {
+        var dest = new List2DJagged<int>(new[,] {
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        });
+        var source = new List2DJagged<int>(new[,] {
+            { 1, 2 },
+            { 3, 4 }
+        });
+
+        dest.CopyFrom(source, new Point2D(1, 1));
+
+        Assert.Equal(0, dest[0, 0]);
+        Assert.Equal(1, dest[1, 1]);
+        Assert.Equal(2, dest[1, 2]);
+        Assert.Equal(3, dest[2, 1]);
+        Assert.Equal(4, dest[2, 2]);
+        Assert.Equal(0, dest[2, 3]);
+    }
+
+    [Fact]
+    public void CopyFrom_SubRegion_ShouldCopyExactSlice() {
+        var source = new List2DJagged<int>(new[,] {
+            { 1, 2, 3 },
+            { 4, 5, 6 },
+            { 7, 8, 9 }
+        });
+        var dest = new List2DJagged<int>(new int[2, 2]);
+
+        dest.CopyFrom(source, new Point2D(1, 1), new Point2D(0, 0), new Size2D(2, 2));
+
+        Assert.Equal(5, dest[0, 0]);
+        Assert.Equal(6, dest[0, 1]);
+        Assert.Equal(8, dest[1, 0]);
+        Assert.Equal(9, dest[1, 1]);
+    }
+
+    [Fact]
+    public void CopyTo_List2DJagged_EmptyDestination_ShouldPopulate() {
+        var source = new List2DJagged<int>(new[,] { { 10, 20 }, { 30, 40 } });
+        var dest = new List2DJagged<int>();
+
+        source.CopyTo(dest);
+
+        Assert.Equal(2, dest.XSize);
+        Assert.Equal(2, dest.YSize);
+        Assert.Equal(10, dest[0, 0]);
+        Assert.Equal(40, dest[1, 1]);
+    }
+
+    [Fact]
+    public void CopyTo_List2DJagged_ExistingDestination_ShouldCopy() {
+        var source = new List2DJagged<int>(new[,] { { 1, 2 }, { 3, 4 } });
+        var dest = new List2DJagged<int>(new int[3, 3]);
+
+        source.CopyTo(dest, new Point2D(1, 1));
+
+        Assert.Equal(1, dest[1, 1]);
+        Assert.Equal(2, dest[1, 2]);
+        Assert.Equal(3, dest[2, 1]);
+        Assert.Equal(4, dest[2, 2]);
     }
 }
 

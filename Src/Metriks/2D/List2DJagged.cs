@@ -76,6 +76,56 @@ public class List2DJagged<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
         _xSize = collection.Len0;
         _ySize = collection.Len1;
     }
+
+    public List2DJagged(List2DJagged<T> other) {
+        ArgumentNullException.ThrowIfNull(other);
+
+        _xSize     = other._xSize;
+        _ySize     = other._ySize;
+        _xCapacity = other._xCapacity;
+        _yCapacity = other._yCapacity;
+
+        _items = new T[_xCapacity][];
+        for (var x = 0; x < _xSize; x++) {
+            _items[x] = new T[_yCapacity];
+            Array.Copy(other._items[x], _items[x], _ySize);
+        }
+    }
+
+    public List2DJagged(IReadOnlyList2D<T> other) {
+        ArgumentNullException.ThrowIfNull(other);
+
+        if (other is List2DJagged<T> jagged) {
+            _xSize     = jagged._xSize;
+            _ySize     = jagged._ySize;
+            _xCapacity = jagged._xCapacity;
+            _yCapacity = jagged._yCapacity;
+
+            _items = new T[_xCapacity][];
+            for (var x = 0; x < _xSize; x++) {
+                _items[x] = new T[_yCapacity];
+                Array.Copy(jagged._items[x], _items[x], _ySize);
+            }
+            return;
+        }
+
+        _xSize     = other.XCount;
+        _ySize     = other.YCount;
+        _xCapacity = Math.Max(_xSize, INITIAL_CAPACITY);
+        _yCapacity = Math.Max(_ySize, INITIAL_CAPACITY);
+
+        _items = new T[_xCapacity][];
+        for (var x = 0; x < _xSize; x++) {
+            _items[x] = new T[_yCapacity];
+            for (var y = 0; y < _ySize; y++) {
+                _items[x][y] = other[x, y];
+            }
+        }
+    }
+
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public List2DJagged<T> Clone() => new(this);
     
     /// <summary>
     /// Gets the size (number of elements) along the X-axis.
@@ -1125,6 +1175,155 @@ public class List2DJagged<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
             var srcSpan = MemoryMarshal.CreateReadOnlySpan(ref _items[x][0], _ySize);
             var dstSpan = MemoryMarshal.CreateSpan(ref array[x + index.X, index.Y], _ySize);
             srcSpan.CopyTo(dstSpan);
+        }
+    }
+
+    public void CopyTo(T[,] array) => CopyTo(array, Point2D.Zero);
+
+    public void CopyTo(List2DJagged<T> destination) {
+        ArgumentNullException.ThrowIfNull(destination);
+
+        if (destination._xSize == 0 && destination._ySize == 0)
+            destination.CopyFrom(this);
+        else
+            destination.CopyFrom(this, Point2D.Zero);
+    }
+
+    public void CopyTo(List2DJagged<T> destination, Point2D destinationIndex) {
+        ArgumentNullException.ThrowIfNull(destination);
+        destination.CopyFrom(this, destinationIndex);
+    }
+
+    public void CopyTo(List2DJagged<T> destination, Point2D sourceOffset, Point2D destinationOffset, Size2D size) {
+        ArgumentNullException.ThrowIfNull(destination);
+        destination.CopyFrom(this, sourceOffset, destinationOffset, size);
+    }
+
+    public void CopyFrom(List2DJagged<T> source) {
+        ArgumentNullException.ThrowIfNull(source);
+
+        if (ReferenceEquals(this, source))
+            return;
+
+        Resize(source._xSize, source._ySize);
+
+        for (var x = 0; x < _xSize; x++) {
+            Array.Copy(source._items[x], _items[x], _ySize);
+        }
+    }
+
+    public void CopyFrom(IReadOnlyList2D<T> source) {
+        ArgumentNullException.ThrowIfNull(source);
+
+        if (source is List2DJagged<T> jagged) {
+            CopyFrom(jagged);
+            return;
+        }
+
+        Resize(source.XCount, source.YCount);
+
+        for (var x = 0; x < _xSize; x++) {
+            for (var y = 0; y < _ySize; y++) {
+                _items[x][y] = source[x, y];
+            }
+        }
+    }
+
+    public void CopyFrom(List2DJagged<T> source, Point2D destinationOffset) {
+        ArgumentNullException.ThrowIfNull(source);
+
+        if (destinationOffset.X < 0 || destinationOffset.Y < 0)
+            throw new ArgumentOutOfRangeException(nameof(destinationOffset), "Destination offset must not be negative.");
+        if (destinationOffset.X + source._xSize > _xSize)
+            throw new ArgumentException("Destination list is not large enough in X dimension to accommodate the source.", nameof(destinationOffset));
+        if (destinationOffset.Y + source._ySize > _ySize)
+            throw new ArgumentException("Destination list is not large enough in Y dimension to accommodate the source.", nameof(destinationOffset));
+
+        for (var x = 0; x < source._xSize; x++) {
+            Array.Copy(source._items[x], 0, _items[destinationOffset.X + x], destinationOffset.Y, source._ySize);
+        }
+    }
+
+    public void CopyFrom(IReadOnlyList2D<T> source, Point2D destinationOffset) {
+        ArgumentNullException.ThrowIfNull(source);
+
+        if (source is List2DJagged<T> jagged) {
+            CopyFrom(jagged, destinationOffset);
+            return;
+        }
+
+        if (destinationOffset.X < 0 || destinationOffset.Y < 0)
+            throw new ArgumentOutOfRangeException(nameof(destinationOffset), "Destination offset must not be negative.");
+        if (destinationOffset.X + source.XCount > _xSize)
+            throw new ArgumentException("Destination list is not large enough in X dimension to accommodate the source.", nameof(destinationOffset));
+        if (destinationOffset.Y + source.YCount > _ySize)
+            throw new ArgumentException("Destination list is not large enough in Y dimension to accommodate the source.", nameof(destinationOffset));
+
+        for (var x = 0; x < source.XCount; x++) {
+            for (var y = 0; y < source.YCount; y++) {
+                _items[destinationOffset.X + x][destinationOffset.Y + y] = source[x, y];
+            }
+        }
+    }
+
+    public void CopyFrom(List2DJagged<T> source, Point2D sourceOffset, Point2D destinationOffset, Size2D size) {
+        ArgumentNullException.ThrowIfNull(source);
+        if (size.X < 0 || size.Y < 0)
+            throw new ArgumentOutOfRangeException(nameof(size), "Size dimensions must not be negative.");
+        if (sourceOffset.X < 0 || sourceOffset.Y < 0)
+            throw new ArgumentOutOfRangeException(nameof(sourceOffset), "Source offset must not be negative.");
+        if (destinationOffset.X < 0 || destinationOffset.Y < 0)
+            throw new ArgumentOutOfRangeException(nameof(destinationOffset), "Destination offset must not be negative.");
+        if (sourceOffset.X + size.X > source._xSize || sourceOffset.Y + size.Y > source._ySize)
+            throw new ArgumentException("Source region is out of bounds of the source list.", nameof(sourceOffset));
+        if (destinationOffset.X + size.X > _xSize || destinationOffset.Y + size.Y > _ySize)
+            throw new ArgumentException("Destination region is out of bounds of the destination list.", nameof(destinationOffset));
+
+        if (size.X == 0 || size.Y == 0)
+            return;
+
+        if (ReferenceEquals(this, source)) {
+            var stepX = destinationOffset.X > sourceOffset.X ? -1 : 1;
+            var startX = destinationOffset.X > sourceOffset.X ? size.X - 1 : 0;
+            var endX = destinationOffset.X > sourceOffset.X ? -1 : size.X;
+
+            for (var dx = startX; dx != endX; dx += stepX) {
+                var srcCol = sourceOffset.X + dx;
+                var dstCol = destinationOffset.X + dx;
+                Array.Copy(_items[srcCol], sourceOffset.Y, _items[dstCol], destinationOffset.Y, size.Y);
+            }
+            return;
+        }
+
+        for (var x = 0; x < size.X; x++) {
+            Array.Copy(source._items[sourceOffset.X + x], sourceOffset.Y,
+                       _items[destinationOffset.X + x], destinationOffset.Y,
+                       size.Y);
+        }
+    }
+
+    public void CopyFrom(IReadOnlyList2D<T> source, Point2D sourceOffset, Point2D destinationOffset, Size2D size) {
+        ArgumentNullException.ThrowIfNull(source);
+        if (source is List2DJagged<T> jagged) {
+            CopyFrom(jagged, sourceOffset, destinationOffset, size);
+            return;
+        }
+
+        if (size.X < 0 || size.Y < 0)
+            throw new ArgumentOutOfRangeException(nameof(size), "Size dimensions must not be negative.");
+        if (sourceOffset.X < 0 || sourceOffset.Y < 0)
+            throw new ArgumentOutOfRangeException(nameof(sourceOffset), "Source offset must not be negative.");
+        if (destinationOffset.X < 0 || destinationOffset.Y < 0)
+            throw new ArgumentOutOfRangeException(nameof(destinationOffset), "Destination offset must not be negative.");
+        if (sourceOffset.X + size.X > source.XCount || sourceOffset.Y + size.Y > source.YCount)
+            throw new ArgumentException("Source region is out of bounds of the source list.", nameof(sourceOffset));
+        if (destinationOffset.X + size.X > _xSize || destinationOffset.Y + size.Y > _ySize)
+            throw new ArgumentException("Destination region is out of bounds of the destination list.", nameof(destinationOffset));
+
+        for (var x = 0; x < size.X; x++) {
+            for (var y = 0; y < size.Y; y++) {
+                _items[destinationOffset.X + x][destinationOffset.Y + y] = source[sourceOffset.X + x, sourceOffset.Y + y];
+            }
         }
     }
 
