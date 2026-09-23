@@ -1,6 +1,6 @@
 //
 // Metriks
-//  Copyright (c) MIT License 2026, KryKom & ZlomenyMesic
+//  Copyright (c) MPL-2.0 2026, KryKom & ZlomenyMesic
 //
 
 namespace Metriks;
