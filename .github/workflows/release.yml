@@ -56,13 +56,14 @@ jobs:
       shell: bash
 
     - name: Build
-      run: > 
-      dotnet build ${{ env.ProjectPath }} \
-        --configuration Release \
-        --no-restore \
-        -p:DebugSymbols=true \
-        -p:DebugType=portable \
-        -p:IncludeSymbols=true
+      run: |
+        dotnet build ${{ env.ProjectPath }} \
+          --configuration Release \
+          --no-restore \
+          -p:DebugSymbols=true \
+          -p:DebugType=portable \
+          -p:IncludeSymbols=true
+      shell: bash
 
     - name: Build Tests
       run: dotnet build ${{ env.TestProjectPath }} --configuration Release --no-restore
