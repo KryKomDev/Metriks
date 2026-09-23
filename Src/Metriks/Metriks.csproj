@@ -15,7 +15,7 @@
         <RepositoryUrl>https://github.com/KryKomDev/Metriks</RepositoryUrl>
         <PackageReadmeFile>Package-Readme.md</PackageReadmeFile>
         <PackageIcon>Package-Icon.png</PackageIcon>
-        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageLicenseExpression>MPL-2.0</PackageLicenseExpression>
         <Description>A multidimensional dynamic array library for C#.</Description>
 
         <!-- SourceLink and Symbols -->

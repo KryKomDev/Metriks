@@ -128,5 +128,5 @@ Metriks is designed with performance in mind:
 
 ## License
 
-This project is licensed under the MIT License – see the
+This project is licensed under the MPL-2.0 – see the
 [LICENSE](https://github.com/KryKomDev/Metriks/blob/master/LICENSE) file for details.
