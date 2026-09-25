@@ -8,22 +8,10 @@ on:
     branches:
       - master
       - main
-    paths:
-      - 'Src/**'
-      - 'Tests/**'
-      - 'Directory.Build.props'
-      - 'Metriks.slnx'
-      - '.github/workflows/test.yml'
   pull_request:
     branches:
       - master
       - main
-    paths:
-      - 'Src/**'
-      - 'Tests/**'
-      - 'Directory.Build.props'
-      - 'Metriks.slnx'
-      - '.github/workflows/test.yml'
   workflow_dispatch:
 
 jobs:
