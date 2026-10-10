@@ -49,6 +49,7 @@ public static class ToString2D {
                 for (var y = 0; y < array.Len1; y++)
                     sb.Append($"{array[x, y]}, ");
 
+                sb.Remove(sb.Length - 2, 2);
                 sb.AppendLine("],");
             }
 
