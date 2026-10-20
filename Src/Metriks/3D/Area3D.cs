@@ -39,9 +39,7 @@ public readonly record struct Area3D : IFormattable {
     /// </summary>
     public int LowerX {
         get => _lx;
-        #if NET5_0_OR_GREATER
         init => (_lx, _hx) = int.Order(value, _hx);
-        #endif
     }
 
     /// <summary>
@@ -49,9 +47,7 @@ public readonly record struct Area3D : IFormattable {
     /// </summary>
     public int LowerY {
         get => _ly;
-        #if NET5_0_OR_GREATER
         init => (_ly, _hy) = int.Order(value, _hy);
-        #endif
     }
 
     /// <summary>
@@ -59,9 +55,7 @@ public readonly record struct Area3D : IFormattable {
     /// </summary>
     public int LowerZ {
         get => _lz;
-        #if NET5_0_OR_GREATER
         init => (_lz, _hz) = int.Order(value, _hz);
-        #endif
     }
 
     /// <summary>
@@ -69,9 +63,7 @@ public readonly record struct Area3D : IFormattable {
     /// </summary>
     public int HigherX {
         get => _hx;
-        #if NET5_0_OR_GREATER
         init => (_lx, _hx) = int.Order(value, _lx);
-        #endif
     }
 
     /// <summary>
@@ -79,9 +71,7 @@ public readonly record struct Area3D : IFormattable {
     /// </summary>
     public int HigherY {
         get => _hy;
-        #if NET5_0_OR_GREATER
         init => (_ly, _hy) = int.Order(value, _ly);
-        #endif
     }
 
     /// <summary>
@@ -89,9 +79,7 @@ public readonly record struct Area3D : IFormattable {
     /// </summary>
     public int HigherZ {
         get => _hz;
-        #if NET5_0_OR_GREATER
         init => (_lz, _hz) = int.Order(value, _lz);
-        #endif
     }
 
     /// <summary>
@@ -99,13 +87,11 @@ public readonly record struct Area3D : IFormattable {
     /// </summary>
     public Point3D Lower {
         get => new(_lx, _ly, _lz);
-        #if NET5_0_OR_GREATER
         init {
             (_lx, _hx) = int.Order(value.X, _hx);
             (_ly, _hy) = int.Order(value.Y, _hy);
             (_lz, _hz) = int.Order(value.Z, _hz);
         }
-        #endif
     }
 
     /// <summary>
@@ -113,13 +99,11 @@ public readonly record struct Area3D : IFormattable {
     /// </summary>
     public Point3D Higher {
         get => new(_hx, _hy, _hz);
-        #if NET5_0_OR_GREATER
         init {
             (_lx, _hx) = int.Order(value.X, _lx);
             (_ly, _hy) = int.Order(value.Y, _ly);
             (_lz, _hz) = int.Order(value.Z, _lz);
         }
-        #endif
     }
 
     /// <summary>

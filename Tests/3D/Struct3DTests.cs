@@ -121,13 +121,11 @@ public class Struct3DTests {
         Assert.Equal(6, area.HigherY);
         Assert.Equal(8, area.HigherZ);
 
-        #if NET5_0_OR_GREATER
         var updated = area with { LowerX = 5, HigherY = 1 };
         Assert.Equal(4, updated.LowerX);
         Assert.Equal(5, updated.HigherX);
         Assert.Equal(1, updated.LowerY);
         Assert.Equal(2, updated.HigherY);
-        #endif
     }
 
     [Fact]

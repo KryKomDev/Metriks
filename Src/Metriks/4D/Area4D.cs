@@ -43,9 +43,7 @@ public readonly record struct Area4D : IFormattable {
     /// </summary>
     public int LowerW {
         get => _lw;
-        #if NET5_0_OR_GREATER
         init => (_lw, _hw) = int.Order(value, _hw);
-        #endif
     }
 
     /// <summary>
@@ -53,9 +51,7 @@ public readonly record struct Area4D : IFormattable {
     /// </summary>
     public int LowerX {
         get => _lx;
-        #if NET5_0_OR_GREATER
         init => (_lx, _hx) = int.Order(value, _hx);
-        #endif
     }
 
     /// <summary>
@@ -63,9 +59,7 @@ public readonly record struct Area4D : IFormattable {
     /// </summary>
     public int LowerY {
         get => _ly;
-        #if NET5_0_OR_GREATER
         init => (_ly, _hy) = int.Order(value, _hy);
-        #endif
     }
 
     /// <summary>
@@ -73,9 +67,7 @@ public readonly record struct Area4D : IFormattable {
     /// </summary>
     public int LowerZ {
         get => _lz;
-        #if NET5_0_OR_GREATER
         init => (_lz, _hz) = int.Order(value, _hz);
-        #endif
     }
 
     /// <summary>
@@ -83,9 +75,7 @@ public readonly record struct Area4D : IFormattable {
     /// </summary>
     public int HigherW {
         get => _hw;
-        #if NET5_0_OR_GREATER
         init => (_lw, _hw) = int.Order(value, _lw);
-        #endif
     }
 
     /// <summary>
@@ -93,9 +83,7 @@ public readonly record struct Area4D : IFormattable {
     /// </summary>
     public int HigherX {
         get => _hx;
-        #if NET5_0_OR_GREATER
         init => (_lx, _hx) = int.Order(value, _lx);
-        #endif
     }
 
     /// <summary>
@@ -103,9 +91,7 @@ public readonly record struct Area4D : IFormattable {
     /// </summary>
     public int HigherY {
         get => _hy;
-        #if NET5_0_OR_GREATER
         init => (_ly, _hy) = int.Order(value, _ly);
-        #endif
     }
 
     /// <summary>
@@ -113,9 +99,7 @@ public readonly record struct Area4D : IFormattable {
     /// </summary>
     public int HigherZ {
         get => _hz;
-        #if NET5_0_OR_GREATER
         init => (_lz, _hz) = int.Order(value, _lz);
-        #endif
     }
 
     /// <summary>
@@ -123,14 +107,12 @@ public readonly record struct Area4D : IFormattable {
     /// </summary>
     public Point4D Lower {
         get => new(_lw, _lx, _ly, _lz);
-        #if NET5_0_OR_GREATER
         init {
             (_lw, _hw) = int.Order(value.W, _hw);
             (_lx, _hx) = int.Order(value.X, _hx);
             (_ly, _hy) = int.Order(value.Y, _hy);
             (_lz, _hz) = int.Order(value.Z, _hz);
         }
-        #endif
     }
 
     /// <summary>
@@ -138,14 +120,12 @@ public readonly record struct Area4D : IFormattable {
     /// </summary>
     public Point4D Higher {
         get => new(_hw, _hx, _hy, _hz);
-        #if NET5_0_OR_GREATER
         init {
             (_lw, _hw) = int.Order(value.W, _lw);
             (_lx, _hx) = int.Order(value.X, _lx);
             (_ly, _hy) = int.Order(value.Y, _ly);
             (_lz, _hz) = int.Order(value.Z, _lz);
         }
-        #endif
     }
 
     /// <summary>
