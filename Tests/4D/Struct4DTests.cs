@@ -86,13 +86,11 @@ public class Struct4DTests {
         Assert.Equal(7, area.HigherY);
         Assert.Equal(8, area.HigherZ);
 
-        #if NET5_0_OR_GREATER
         var updated = area with { LowerW = 9, HigherX = 1 };
         Assert.Equal(5, updated.LowerW);
         Assert.Equal(9, updated.HigherW);
         Assert.Equal(1, updated.LowerX);
         Assert.Equal(2, updated.HigherX);
-        #endif
     }
 
     [Fact]

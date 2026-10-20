@@ -17,9 +17,7 @@ public readonly record struct Point2D : IFormattable {
     /// </summary>
     public int X {
         get;
-        #if NET5_0_OR_GREATER
         init;
-        #endif
     }
 
     /// <summary>
@@ -27,9 +25,7 @@ public readonly record struct Point2D : IFormattable {
     /// </summary>
     public int Y {
         get;
-        #if NET5_0_OR_GREATER
         init;
-        #endif
     }
 
     /// <summary>

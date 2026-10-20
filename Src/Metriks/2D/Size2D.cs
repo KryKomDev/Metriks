@@ -20,9 +20,7 @@ public readonly record struct Size2D {
     /// </summary>
     public int X {
         get;
-        #if NET5_0_OR_GREATER
         init;
-        #endif
     }
 
     /// <summary>
@@ -30,9 +28,7 @@ public readonly record struct Size2D {
     /// </summary>
     public int Y {
         get;
-        #if NET5_0_OR_GREATER
         init;
-        #endif
     }
 
     /// <summary>

@@ -19,9 +19,7 @@ public readonly record struct Point4D : IFormattable {
     /// </summary>
     public int W {
         get;
-        #if NET5_0_OR_GREATER
         init;
-        #endif
     }
 
     /// <summary>
@@ -29,9 +27,7 @@ public readonly record struct Point4D : IFormattable {
     /// </summary>
     public int X {
         get;
-        #if NET5_0_OR_GREATER
         init;
-        #endif
     }
 
     /// <summary>
@@ -39,9 +35,7 @@ public readonly record struct Point4D : IFormattable {
     /// </summary>
     public int Y {
         get;
-        #if NET5_0_OR_GREATER
         init;
-        #endif
     }
 
     /// <summary>
@@ -49,9 +43,7 @@ public readonly record struct Point4D : IFormattable {
     /// </summary>
     public int Z {
         get;
-        #if NET5_0_OR_GREATER
         init;
-        #endif
     }
 
     /// <summary>

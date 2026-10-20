@@ -44,12 +44,10 @@ public class List3DTests {
         list3D[1, 0, 0] = 2;
         list3D[2, 0, 0] = 3;
 
-        #if NET5_0_OR_GREATER
         var slice = list3D[..2, 0, 0];
         Assert.Equal(2, slice.Length);
         Assert.Equal(1, slice[0]);
         Assert.Equal(2, slice[1]);
-        #endif
     }
 
     [Fact]
