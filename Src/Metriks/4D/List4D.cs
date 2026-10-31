@@ -14,7 +14,7 @@ namespace Metriks;
 ///     Provides methods to search, sort, and manipulate 4D lists.
 /// </summary>
 /// <typeparam name="T">The type of elements in the four-dimensional list.</typeparam>
-public class List4D<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
+public class List4D<T> : IList4D<T>, ICollection4D {
     private const int   INITIAL_CAPACITY = 4;
     private const float GROWTH_FACTOR    = 2f;
 
@@ -360,6 +360,150 @@ public class List4D<T> : IList4D<T>, ICollection4D, IReadOnlyList4D<T> {
                 _items[w * wStride + x * sliceStride + y * ZCapacity + z] = default!;
 
         ZSize++;
+    }
+
+    /// <summary>
+    ///     Adds a new 3D block along the W-axis of the list, increasing WSize by 1.
+    /// </summary>
+    /// <param name="item">The 3D block to add.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="item" /> is null.</exception>
+    /// <exception cref="ArgumentException">Thrown when the dimensions do not match.</exception>
+    public void Add(IEnumerable3D<T> item) {
+        ArgumentNullException.ThrowIfNull(item);
+        if (item is List3D<T> list3d) {
+            Add(list3d);
+            return;
+        }
+        if (item is IReadOnlyList3D<T> readOnlyList) {
+            Add(readOnlyList);
+            return;
+        }
+        var list = new List3D<T>();
+        foreach (var slice in item) {
+            list.Add(slice);
+        }
+        Add(list);
+    }
+
+    /// <summary>
+    ///     Adds a new 3D block along the W-axis of the list, increasing WSize by 1.
+    /// </summary>
+    /// <param name="item">The 3D block to add.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="item" /> is null.</exception>
+    /// <exception cref="ArgumentException">Thrown when the dimensions do not match.</exception>
+    public void Add(List3D<T> item) {
+        ArgumentNullException.ThrowIfNull(item);
+
+        if (WSize == 0 && XSize == 0 && YSize == 0 && ZSize == 0) {
+            EnsureWCapacity(1);
+            EnsureXCapacity(item.XSize);
+            EnsureYCapacity(item.YSize);
+            EnsureZCapacity(item.ZSize);
+            XSize = item.XSize;
+            YSize = item.YSize;
+            ZSize = item.ZSize;
+        }
+        else if (item.XSize != XSize || item.YSize != YSize || item.ZSize != ZSize) {
+            throw new ArgumentException(
+                $"Cannot add 3D block of size ({item.XSize}, {item.YSize}, {item.ZSize}) to List4D with dimensions ({XSize}, {YSize}, {ZSize}).",
+                nameof(item)
+            );
+        }
+        else {
+            EnsureWCapacity(WSize + 1);
+        }
+
+        var w = WSize;
+        for (var x = 0; x < XSize; x++)
+        for (var y = 0; y < YSize; y++) {
+            item.GetSpanAtXY(x, y).CopyTo(_items.AsSpan(GetOffset(w, x, y, 0), ZSize));
+        }
+
+        WSize++;
+    }
+
+    /// <summary>
+    ///     Adds a new 3D block along the W-axis of the list, increasing WSize by 1.
+    /// </summary>
+    /// <param name="item">The 3D block to add.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="item" /> is null.</exception>
+    /// <exception cref="ArgumentException">Thrown when the dimensions do not match.</exception>
+    public void Add(IReadOnlyList3D<T> item) {
+        ArgumentNullException.ThrowIfNull(item);
+        if (item is List3D<T> list3d) {
+            Add(list3d);
+            return;
+        }
+
+        if (WSize == 0 && XSize == 0 && YSize == 0 && ZSize == 0) {
+            EnsureWCapacity(1);
+            EnsureXCapacity(item.XCount);
+            EnsureYCapacity(item.YCount);
+            EnsureZCapacity(item.ZCount);
+            XSize = item.XCount;
+            YSize = item.YCount;
+            ZSize = item.ZCount;
+        }
+        else if (item.XCount != XSize || item.YCount != YSize || item.ZCount != ZSize) {
+            throw new ArgumentException(
+                $"Cannot add 3D block of size ({item.XCount}, {item.YCount}, {item.ZCount}) to List4D with dimensions ({XSize}, {YSize}, {ZSize}).",
+                nameof(item)
+            );
+        }
+        else {
+            EnsureWCapacity(WSize + 1);
+        }
+
+        var w = WSize;
+        for (var x = 0; x < XSize; x++)
+        for (var y = 0; y < YSize; y++)
+        for (var z = 0; z < ZSize; z++) {
+            _items[GetOffset(w, x, y, z)] = item[x, y, z];
+        }
+
+        WSize++;
+    }
+
+    /// <summary>
+    ///     Adds a new 3D array along the W-axis of the list, increasing WSize by 1.
+    /// </summary>
+    /// <param name="array">The 3D array to add.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="array" /> is null.</exception>
+    /// <exception cref="ArgumentException">Thrown when the dimensions do not match.</exception>
+    public void Add(T[,,] array) {
+        ArgumentNullException.ThrowIfNull(array);
+
+        var aX = array.GetLength(0);
+        var aY = array.GetLength(1);
+        var aZ = array.GetLength(2);
+
+        if (WSize == 0 && XSize == 0 && YSize == 0 && ZSize == 0) {
+            EnsureWCapacity(1);
+            EnsureXCapacity(aX);
+            EnsureYCapacity(aY);
+            EnsureZCapacity(aZ);
+            XSize = aX;
+            YSize = aY;
+            ZSize = aZ;
+        }
+        else if (aX != XSize || aY != YSize || aZ != ZSize) {
+            throw new ArgumentException(
+                $"Cannot add 3D array of size ({aX}, {aY}, {aZ}) to List4D with dimensions ({XSize}, {YSize}, {ZSize}).",
+                nameof(array)
+            );
+        }
+        else {
+            EnsureWCapacity(WSize + 1);
+        }
+
+        var w = WSize;
+        for (var x = 0; x < XSize; x++)
+        for (var y = 0; y < YSize; y++) {
+            var srcSpan = MemoryMarshal.CreateReadOnlySpan(ref array[x, y, 0], ZSize);
+            srcSpan.CopyTo(_items.AsSpan(GetOffset(w, x, y, 0), ZSize));
+        }
+
+        WSize++;
     }
 
     /// <summary>Adds a new element at the end of the W-axis.</summary>

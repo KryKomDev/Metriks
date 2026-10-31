@@ -10,6 +10,7 @@ namespace Metriks;
 ///     columns.
 /// </summary>
 /// <typeparam name="T">The type of elements in the four-dimensional sequence.</typeparam>
+[System.Runtime.CompilerServices.CollectionBuilder(typeof(CollectionBuilders), nameof(CollectionBuilders.Create4D))]
 public interface IEnumerable4D<out T> : IEnumerable4D, IEnumerable<IEnumerable3D<T>>
 #if NET9_0_OR_GREATER
     where T : allows ref struct

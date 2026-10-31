@@ -960,8 +960,57 @@ public class List2D<T> : IList2D<T>, ICollection2D, IReadOnlyList2D<T> {
     }
 
     /// <summary>
-    ///     Adds a new column at the end of the X-axis of the list, increasing XSize by 1.
+    ///     Adds a new row of elements along the X-axis of the list, increasing XSize by 1.
     /// </summary>
+    /// <param name="items">The elements to add.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="items" /> is null.</exception>
+    /// <exception cref="ArgumentException">Thrown when the number of elements does not match YSize.</exception>
+    public void Add(IEnumerable<T> items) {
+        ArgumentNullException.ThrowIfNull(items);
+        if (items is T[] array) {
+            Add(array.AsSpan());
+            return;
+        }
+
+        Add(items.ToArray().AsSpan());
+    }
+
+    /// <summary>
+    ///     Adds a new row of elements along the X-axis of the list, increasing XSize by 1.
+    /// </summary>
+    /// <param name="items">The elements to add.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="items" /> is null.</exception>
+    /// <exception cref="ArgumentException">Thrown when the number of elements does not match YSize.</exception>
+    public void Add(T[] items) {
+        ArgumentNullException.ThrowIfNull(items);
+        Add(items.AsSpan());
+    }
+
+    /// <summary>
+    ///     Adds a new row of elements along the X-axis of the list, increasing XSize by 1.
+    /// </summary>
+    /// <param name="items">The elements to add.</param>
+    /// <exception cref="ArgumentException">Thrown when the number of elements does not match YSize.</exception>
+    public void Add(ReadOnlySpan<T> items) {
+        if (XSize == 0 && YSize == 0) {
+            EnsureXCapacity(1);
+            EnsureYCapacity(items.Length);
+            YSize = items.Length;
+        }
+        else if (items.Length != YSize) {
+            throw new ArgumentException(
+                $"Cannot add row of length {items.Length} to List2D with YSize {YSize}.",
+                nameof(items)
+            );
+        }
+        else {
+            EnsureXCapacity(XSize + 1);
+        }
+
+        items.CopyTo(_items.AsSpan(XSize * YCapacity, items.Length));
+        XSize++;
+    }
+
     public void AddX() {
         EnsureXCapacity(XSize + 1);
         _items.AsSpan(XSize * YCapacity, YCapacity).Clear();

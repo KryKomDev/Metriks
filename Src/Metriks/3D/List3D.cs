@@ -366,7 +366,140 @@ public class List3D<T> : IList3D<T>, ICollection3D, IReadOnlyList3D<T> {
         ZSize++;
     }
 
-    /// <summary>Adds a new element at the end of the X-axis.</summary>
+    /// <summary>
+    ///     Adds a new 2D slice along the X-axis of the list, increasing XSize by 1.
+    /// </summary>
+    /// <param name="item">The 2D slice to add.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="item" /> is null.</exception>
+    /// <exception cref="ArgumentException">Thrown when the dimensions do not match.</exception>
+    public void Add(IEnumerable2D<T> item) {
+        ArgumentNullException.ThrowIfNull(item);
+        if (item is List2D<T> list2d) {
+            Add(list2d);
+            return;
+        }
+        if (item is IReadOnlyList2D<T> readOnlyList) {
+            Add(readOnlyList);
+            return;
+        }
+        var list = new List2D<T>();
+        foreach (var row in item) {
+            list.Add(row);
+        }
+        Add(list);
+    }
+
+    /// <summary>
+    ///     Adds a new 2D slice along the X-axis of the list, increasing XSize by 1.
+    /// </summary>
+    /// <param name="item">The 2D slice to add.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="item" /> is null.</exception>
+    /// <exception cref="ArgumentException">Thrown when the dimensions do not match.</exception>
+    public void Add(List2D<T> item) {
+        ArgumentNullException.ThrowIfNull(item);
+
+        if (XSize == 0 && YSize == 0 && ZSize == 0) {
+            EnsureXCapacity(1);
+            EnsureYCapacity(item.XSize);
+            EnsureZCapacity(item.YSize);
+            YSize = item.XSize;
+            ZSize = item.YSize;
+        }
+        else if (item.XSize != YSize || item.YSize != ZSize) {
+            throw new ArgumentException(
+                $"Cannot add 2D slice of size ({item.XSize}, {item.YSize}) to List3D with dimensions ({YSize}, {ZSize}).",
+                nameof(item)
+            );
+        }
+        else {
+            EnsureXCapacity(XSize + 1);
+        }
+
+        var x = XSize;
+        for (var y = 0; y < YSize; y++) {
+            item.GetSpanAtX(y).CopyTo(_items.AsSpan(GetOffset(x, y, 0), ZSize));
+        }
+
+        XSize++;
+    }
+
+    /// <summary>
+    ///     Adds a new 2D slice along the X-axis of the list, increasing XSize by 1.
+    /// </summary>
+    /// <param name="item">The 2D slice to add.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="item" /> is null.</exception>
+    /// <exception cref="ArgumentException">Thrown when the dimensions do not match.</exception>
+    public void Add(IReadOnlyList2D<T> item) {
+        ArgumentNullException.ThrowIfNull(item);
+        if (item is List2D<T> list2d) {
+            Add(list2d);
+            return;
+        }
+
+        if (XSize == 0 && YSize == 0 && ZSize == 0) {
+            EnsureXCapacity(1);
+            EnsureYCapacity(item.XCount);
+            EnsureZCapacity(item.YCount);
+            YSize = item.XCount;
+            ZSize = item.YCount;
+        }
+        else if (item.XCount != YSize || item.YCount != ZSize) {
+            throw new ArgumentException(
+                $"Cannot add 2D slice of size ({item.XCount}, {item.YCount}) to List3D with dimensions ({YSize}, {ZSize}).",
+                nameof(item)
+            );
+        }
+        else {
+            EnsureXCapacity(XSize + 1);
+        }
+
+        var x = XSize;
+        for (var y = 0; y < YSize; y++)
+        for (var z = 0; z < ZSize; z++) {
+            _items[GetOffset(x, y, z)] = item[y, z];
+        }
+
+        XSize++;
+    }
+
+    /// <summary>
+    ///     Adds a new 2D array along the X-axis of the list, increasing XSize by 1.
+    /// </summary>
+    /// <param name="array">The 2D array to add.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="array" /> is null.</exception>
+    /// <exception cref="ArgumentException">Thrown when the dimensions do not match.</exception>
+    public void Add(T[,] array) {
+        ArgumentNullException.ThrowIfNull(array);
+
+        var aX = array.GetLength(0);
+        var aY = array.GetLength(1);
+
+        if (XSize == 0 && YSize == 0 && ZSize == 0) {
+            EnsureXCapacity(1);
+            EnsureYCapacity(aX);
+            EnsureZCapacity(aY);
+            YSize = aX;
+            ZSize = aY;
+        }
+        else if (aX != YSize || aY != ZSize) {
+            throw new ArgumentException(
+                $"Cannot add 2D array of size ({aX}, {aY}) to List3D with dimensions ({YSize}, {ZSize}).",
+                nameof(array)
+            );
+        }
+        else {
+            EnsureXCapacity(XSize + 1);
+        }
+
+        var x = XSize;
+        for (var y = 0; y < YSize; y++) {
+            var srcSpan = MemoryMarshal.CreateReadOnlySpan(ref array[y, 0], ZSize);
+            srcSpan.CopyTo(_items.AsSpan(GetOffset(x, y, 0), ZSize));
+        }
+
+        XSize++;
+    }
+
     public void AddX() => InsertAtX(XSize);
 
     /// <summary>Adds a new element at the end of the Y-axis.</summary>
