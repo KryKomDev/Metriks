@@ -10,6 +10,136 @@ public class List4DTests {
     }
 
     [Fact]
+    public void CollectionExpression_ShouldInitializeCorrectly() {
+        int[,,,] array = new int[2, 2, 2, 2];
+        var val = 1;
+        for (var w = 0; w < 2; w++)
+        for (var x = 0; x < 2; x++)
+        for (var y = 0; y < 2; y++)
+        for (var z = 0; z < 2; z++)
+            array[w, x, y, z] = val++;
+
+        List4D<int> list4D = [
+            [
+                [
+                    [1, 2],
+                    [3, 4]
+                ],
+                [
+                    [5, 6],
+                    [7, 8]
+                ]
+            ],
+            [
+                [
+                    [9, 10],
+                    [11, 12]
+                ],
+                [
+                    [13, 14],
+                    [15, 16]
+                ]
+            ]
+        ];
+
+        Assert.Equal(2, list4D.WSize);
+        Assert.Equal(2, list4D.XSize);
+        Assert.Equal(2, list4D.YSize);
+        Assert.Equal(2, list4D.ZSize);
+
+        for (var w = 0; w < 2; w++)
+        for (var x = 0; x < 2; x++)
+        for (var y = 0; y < 2; y++)
+        for (var z = 0; z < 2; z++)
+            Assert.Equal(array[w, x, y, z], list4D[w, x, y, z]);
+    }
+
+    [Fact]
+    public void CollectionExpression_Empty_ShouldHaveZeroDimensions() {
+        List4D<int> list4D = [];
+        Assert.Equal(0, list4D.WSize);
+        Assert.Equal(0, list4D.XSize);
+        Assert.Equal(0, list4D.YSize);
+        Assert.Equal(0, list4D.ZSize);
+        Assert.Equal(0, list4D.Count);
+    }
+
+    [Fact]
+    public void CollectionExpression_ThrowsOnMismatchedDimensions() {
+        Assert.Throws<ArgumentException>(() => {
+            List4D<int> list = [
+                [
+                    [
+                        [1, 2],
+                        [3, 4]
+                    ]
+                ],
+                [
+                    [
+                        [5, 6]
+                    ]
+                ]
+            ];
+        });
+    }
+
+    [Fact]
+    public void Add_3DArrayAndList3D_ShouldWorkCorrectly() {
+        var list4D = new List4D<int>();
+        var block1 = new int[2, 2, 2];
+        block1[0, 0, 0] = 1;
+        block1[1, 1, 1] = 8;
+
+        List3D<int> block2 = [
+            [ [9, 10], [11, 12] ],
+            [ [13, 14], [15, 16] ]
+        ];
+
+        list4D.Add(block1);
+        list4D.Add(block2);
+
+        Assert.Equal(2, list4D.WSize);
+        Assert.Equal(2, list4D.XSize);
+        Assert.Equal(2, list4D.YSize);
+        Assert.Equal(2, list4D.ZSize);
+
+        Assert.Equal(1, list4D[0, 0, 0, 0]);
+        Assert.Equal(8, list4D[0, 1, 1, 1]);
+        Assert.Equal(9, list4D[1, 0, 0, 0]);
+        Assert.Equal(16, list4D[1, 1, 1, 1]);
+    }
+
+    [Fact]
+    public void Add_BeyondCapacity_ShouldResizeCorrectly() {
+        var list = new List4D<int>();
+        for (var i = 0; i < 20; i++) {
+            List3D<int> block = [
+                [ [i, i + 1], [i + 2, i + 3] ],
+                [ [i + 4, i + 5], [i + 6, i + 7] ]
+            ];
+            list.Add(block);
+        }
+
+        Assert.Equal(20, list.WSize);
+        Assert.Equal(2, list.XSize);
+        Assert.Equal(2, list.YSize);
+        Assert.Equal(2, list.ZSize);
+        for (var i = 0; i < 20; i++) {
+            Assert.Equal(i, list[i, 0, 0, 0]);
+            Assert.Equal(i + 7, list[i, 1, 1, 1]);
+        }
+    }
+
+    [Fact]
+    public void Add_NullBlock_ThrowsArgumentNullException() {
+        var list = new List4D<int>();
+        Assert.Throws<ArgumentNullException>(() => list.Add((List3D<int>)null!));
+        Assert.Throws<ArgumentNullException>(() => list.Add((int[,,])null!));
+        Assert.Throws<ArgumentNullException>(() => list.Add((IEnumerable3D<int>)null!));
+        Assert.Throws<ArgumentNullException>(() => list.Add((IReadOnlyList3D<int>)null!));
+    }
+
+    [Fact]
     public void AddWXYZ_ShouldIncreaseSizes() {
         var list4D = new List4D<int>();
         list4D.AddW();

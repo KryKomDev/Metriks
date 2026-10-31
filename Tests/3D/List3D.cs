@@ -25,6 +25,107 @@ public class List3DTests {
     }
 
     [Fact]
+    public void CollectionExpression_ShouldInitializeCorrectly() {
+        List3D<int> list3D = [
+            [
+                [1, 2],
+                [3, 4]
+            ],
+            [
+                [5, 6],
+                [7, 8]
+            ]
+        ];
+
+        Assert.Equal(2, list3D.XSize);
+        Assert.Equal(2, list3D.YSize);
+        Assert.Equal(2, list3D.ZSize);
+        Assert.Equal(1, list3D[0, 0, 0]);
+        Assert.Equal(2, list3D[0, 0, 1]);
+        Assert.Equal(3, list3D[0, 1, 0]);
+        Assert.Equal(4, list3D[0, 1, 1]);
+        Assert.Equal(5, list3D[1, 0, 0]);
+        Assert.Equal(6, list3D[1, 0, 1]);
+        Assert.Equal(7, list3D[1, 1, 0]);
+        Assert.Equal(8, list3D[1, 1, 1]);
+    }
+
+    [Fact]
+    public void CollectionExpression_Empty_ShouldHaveZeroDimensions() {
+        List3D<int> list3D = [];
+        Assert.Equal(0, list3D.XSize);
+        Assert.Equal(0, list3D.YSize);
+        Assert.Equal(0, list3D.ZSize);
+        Assert.Equal(0, list3D.Count);
+    }
+
+    [Fact]
+    public void CollectionExpression_ThrowsOnMismatchedDimensions() {
+        Assert.Throws<ArgumentException>(() => {
+            List3D<int> list = [
+                [
+                    [1, 2],
+                    [3, 4]
+                ],
+                [
+                    [5, 6]
+                ]
+            ];
+        });
+    }
+
+    [Fact]
+    public void Add_2DArrayAndList2D_ShouldWorkCorrectly() {
+        var list3D = new List3D<int>();
+        int[,] slice1 = { { 1, 2 }, { 3, 4 } };
+        List2D<int> slice2 = [ [ 5, 6 ], [ 7, 8 ] ];
+
+        list3D.Add(slice1);
+        list3D.Add(slice2);
+
+        Assert.Equal(2, list3D.XSize);
+        Assert.Equal(2, list3D.YSize);
+        Assert.Equal(2, list3D.ZSize);
+
+        Assert.Equal(1, list3D[0, 0, 0]);
+        Assert.Equal(2, list3D[0, 0, 1]);
+        Assert.Equal(3, list3D[0, 1, 0]);
+        Assert.Equal(4, list3D[0, 1, 1]);
+        Assert.Equal(5, list3D[1, 0, 0]);
+        Assert.Equal(6, list3D[1, 0, 1]);
+        Assert.Equal(7, list3D[1, 1, 0]);
+        Assert.Equal(8, list3D[1, 1, 1]);
+    }
+
+    [Fact]
+    public void Add_BeyondCapacity_ShouldResizeCorrectly() {
+        var list = new List3D<int>();
+        for (var i = 0; i < 20; i++) {
+            List2D<int> slice = [ [i, i + 1], [i + 2, i + 3] ];
+            list.Add(slice);
+        }
+
+        Assert.Equal(20, list.XSize);
+        Assert.Equal(2, list.YSize);
+        Assert.Equal(2, list.ZSize);
+        for (var i = 0; i < 20; i++) {
+            Assert.Equal(i, list[i, 0, 0]);
+            Assert.Equal(i + 1, list[i, 0, 1]);
+            Assert.Equal(i + 2, list[i, 1, 0]);
+            Assert.Equal(i + 3, list[i, 1, 1]);
+        }
+    }
+
+    [Fact]
+    public void Add_NullSlice_ThrowsArgumentNullException() {
+        var list = new List3D<int>();
+        Assert.Throws<ArgumentNullException>(() => list.Add((List2D<int>)null!));
+        Assert.Throws<ArgumentNullException>(() => list.Add((int[,])null!));
+        Assert.Throws<ArgumentNullException>(() => list.Add((IEnumerable2D<int>)null!));
+        Assert.Throws<ArgumentNullException>(() => list.Add((IReadOnlyList2D<int>)null!));
+    }
+
+    [Fact]
     public void AddXYZ_ShouldIncreaseSizes() {
         var list3D = new List3D<int>();
         list3D.AddX();

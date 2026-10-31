@@ -9,6 +9,7 @@ namespace Metriks;
 ///     Exposes the enumerator for a two-dimensional collection, supporting iteration over rows and columns.
 /// </summary>
 /// <typeparam name="T">The type of elements in the two-dimensional sequence.</typeparam>
+[System.Runtime.CompilerServices.CollectionBuilder(typeof(CollectionBuilders), nameof(CollectionBuilders.Create2D))]
 public interface IEnumerable2D<out T> : IEnumerable2D, IEnumerable<IEnumerable<T>>
 #if NET9_0_OR_GREATER
     where T : allows ref struct

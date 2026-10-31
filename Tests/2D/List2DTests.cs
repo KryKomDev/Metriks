@@ -47,6 +47,83 @@ public class List2DTests {
     }
 
     [Fact]
+    public void CollectionExpression_ShouldInitializeCorrectly() {
+        // Arrange & Act
+        List2D<int> list2D = [
+            [1, 2, 3],
+            [4, 5, 6]
+        ];
+
+        // Assert
+        Assert.Equal(2, list2D.XSize);
+        Assert.Equal(3, list2D.YSize);
+        Assert.Equal(1, list2D[0, 0]);
+        Assert.Equal(2, list2D[0, 1]);
+        Assert.Equal(3, list2D[0, 2]);
+        Assert.Equal(4, list2D[1, 0]);
+        Assert.Equal(5, list2D[1, 1]);
+        Assert.Equal(6, list2D[1, 2]);
+    }
+
+    [Fact]
+    public void CollectionExpression_Empty_ShouldHaveZeroDimensions() {
+        List2D<int> list2D = [];
+        Assert.Equal(0, list2D.XSize);
+        Assert.Equal(0, list2D.YSize);
+        Assert.Equal(0, list2D.Count);
+    }
+
+    [Fact]
+    public void CollectionExpression_ThrowsOnMismatchedRowLength() {
+        Assert.Throws<ArgumentException>(() => {
+            List2D<int> list = [
+                [1, 2, 3],
+                [4, 5]
+            ];
+        });
+    }
+
+    [Fact]
+    public void Add_ArrayAndSpanAndEnumerable_ShouldWorkCorrectly() {
+        var list = new List2D<int>();
+        int[] row1 = [1, 2];
+        list.Add(row1);
+        list.Add((ReadOnlySpan<int>)[3, 4]);
+        list.Add((IEnumerable<int>)new List<int> { 5, 6 });
+
+        Assert.Equal(3, list.XSize);
+        Assert.Equal(2, list.YSize);
+        Assert.Equal(1, list[0, 0]);
+        Assert.Equal(2, list[0, 1]);
+        Assert.Equal(3, list[1, 0]);
+        Assert.Equal(4, list[1, 1]);
+        Assert.Equal(5, list[2, 0]);
+        Assert.Equal(6, list[2, 1]);
+    }
+
+    [Fact]
+    public void Add_BeyondCapacity_ShouldResizeCorrectly() {
+        var list = new List2D<int>();
+        for (var i = 0; i < 20; i++) {
+            list.Add([i * 2, i * 2 + 1]);
+        }
+
+        Assert.Equal(20, list.XSize);
+        Assert.Equal(2, list.YSize);
+        for (var i = 0; i < 20; i++) {
+            Assert.Equal(i * 2, list[i, 0]);
+            Assert.Equal(i * 2 + 1, list[i, 1]);
+        }
+    }
+
+    [Fact]
+    public void Add_NullEnumerable_ThrowsArgumentNullException() {
+        var list = new List2D<int>();
+        Assert.Throws<ArgumentNullException>(() => list.Add((IEnumerable<int>)null!));
+        Assert.Throws<ArgumentNullException>(() => list.Add((int[])null!));
+    }
+
+    [Fact]
     public void Constructor_From2DArray_XLarger_ShouldInitializeCorrectly() {
         // Arrange
         var array = new[,] { { 1, 2 }, { 3, 4 }, { 5, 6 } };

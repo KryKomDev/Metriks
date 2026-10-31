@@ -5,7 +5,6 @@ namespace Metriks.Sample;
 public static class Example {
 
     public static void Main() {
-        
         Console.ForegroundColor = ConsoleColor.Cyan;
         Console.WriteLine("=================================================");
         Console.WriteLine("         METRIKS MULTIDIMENSIONAL SAMPLES        ");
@@ -56,13 +55,11 @@ public static class Example {
     private static void RunList2DExample() {
         PrintHeader("2. List2D<T> Operations");
 
-        // Initialize from a 2D array
-        var list = new List2D<int>(
-            new[,] {
-                { 10, 20 },
-                { 30, 40 }
-            }
-        );
+        // Initialize using collection expression
+        List2D<int> list = [
+            [ 10, 20 ],
+            [ 30, 40 ]
+        ];
 
         Console.WriteLine("Initial List2D:");
         list.Write();
@@ -131,12 +128,10 @@ public static class Example {
     private static void RunSpace2DExample() {
         PrintHeader("5. Space2D<T> Spatial Operations");
 
-        var space = new Space2D<int>(
-            new[,] {
-                { 1, 2 },
-                { 3, 4 }
-            }
-        );
+        Space2D<int> space = [
+            [ 1, 2 ],
+            [ 3, 4 ]
+        ];
 
         Console.WriteLine("Initial Space2D (origin at [0,0]):");
         space.Write();
@@ -156,12 +151,10 @@ public static class Example {
         PrintHeader("6. Slicing and Flattening");
 
         // 3D List slicing
-        var list3D = new List3D<int>(
-            new[,,] {
-                { { 1, 2 }, { 3, 4 } },
-                { { 5, 6 }, { 7, 8 } }
-            }
-        );
+        List3D<int> list3D = [
+            [ [ 1, 2 ], [ 3, 4 ] ],
+            [ [ 5, 6 ], [ 7, 8 ] ]
+        ];
 
         Console.WriteLine("Slicing a 3D list at X coordinate 1 (returns a 2D enumerable slice):");
         var slice2D = list3D.GetAtX(1);

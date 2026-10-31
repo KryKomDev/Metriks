@@ -9,6 +9,7 @@ namespace Metriks;
 ///     Exposes the enumerator for a three-dimensional collection, supporting iteration over layers, rows, and columns.
 /// </summary>
 /// <typeparam name="T">The type of elements in the three-dimensional sequence.</typeparam>
+[System.Runtime.CompilerServices.CollectionBuilder(typeof(CollectionBuilders), nameof(CollectionBuilders.Create3D))]
 public interface IEnumerable3D<out T> : IEnumerable3D, IEnumerable<IEnumerable2D<T>>
 #if NET9_0_OR_GREATER
     where T : allows ref struct
